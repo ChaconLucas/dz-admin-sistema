@@ -565,12 +565,6 @@ session_start();
             }
         }
         
-        /* Seções de categorias */
-        .categorias-dz {
-            padding: 80px 0;
-            background: #fff;
-        }
-        
         .container-dz {
             max-width: 1200px;
             margin: 0 auto;
@@ -580,139 +574,394 @@ session_start();
         .section-title {
             text-align: center;
             margin-bottom: 60px;
+            position: relative;
         }
         
         .section-title h2 {
-            font-size: 3.2rem;
-            font-weight: 700;
-            margin-bottom: 24px;
-            color: #1a1a1a;
-            letter-spacing: -0.025em;
-            line-height: 1.15;
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            color: #1e293b;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
             position: relative;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d3748 50%, #1a1a1a 100%);
+            background: linear-gradient(135deg, #1e293b 0%, var(--color-magenta) 50%, #1e293b 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% 200%;
+            animation: gradient-shift 4s ease-in-out infinite;
+        }
+        
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .section-title h2::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: -60px;
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--color-magenta));
+            transform: translateY(-50%);
         }
         
         .section-title h2::after {
             content: '';
             position: absolute;
-            bottom: -16px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 4px;
-            background: linear-gradient(90deg, var(--color-magenta) 0%, var(--color-rosa-claro) 50%, var(--color-magenta) 100%);
-            border-radius: 2px;
-            box-shadow: 0 3px 12px rgba(230, 0, 126, 0.4);
+            top: 50%;
+            right: -60px;
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--color-magenta), transparent);
+            transform: translateY(-50%);
         }
         
         .section-title p {
-            font-size: 1.3rem;
-            color: #5a5a5a;
-            max-width: 650px;
+            font-size: 1.2rem;
+            color: #64748b;
+            max-width: 600px;
             margin: 0 auto;
             line-height: 1.6;
             font-weight: 400;
         }
         
-        .categorias-grid-dz {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 32px;
+        /* Responsivo Titles */
+        @media (max-width: 768px) {
+            .section-title h2 {
+                font-size: 2.5rem;
+            }
+            
+            .section-title h2::before,
+            .section-title h2::after {
+                display: none;
+            }
+            
+            .section-title p {
+                font-size: 1.1rem;
+            }
         }
         
-        .categoria-card-dz {
-            background: linear-gradient(145deg, #ffffff 0%, #fefefe 100%);
-            padding: 48px 32px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.06),
-                0 1px 2px rgba(0, 0, 0, 0.02);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.8);
+        @media (max-width: 480px) {
+            .section-title h2 {
+                font-size: 2rem;
+                letter-spacing: -0.02em;
+            }
+            
+            .section-title p {
+                font-size: 1rem;
+            }
+        }
+        .categorias-dz {
+            padding: 100px 0;
+            background: linear-gradient(135deg, #fafafa 0%, #ffffff 100%);
+        }
+        
+        /* Cards de Produtos - Lançamentos */
+        .lancamentos-carousel-container {
+            position: relative;
+            margin-bottom: 40px;
+        }
+        
+        .lancamentos-grid {
+            display: flex;
+            gap: 30px;
+            overflow: hidden;
+            scroll-behavior: smooth;
+            margin-bottom: 40px;
+        }
+        
+        .produto-card {
+            flex: 0 0 280px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #f1f5f9;
+        }
+        
+        .produto-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+            border-color: rgba(230, 0, 126, 0.2);
+        }
+        
+        .produto-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             position: relative;
             overflow: hidden;
         }
         
-        .categoria-card-dz::before {
+        .produto-image::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, var(--color-magenta), rgba(230, 0, 126, 0.3));
-            transform: translateX(-100%);
-            transition: transform 0.4s ease;
-        }
-        
-        .categoria-card-dz:hover {
-            transform: translateY(-8px);
-            box-shadow: 
-                0 20px 40px rgba(0, 0, 0, 0.12),
-                0 8px 16px rgba(230, 0, 126, 0.08);
-            border-color: rgba(230, 0, 126, 0.1);
-        }
-        
-        .categoria-card-dz:hover::before {
-            transform: translateX(0);
-        }
-        
-        .categoria-icon {
-            width: 72px;
-            height: 72px;
-            margin: 0 auto 24px;
-            border-radius: 20px;
+            top: 10px;
+            right: 10px;
+            width: 60px;
+            height: 20px;
+            background: #10b981;
+            color: white;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 36px;
+        }
+        
+        .produto-image.novo::before { content: 'NOVO'; background: #10b981; }
+        .produto-image.lancamento::before { content: 'LANÇAMENTO'; background: #f59e0b; }
+        .produto-image.exclusivo::before { content: 'EXCLUSIVO'; background: #8b5cf6; }
+        
+        .produto-placeholder {
+            font-size: 3rem;
             color: var(--color-magenta);
-            transition: transform 0.3s ease;
-            position: relative;
+            opacity: 0.6;
         }
         
-        .categoria-icon.pink { 
-            background: linear-gradient(135deg, #fce7f3 0%, #f9c2d4 100%);
-            box-shadow: inset 0 2px 4px rgba(230, 0, 126, 0.1);
-        }
-        .categoria-icon.purple { 
-            background: linear-gradient(135deg, #f3e8ff 0%, #ddd6fe 100%);
-            box-shadow: inset 0 2px 4px rgba(139, 92, 246, 0.1);
-        }
-        .categoria-icon.yellow { 
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            box-shadow: inset 0 2px 4px rgba(251, 191, 36, 0.1);
-        }
-        .categoria-icon.green { 
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-            box-shadow: inset 0 2px 4px rgba(34, 197, 94, 0.1);
+        .produto-content {
+            padding: 20px;
         }
         
-        .categoria-card-dz:hover .categoria-icon {
-            transform: scale(1.05);
-        }
-        
-        .categoria-card-dz h3 {
+        .produto-title {
             font-size: 1.3rem;
             font-weight: 600;
-            margin-bottom: 12px;
-            color: #1a1a1a;
-            letter-spacing: -0.01em;
+            color: #1e293b;
+            margin-bottom: 8px;
+            line-height: 1.3;
         }
         
-        .categoria-card-dz p {
-            color: #5a5a5a;
-            font-size: 0.95rem;
+        .produto-description {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 15px;
             line-height: 1.5;
-            font-weight: 400;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
         
-        /* Produtos Carrossel */
+        .produto-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-magenta);
+            margin-bottom: 15px;
+        }
+        
+        .produto-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--color-magenta) 0%, var(--color-magenta-dark) 100%);
+            color: white;
+            border: none;
+            padding: 12px 0;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .produto-btn:hover {
+            background: linear-gradient(135deg, var(--color-magenta-dark) 0%, #a0005a 100%);
+            transform: translateY(-1px);
+        }
+        
+        .carousel-nav-arrows {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            border: 2px solid #f1f5f9;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 5;
+            color: #64748b;
+        }
+        
+        .carousel-nav-arrows:hover {
+            background: var(--color-magenta);
+            color: white;
+            border-color: var(--color-magenta);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .carousel-nav-prev {
+            left: -25px;
+        }
+        
+        .carousel-nav-next {
+            right: -25px;
+        }
+        
+        .ver-todos-btn {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .ver-todos-btn button {
+            background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .ver-todos-btn button:hover {
+            background: linear-gradient(135deg, #475569 0%, #334155 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(71, 85, 105, 0.3);
+        }
+        
+        /* Responsivo Cards Produtos */
+        @media (max-width: 768px) {
+            .lancamentos-grid {
+                gap: 20px;
+                padding: 0 20px;
+            }
+            
+            .produto-card {
+                flex: 0 0 250px;
+            }
+            
+            .produto-image {
+                height: 180px;
+            }
+            
+            .produto-content {
+                padding: 15px;
+            }
+            
+            .produto-title {
+                font-size: 1.1rem;
+            }
+            
+            .produto-description {
+                font-size: 0.85rem;
+            }
+            
+            .produto-price {
+                font-size: 1.3rem;
+            }
+            
+            .carousel-nav-arrows {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .carousel-nav-prev {
+                left: -10px;
+            }
+            
+            .carousel-nav-next {
+                right: -10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .lancamentos-grid {
+                gap: 15px;
+                padding: 0 15px;
+            }
+            
+            .produto-card {
+                flex: 0 0 220px;
+            }
+            
+            .produto-image {
+                height: 160px;
+            }
+            
+            .produto-placeholder {
+                font-size: 2.5rem;
+            }
+            
+            .produto-content {
+                padding: 12px;
+            }
+            
+            .produto-title {
+                font-size: 1rem;
+                margin-bottom: 6px;
+            }
+            
+            .produto-description {
+                font-size: 0.8rem;
+                margin-bottom: 12px;
+            }
+            
+            .produto-price {
+                font-size: 1.2rem;
+                margin-bottom: 12px;
+            }
+            
+            .produto-btn {
+                padding: 10px 0;
+                font-size: 0.85rem;
+            }
+            
+            .ver-todos-btn button {
+                padding: 12px 24px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Responsivo Categorias */
+        @media (max-width: 768px) {
+            .categorias-grid-dz {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+            
+            .categoria-card-dz {
+                padding: 30px 20px;
+            }
+            
+            .categoria-icon {
+                width: 50px;
+                height: 50px;
+                margin-bottom: 15px;
+            }
+            
+            .categoria-icon svg {
+                width: 24px;
+                height: 24px;
+            }
+            
+            .categoria-card-dz h3 {
+                font-size: 1.1rem;
+            }
+            
+            .categoria-card-dz p {
+                font-size: 0.85rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .categorias-grid-dz {
+                grid-template-columns: 1fr;
+            }
+        }
         .produtos-carousel-container {
             position: relative;
             display: flex;
@@ -982,63 +1231,7 @@ session_start();
             z-index: 1;
             font-weight: 400;
         }
-        
-        /* Newsletter */
-        .newsletter-dz {
-            padding: 80px 0;
-            text-align: center;
-            background: linear-gradient(145deg, #ffffff 0%, #fefefe 100%);
-            border-top: 1px solid rgba(0, 0, 0, 0.04);
-        }
-        
-        .newsletter-form {
-            max-width: 450px;
-            margin: 0 auto;
-            display: flex;
-            gap: 16px;
-            margin-top: 36px;
-            background: linear-gradient(145deg, #f8f9fa 0%, #f1f3f4 100%);
-            padding: 8px;
-            border-radius: 60px;
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
-        }
-        
-        .newsletter-form input {
-            flex: 1;
-            padding: 16px 24px;
-            border: none;
-            border-radius: 50px;
-            font-size: 1rem;
-            background: transparent;
-            color: #333;
-            font-weight: 500;
-        }
-        
-        .newsletter-form input:focus {
-            outline: none;
-            background: rgba(255, 255, 255, 0.9);
-        }
-        
-        .newsletter-form button {
-            background: linear-gradient(135deg, var(--color-magenta) 0%, var(--color-magenta-dark) 100%);
-            color: white;
-            padding: 16px 32px;
-            border: none;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            letter-spacing: 0.3px;
-            box-shadow: 0 8px 20px rgba(230, 0, 126, 0.25);
-        }
-        
-        .newsletter-form button:hover {
-            background: linear-gradient(135deg, var(--color-magenta-dark) 0%, #a0005a 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(230, 0, 126, 0.35);
-        }
+
         
         /* Footer */
         .footer-dz {
@@ -1605,9 +1798,20 @@ session_start();
         }
         
         .chat-message.bot {
-            background: linear-gradient(135deg, var(--color-rose-light), #fdf2f8);
             margin-right: 40px;
             color: #2d3748;
+        }
+        
+        .chat-message.bot:nth-child(odd) {
+            background: linear-gradient(135deg, #e0f2fe, #e1f5fe);
+        }
+        
+        .chat-message.bot:nth-child(even) {
+            background: linear-gradient(135deg, #f3e5f5, #fce4ec);
+        }
+        
+        .chat-message.bot:nth-child(3n) {
+            background: linear-gradient(135deg, #e8f5e8, #f1f8e9);
         }
         
         .chat-message.user {
@@ -2373,295 +2577,280 @@ session_start();
             
             <!-- Título seção -->
             <div class="section-title fade-in-up">
-                <h2>Nossas Categorias</h2>
-                <p>Explore nossa coleção cuidadosamente selecionada de produtos premium</p>
+                <h2>Lançamentos</h2>
+                <p>Conheça as novidades exclusivas que acabaram de chegar na D&Z</p>
             </div>
             
-            <!-- Grid de categorias -->
-            <div class="categorias-grid-dz">
-                
-                <!-- Unhas Profissionais -->
-                <div class="categoria-card-dz fade-in-up">
-                    <div class="categoria-icon pink">💅</div>
-                    <h3>Unhas Profissionais</h3>
-                    <p>Esmaltes e acessórios de qualidade premium</p>
+            <!-- Carrossel de Produtos -->
+            <div class="lancamentos-carousel-container">
+                <div class="lancamentos-grid" id="lancamentosCarousel">
+                    
+                    <!-- Produto 1: Esmalte Gel D&Z Pro -->
+                    <div class="produto-card">
+                        <div class="produto-image novo">
+                            <div class="produto-placeholder">💅</div>
+                        </div>
+                        <div class="produto-content">
+                            <h3 class="produto-title">Esmalte Gel D&Z Pro</h3>
+                            <p class="produto-description">Nova fórmula ultra resistente com tecnologia de secagem rápida</p>
+                            <div class="produto-price">R$ 24,90</div>
+                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Produto 2: Magnetic Lash Collection -->
+                    <div class="produto-card">
+                        <div class="produto-image lancamento">
+                            <div class="produto-placeholder">👁️</div>
+                        </div>
+                        <div class="produto-content">
+                            <h3 class="produto-title">Magnetic Lash Collection</h3>
+                            <p class="produto-description">Cílios magnéticos inovadores, aplicação sem cola</p>
+                            <div class="produto-price">R$ 52,90</div>
+                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Produto 3: Primer Nail Boost -->
+                    <div class="produto-card">
+                        <div class="produto-image novo">
+                            <div class="produto-placeholder">✨</div>
+                        </div>
+                        <div class="produto-content">
+                            <h3 class="produto-title">Primer Nail Boost</h3>
+                            <p class="produto-description">Tecnologia de crescimento acelerado para unhas fortes</p>
+                            <div class="produto-price">R$ 39,90</div>
+                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Produto 4: Kit D&Z Glamour -->
+                    <div class="produto-card">
+                        <div class="produto-image exclusivo">
+                            <div class="produto-placeholder">🎁</div>
+                        </div>
+                        <div class="produto-content">
+                            <h3 class="produto-title">Kit D&Z Glamour</h3>
+                            <p class="produto-description">Edição limitada com produtos exclusivos para profissionais</p>
+                            <div class="produto-price">R$ 127,90</div>
+                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Produto 5: Cola Premium Pro -->
+                    <div class="produto-card">
+                        <div class="produto-image novo">
+                            <div class="produto-placeholder">🔗</div>
+                        </div>
+                        <div class="produto-content">
+                            <h3 class="produto-title">Cola Premium Pro</h3>
+                            <p class="produto-description">Fixação ultra forte para cílios, duração de 15+ horas</p>
+                            <div class="produto-price">R$ 31,90</div>
+                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Produto 6: Base Fortificante -->
+                    <div class="produto-card">
+                        <div class="produto-image lancamento">
+                            <div class="produto-placeholder">💪</div>
+                        </div>
+                        <div class="produto-content">
+                            <h3 class="produto-title">Base Fortificante</h3>
+                            <p class="produto-description">Fortalece e protege unhas fracas, com vitaminas</p>
+                            <div class="produto-price">R$ 28,90</div>
+                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                        </div>
+                    </div>
                 </div>
                 
-                <!-- Cílios -->
-                <div class="categoria-card-dz fade-in-up">
-                    <div class="categoria-icon purple">👁️</div>
-                    <h3>Cílios</h3>
-                    <p>Cílios postiços e produtos para alongamento</p>
-                </div>
-                
-                <!-- Kits -->
-                <div class="categoria-card-dz fade-in-up">
-                    <div class="categoria-icon yellow">⭐</div>
-                    <h3>Kits</h3>
-                    <p>Kits completos para cuidado e beleza</p>
-                </div>
-                
-                <!-- Novidades -->
-                <div class="categoria-card-dz fade-in-up">
-                    <div class="categoria-icon green">✨</div>
-                    <h3>Novidades</h3>
-                    <p>Últimos lançamentos e tendências</p>
-                </div>
+                <!-- Setas de navegação -->
+                <button class="carousel-nav-arrows carousel-nav-prev" onclick="scrollLancamentos(-1)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                </button>
+                <button class="carousel-nav-arrows carousel-nav-next" onclick="scrollLancamentos(1)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18l6-6-6-6" />
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Botão Ver Todos -->
+            <div class="ver-todos-btn">
+                <button onclick="window.location.href='#catalogo'">Ver Todos os Lançamentos</button>
             </div>
         </div>
     </section>
 
-    <!-- ===== PRODUTOS EM DESTAQUE ===== -->
-    <section class="produtos-dz">
+    <!-- ===== TODOS OS PRODUTOS ===== -->
+    <section class="produtos-dz" id="catalogo">
         <div class="container-dz">
             
             <!-- Título seção -->
             <div class="section-title fade-in-up">
-                <h2>Produtos em Destaque</h2>
-                <p>Os favoritos das nossas clientes que transformam sua rotina de beleza</p>
+                <h2>Todos os Produtos</h2>
+                <p>Descubra nossa coleção completa de produtos profissionais D&Z</p>
             </div>
             
-            <!-- Grid de produtos -->
-            <div class="produtos-carousel-container">
-                <button class="carousel-btn carousel-prev" id="prevBtn">
-                    <span class="material-symbols-sharp">chevron_left</span>
-                </button>
-                
-                <div class="produtos-grid-dz" id="produtosCarousel">
-                
-                <?php
-                // Array de produtos mockados - futuramente virá do banco
-                $produtos_destaque = [
-                    [
-                        'id' => 1,
-                        'nome' => 'Kit Unhas Profissional',
-                        'preco' => 89.90,
-                        'preco_original' => 120.00,
-                        'imagem' => '/assets/images/produtos/kit-unhas.jpg'
-                    ],
-                    [
-                        'id' => 2,
-                        'nome' => 'Cílios Premium Volume',
-                        'preco' => 45.90,
-                        'preco_original' => null,
-                        'imagem' => '/assets/images/produtos/cilios-volume.jpg'
-                    ],
-                    [
-                        'id' => 3,
-                        'nome' => 'Esmalte Gel UV LED',
-                        'preco' => 29.90,
-                        'preco_original' => 39.90,
-                        'imagem' => '/assets/images/produtos/esmalte-gel.jpg'
-                    ],
-                    [
-                        'id' => 4,
-                        'nome' => 'Kit Alongamento Cílios',
-                        'preco' => 78.90,
-                        'preco_original' => null,
-                        'imagem' => '/assets/images/produtos/kit-alongamento.jpg'
-                    ],
-                    [
-                        'id' => 5,
-                        'nome' => 'Base Líquida Matte',
-                        'preco' => 35.90,
-                        'preco_original' => 49.90,
-                        'imagem' => '/assets/images/produtos/base-matte.jpg'
-                    ],
-                    [
-                        'id' => 6,
-                        'nome' => 'Batom Cremoso HD',
-                        'preco' => 19.90,
-                        'preco_original' => null,
-                        'imagem' => '/assets/images/produtos/batom-hd.jpg'
-                    ]
-                ];
-
-                foreach ($produtos_destaque as $produto): 
-                ?>
-                
-                <!-- Card de produto -->
-                <div class="produto-card-dz fade-in-up">
-                    <!-- Badge "Novo" para alguns produtos -->
-                    <?php if (rand(1, 3) == 1): ?>
-                    <div class="badge-novo">Novo</div>
-                    <?php endif; ?>
+            <!-- Carrossel de Produtos -->
+            <div class="lancamentos-carousel-container">
+                <div class="lancamentos-grid" id="todosCarousel">
                     
-                    <!-- Botão favoritar -->
-                    <button class="btn-favorite" onclick="toggleFavorite(this)" title="Adicionar aos favoritos">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                        </svg>
-                    </button>
-                    
-                    <div class="produto-img">
-                        <div style="text-align: center; position: relative; z-index: 2;">
-                            <div style="font-size: 60px; margin-bottom: 10px;">💎</div>
-                            <p style="font-size: 0.75rem; opacity: 0.7;">Produto <?php echo $produto['id']; ?></p>
+                    <!-- Produto 1: Kit Unhas Profissional -->
+                    <div class="produto-card">
+                        <div class="produto-image">
+                            <div class="produto-placeholder">💅</div>
                         </div>
-                        
-                        <!-- Quick View Button -->
-                        <button class="btn-quick-view" onclick="quickView(<?php echo $produto['id']; ?>)">👁️ Preview</button>
-                        
-                        <!-- Selo de qualidade para alguns produtos -->
-                        <?php if (rand(1, 4) == 1): ?>
-                        <div class="quality-seal" title="Produto Premium">⭐</div>
-                        <?php endif; ?>
-                        
-                        <!-- Badge de desconto -->
-                        <?php if ($produto['preco_original']): ?>
-                        <div class="discount-badge">
-                            <?php echo round((($produto['preco_original'] - $produto['preco']) / $produto['preco_original']) * 100); ?>% OFF
+                        <div class="produto-content">
+                            <h3 class="produto-title">Kit Unhas Profissional</h3>
+                            <p class="produto-description">Kit completo com esmaltes gel, lixa e acessórios premium</p>
+                            <div class="produto-price">R$ 89,90</div>
+                            <button class="produto-btn">Adicionar ao Carrinho</button>
                         </div>
-                        <?php endif; ?>
                     </div>
                     
-                    <div class="produto-info-dz">
-                        <h3><?php echo htmlspecialchars($produto['nome']); ?></h3>
-                        
-                        <!-- Avaliações -->
-                        <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                            <div style="color: #fbbf24; display: flex; gap: 2px;">
-                                <span style="font-size: 0.8rem;">⭐⭐⭐⭐⭐</span>
-                            </div>
-                            <span style="color: #6b7280; font-size: 0.75rem; font-weight: 600;">(<?php echo rand(15, 99); ?>)</span>
+                    <!-- Produto 2: Cílios Premium Volume -->
+                    <div class="produto-card">
+                        <div class="produto-image">
+                            <div class="produto-placeholder">✨</div>
                         </div>
-
-                        <div class="produto-price">
-                            <span class="price-current">
-                                R$ <?php echo number_format($produto['preco'], 2, ',', '.'); ?>
-                            </span>
-                            <?php if ($produto['preco_original']): ?>
-                            <span class="price-old">
-                                R$ <?php echo number_format($produto['preco_original'], 2, ',', '.'); ?>
-                            </span>
-                            <?php endif; ?>
+                        <div class="produto-content">
+                            <h3 class="produto-title">Cílios Premium Volume</h3>
+                            <p class="produto-description">Cílios postiços ultra naturais para volume perfeito</p>
+                            <div class="produto-price">R$ 45,90</div>
+                            <button class="produto-btn">Adicionar ao Carrinho</button>
                         </div>
-                        
-                        <button class="btn-add-cart">
-                            🛒 Adicionar ao Carrinho
-                        </button>
+                    </div>
+                    
+                    <!-- Produto 3: Base Fortalecedora -->
+                    <div class="produto-card">
+                        <div class="produto-image">
+                            <div class="produto-placeholder">💪</div>
+                        </div>
+                        <div class="produto-content">
+                            <h3 class="produto-title">Base Fortalecedora</h3>
+                            <p class="produto-description">Fortalece e protege unhas fracas com vitaminas</p>
+                            <div class="produto-price">R$ 32,90</div>
+                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Produto 4: Kit Alongamento Cílios -->
+                    <div class="produto-card">
+                        <div class="produto-image">
+                            <div class="produto-placeholder">👁️</div>
+                        </div>
+                        <div class="produto-content">
+                            <h3 class="produto-title">Kit Alongamento Cílios</h3>
+                            <p class="produto-description">Kit profissional completo para alongamento de cílios</p>
+                            <div class="produto-price">R$ 78,90</div>
+                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Produto 5: Removedor Profissional -->
+                    <div class="produto-card">
+                        <div class="produto-image">
+                            <div class="produto-placeholder">🧽</div>
+                        </div>
+                        <div class="produto-content">
+                            <h3 class="produto-title">Removedor Profissional</h3>
+                            <p class="produto-description">Remove esmalte gel sem danificar as unhas naturais</p>
+                            <div class="produto-price">R$ 25,90</div>
+                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Produto 6: Primer Adesivo -->
+                    <div class="produto-card">
+                        <div class="produto-image">
+                            <div class="produto-placeholder">🔬</div>
+                        </div>
+                        <div class="produto-content">
+                            <h3 class="produto-title">Primer Adesivo</h3>
+                            <p class="produto-description">Prepara a unha para máxima aderência do esmalte gel</p>
+                            <div class="produto-price">R$ 29,90</div>
+                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Produto 7: Óleo Hidratante -->
+                    <div class="produto-card">
+                        <div class="produto-image">
+                            <div class="produto-placeholder">💧</div>
+                        </div>
+                        <div class="produto-content">
+                            <h3 class="produto-title">Óleo Hidratante</h3>
+                            <p class="produto-description">Hidrata cutículas e pele ao redor das unhas</p>
+                            <div class="produto-price">R$ 22,90</div>
+                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Produto 8: Kit Manutenção -->
+                    <div class="produto-card">
+                        <div class="produto-image">
+                            <div class="produto-placeholder">🛠️</div>
+                        </div>
+                        <div class="produto-content">
+                            <h3 class="produto-title">Kit Manutenção</h3>
+                            <p class="produto-description">Ferramentas essenciais para manutenção profissional</p>
+                            <div class="produto-price">R$ 67,90</div>
+                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Produto 9: Top Coat Brilho -->
+                    <div class="produto-card">
+                        <div class="produto-image">
+                            <div class="produto-placeholder">✨</div>
+                        </div>
+                        <div class="produto-content">
+                            <h3 class="produto-title">Top Coat Brilho</h3>
+                            <p class="produto-description">Finalização com brilho intenso e duração prolongada</p>
+                            <div class="produto-price">R$ 27,90</div>
+                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Produto 10: Cabine UV/LED -->
+                    <div class="produto-card">
+                        <div class="produto-image">
+                            <div class="produto-placeholder">💡</div>
+                        </div>
+                        <div class="produto-content">
+                            <h3 class="produto-title">Cabine UV/LED</h3>
+                            <p class="produto-description">Secagem profissional rápida e eficiente</p>
+                            <div class="produto-price">R$ 159,90</div>
+                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                        </div>
                     </div>
                 </div>
                 
-                <?php endforeach; ?>
-            </div>
-            
-            <button class="carousel-btn carousel-next" id="nextBtn">
-                <span class="material-symbols-sharp">chevron_right</span>
-            </button>
-        </div>
-            
-            <!-- Botão ver mais -->
-            <div style="text-align: center;" class="fade-in-up">
-                <button class="btn btn-outline">
-                    Ver Todos os Produtos
+                <!-- Setas de navegação -->
+                <button class="carousel-nav-arrows carousel-nav-prev" onclick="scrollTodos(-1)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                </button>
+                <button class="carousel-nav-arrows carousel-nav-next" onclick="scrollTodos(1)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18l6-6-6-6" />
+                    </svg>
                 </button>
             </div>
-        </div>
-    </section>
-
-    <!-- ===== PRODUTOS MAIS VENDIDOS ===== -->
-    <section style="padding: 80px 0; background: #fff;">
-        <div class="container-dz">
             
-            <!-- Título seção -->
-            <div class="section-title fade-in-up">
-                <h2>Mais Vendidos</h2>
-                <p>Os produtos que nossas clientes mais amam e não conseguem viver sem</p>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; margin-bottom: 50px;">
-                
-                <?php
-                $produtos_mais_vendidos = [
-                    [
-                        'posicao' => 1,
-                        'nome' => 'Kit Unhas Gold Premium',
-                        'preco' => 129.90,
-                        'preco_original' => 180.00,
-                        'vendas' => 847
-                    ],
-                    [
-                        'posicao' => 2,
-                        'nome' => 'Cílios Mega Volume 3D',
-                        'preco' => 65.90,
-                        'preco_original' => null,
-                        'vendas' => 623
-                    ],
-                    [
-                        'posicao' => 3,
-                        'nome' => 'Base Perfeita Multi-Tom',
-                        'preco' => 49.90,
-                        'preco_original' => 69.90,
-                        'vendas' => 412
-                    ]
-                ];
-
-                foreach ($produtos_mais_vendidos as $produto): 
-                ?>
-                
-                <!-- Card Top Product -->
-                <div class="fade-in-up" style="background: linear-gradient(145deg, #ffffff 0%, #fefefe 100%); border-radius: 20px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08); overflow: hidden; position: relative; transition: all 0.3s ease; cursor: pointer;" 
-                     onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 20px 40px rgba(0, 0, 0, 0.15)'" 
-                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 32px rgba(0, 0, 0, 0.08)'">
-                    
-                    <!-- Badge de posição -->
-                    <div style="position: absolute; top: 20px; left: 20px; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; padding: 8px 15px; border-radius: 50px; font-size: 0.8rem; font-weight: 700; box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4); z-index: 2;">
-                        #<?php echo $produto['posicao']; ?> Mais Vendido
-                    </div>
-                    
-                    <?php if ($produto['preco_original']): ?>
-                    <div style="position: absolute; top: 20px; right: 20px; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 8px 16px; border-radius: 25px; font-size: 0.75rem; font-weight: 700; transform: rotate(-5deg); box-shadow: 0 6px 16px rgba(239, 68, 68, 0.35);">
-                        <?php echo round((($produto['preco_original'] - $produto['preco']) / $produto['preco_original']) * 100); ?>% OFF
-                    </div>
-                    <?php endif; ?>
-                    
-                    <!-- Imagem -->
-                    <div style="background: linear-gradient(145deg, #fafafa 0%, #f5f5f5 100%); height: 200px; display: flex; align-items: center; justify-content: center; color: var(--color-magenta); border-bottom: 1px solid rgba(0, 0, 0, 0.05);">
-                        <div style="text-align: center;">
-                            <div style="font-size: 70px; margin-bottom: 10px;">🏆</div>
-                            <p style="font-size: 0.75rem; opacity: 0.7; margin: 0;"><?php echo $produto['vendas']; ?> vendas</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Conteúdo -->
-                    <div style="padding: 24px;">
-                        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; color: #1a1a1a; line-height: 1.3;"><?php echo $produto['nome']; ?></h3>
-                        
-                        <!-- Avaliações -->
-                        <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
-                            <div style="color: #fbbf24; display: flex; gap: 1px;">
-                                <span style="font-size: 0.9rem;">⭐⭐⭐⭐⭐</span>
-                            </div>
-                            <span style="color: #6b7280; font-size: 0.8rem; font-weight: 600;">(<?php echo rand(150, 500); ?>)</span>
-                        </div>
-                        
-                        <div style="margin-bottom: 20px; display: flex; align-items: baseline; gap: 10px;">
-                            <span style="font-size: 1.4rem; font-weight: 700; color: var(--color-magenta);">
-                                R$ <?php echo number_format($produto['preco'], 2, ',', '.'); ?>
-                            </span>
-                            <?php if ($produto['preco_original']): ?>
-                            <span style="font-size: 1rem; color: #999; text-decoration: line-through;">
-                                R$ <?php echo number_format($produto['preco_original'], 2, ',', '.'); ?>
-                            </span>
-                            <?php endif; ?>
-                        </div>
-                        
-                        <button style="width: 100%; background: linear-gradient(135deg, var(--color-magenta), var(--color-magenta-dark)); color: white; padding: 12px; border: none; border-radius: 12px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 6px 20px rgba(230, 0, 126, 0.3);" 
-                                onmouseover="this.style.background='linear-gradient(135deg, var(--color-magenta-dark), #a0005a)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(230, 0, 126, 0.4)'"
-                                onmouseout="this.style.background='linear-gradient(135deg, var(--color-magenta), var(--color-magenta-dark))'; this.style.transform='translateY(0)'; this.style.boxShadow='0 6px 20px rgba(230, 0, 126, 0.3)'">
-                            Adicionar ao Carrinho
-                        </button>
-                    </div>
-                </div>
-                
-                <?php endforeach; ?>
+            <!-- Botão Ver Mais -->
+            <div class="ver-todos-btn">
+                <button onclick="window.location.href='#depoimentos'">Ver Depoimentos</button>
             </div>
         </div>
     </section>
 
     <!-- ===== DEPOIMENTOS DE CLIENTES ===== -->
-    <section style="padding: 80px 0; background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #f3e8ff 100%);">
+    <section id="depoimentos" style="padding: 80px 0; background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #f3e8ff 100%);">
         <div class="container-dz">
             
             <!-- Título seção -->
@@ -2741,79 +2930,669 @@ session_start();
     </section>
 
     <!-- ===== BANNER PROMOCIONAL ===== -->
-    <section class="banner-dz">
-        <div class="container-dz fade-in-up" style="text-align: center;">
-            <!-- Badge de oferta limitada -->
-            <div style="display: inline-flex; align-items: center; background: rgba(255, 255, 255, 0.9); padding: 8px 20px; border-radius: 50px; margin-bottom: 20px; backdrop-filter: blur(10px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);">
-                <span style="width: 8px; height: 8px; background: #ef4444; border-radius: 50%; margin-right: 8px; animation: pulse 2s infinite;"></span>
-                <span style="color: #ef4444; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">Oferta Limitada</span>
+    <section class="promo-banner-modern">
+        <div class="container-dz">
+            <div class="promo-card fade-in-up">
+                
+                <!-- Badge de desconto -->
+                <div class="discount-badge">
+                    <span>15% OFF</span>
+                </div>
+                
+                <!-- Conteúdo principal -->
+                <div class="promo-content">
+                    <div class="promo-title">
+                        <span class="welcome-text">Seja bem-vinda!</span>
+                        <h2>Primeira compra com <span class="discount-highlight">15% OFF</span></h2>
+                    </div>
+                    
+                    <!-- Cupom destacado -->
+                    <div class="coupon-container">
+                        <div class="coupon-label">Use o cupom:</div>
+                        <div class="coupon-code" id="couponCode" onclick="copyCoupon()">
+                            <span>BEM-VINDA15</span>
+                            <div class="copy-icon">📋</div>
+                        </div>
+                        <div class="copy-feedback" id="copyFeedback">Código copiado!</div>
+                    </div>
+                    
+
+                    
+                    <!-- Benefícios -->
+                    <div class="promo-benefits">
+                        <div class="benefit-item">
+                            <span>Produtos premium</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span>Entrega rápida</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span>Embalagem especial</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Call to Action -->
+                    <button class="promo-cta-button" onclick="window.location.href='#lancamentos'">
+                        <span class="button-text">Quero meu 15% OFF</span>
+                        <div class="button-icon">→</div>
+                    </button>
+                </div>
+                
+
             </div>
-            
-            <h2 style="margin-bottom: 20px;">
-                Primeira compra com <span class="magenta">15% OFF</span>
-                <br>
-                <span style="font-size: 1.8rem; font-weight: 500;">Use o cupom: <strong style="background: linear-gradient(135deg, #fbbf24, #f59e0b); padding: 4px 12px; border-radius: 6px; color: white; font-size: 1.2rem; letter-spacing: 1px;">BEM-VINDA15</strong></span>
-            </h2>
-            <p style="margin-bottom: 30px; font-size: 1.2rem;">
-                Válido apenas hoje! Não perca esta oportunidade de conhecer nossos produtos premium com desconto especial.
-            </p>
-            
-            <!-- Timer countdown -->
-            <div style="display: inline-flex; gap: 15px; margin-bottom: 30px; background: rgba(255, 255, 255, 0.95); padding: 20px 30px; border-radius: 15px; backdrop-filter: blur(10px); box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);">
-                <div style="text-align: center;">
-                    <div style="font-size: 1.8rem; font-weight: 700; color: var(--color-magenta); line-height: 1;">23</div>
-                    <div style="font-size: 0.75rem; color: #6b7280; text-transform: uppercase; letter-spacing: 1px;">Horas</div>
-                </div>
-                <div style="color: var(--color-magenta); font-size: 1.8rem; font-weight: 700;">:</div>
-                <div style="text-align: center;">
-                    <div style="font-size: 1.8rem; font-weight: 700; color: var(--color-magenta); line-height: 1;">45</div>
-                    <div style="font-size: 0.75rem; color: #6b7280; text-transform: uppercase; letter-spacing: 1px;">Minutos</div>
-                </div>
-                <div style="color: var(--color-magenta); font-size: 1.8rem; font-weight: 700;">:</div>
-                <div style="text-align: center;">
-                    <div style="font-size: 1.8rem; font-weight: 700; color: var(--color-magenta); line-height: 1;">12</div>
-                    <div style="font-size: 0.75rem; color: #6b7280; text-transform: uppercase; letter-spacing: 1px;">Segundos</div>
-                </div>
-            </div>
-            
-            <br>
-            <button class="btn-hero" style="position: relative; overflow: hidden; background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 12px 24px rgba(239, 68, 68, 0.4); font-size: 1.2rem; padding: 20px 40px;" 
-                    onmouseover="this.style.background='linear-gradient(135deg, #dc2626, #b91c1c)'; this.style.transform='translateY(-3px)'; this.style.boxShadow='0 20px 40px rgba(239, 68, 68, 0.5)'"
-                    onmouseout="this.style.background='linear-gradient(135deg, #ef4444, #dc2626)'; this.style.transform='translateY(0)'; this.style.boxShadow='0 12px 24px rgba(239, 68, 68, 0.4)'">
-                Aproveitar Desconto Agora!
-            </button>
         </div>
     </section>
     
     <style>
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        .promo-banner-modern {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 30%, #f3e8ff 70%, #ede9fe 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .promo-card {
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 32px;
+            padding: 50px 40px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            text-align: center;
+        }
+        
+        .discount-badge {
+            display: inline-flex;
+            align-items: center;
+            background: var(--color-magenta);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(230, 0, 126, 0.3);
+        }
+        
+        .promo-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .welcome-text {
+            display: block;
+            font-size: 1rem;
+            color: var(--color-magenta);
+            font-weight: 600;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        
+        .promo-title h2 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #1a1a1a;
+            line-height: 1.2;
+            margin-bottom: 30px;
+        }
+        
+        .discount-highlight {
+            background: linear-gradient(135deg, var(--color-magenta), #d946ef);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+        }
+        
+        .coupon-container {
+            margin-bottom: 40px;
+        }
+        
+        .coupon-label {
+            font-size: 1.1rem;
+            color: #6b7280;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .coupon-code {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+            padding: 16px 28px;
+            border-radius: 16px;
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+        }
+        
+        .coupon-code:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(251, 191, 36, 0.5);
+        }
+        
+        .copy-icon {
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+        
+        .copy-feedback {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--color-magenta);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .copy-feedback.show {
+            opacity: 1;
+            top: -50px;
+        }
+        
+
+        
+        .promo-benefits {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .benefit-item {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #4b5563;
+        }
+        
+        .promo-cta-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, var(--color-magenta), #d946ef);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 15px 35px rgba(230, 0, 126, 0.4);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .promo-cta-button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 45px rgba(230, 0, 126, 0.5);
+        }
+        
+        .promo-cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .promo-cta-button:hover::before {
+            left: 100%;
+        }
+        
+        .button-text {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .button-icon {
+            font-size: 1.3rem;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+        
+        .promo-cta-button:hover .button-icon {
+            transform: translateX(4px);
+        }
+        
+
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .promo-card {
+                padding: 30px 20px;
+                margin: 0 15px;
+                border-radius: 24px;
+            }
+            
+            .promo-title h2 {
+                font-size: 2.2rem;
+            }
+            
+            .coupon-code {
+                font-size: 1.2rem;
+                padding: 14px 24px;
+            }
+            
+            .countdown-timer {
+                padding: 15px 25px;
+                gap: 10px;
+            }
+            
+            .time-value {
+                font-size: 1.6rem;
+            }
+            
+            .promo-benefits {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .promo-cta-button {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
+    
+    <script>
+        // Função para copiar cupom
+        function copyCoupon() {
+            const couponText = 'BEM-VINDA15';
+            
+            // Tentar usar a API moderna de clipboard
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(couponText).then(() => {
+                    showCopyFeedback();
+                }).catch(() => {
+                    fallbackCopy(couponText);
+                });
+            } else {
+                fallbackCopy(couponText);
+            }
+        }
+        
+        // Método fallback para navegadores antigos
+        function fallbackCopy(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            showCopyFeedback();
+        }
+        
+        // Mostrar feedback visual
+        function showCopyFeedback() {
+            const feedback = document.getElementById('copyFeedback');
+            feedback.classList.add('show');
+            setTimeout(() => {
+                feedback.classList.remove('show');
+            }, 2000);
+        }
+        
+
+    </script>
 
     <!-- ===== NEWSLETTER ===== -->
-    <section class="newsletter-dz">
-        <div class="container-dz fade-in-up">
-            <h3 style="font-size: 2rem; font-weight: bold; margin-bottom: 16px; color: #333;">
-                Fique por dentro das novidades
-            </h3>
-            <p style="color: #666; margin-bottom: 8px;">
-                Receba em primeira mão nossos lançamentos, dicas de beleza e ofertas exclusivas
-            </p>
-            
-            <form class="newsletter-form">
-                <input 
-                    type="email" 
-                    placeholder="Seu melhor e-mail" 
-                    required
-                >
-                <button type="submit">
-                    Inscrever-se
-                </button>
-            </form>
+    <section class="newsletter-modern">
+        <div class="container-dz">
+            <div class="newsletter-content fade-in-up">
+                
+                <!-- Conteúdo principal -->
+                <div class="newsletter-header">
+                    <div class="newsletter-badge">
+                        <span class="badge-icon">📧</span>
+                        <span>Newsletter Exclusiva</span>
+                    </div>
+                    <h3>Fique por dentro das novidades</h3>
+                    <p>Receba em primeira mão nossos lançamentos e ofertas exclusivas</p>
+                </div>
+                
+                <!-- Benefícios da newsletter -->
+                <div class="newsletter-benefits">
+                    <span>🎀 Ofertas exclusivas</span>
+                    <span>•</span>
+                    <span>✨ Lançamentos em primeira mão</span>
+                    <span>•</span>
+                    <span>🔒 Sem spam</span>
+                </div>
+                
+                <!-- Formulário modernizado -->
+                <form class="newsletter-form-modern" id="newsletterForm">
+                    <div class="form-wrapper">
+                        <input 
+                            type="email" 
+                            id="emailInput"
+                            placeholder="Digite seu melhor e-mail" 
+                            required
+                        >
+                        <button type="submit" class="submit-btn">
+                            <span class="btn-text">Inscrever-se</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Feedback messages -->
+                    <div class="form-feedback">
+                        <div class="success-message" id="successMessage">
+                            <span class="success-icon">✓</span>
+                            <span>Perfeito! Você receberá nossas novidades em breve!</span>
+                        </div>
+                        <div class="error-message" id="errorMessage">
+                            <span class="error-icon">⚠</span>
+                            <span>Por favor, insira um e-mail válido</span>
+                        </div>
+                    </div>
+                </form>
+                
+
+            </div>
         </div>
     </section>
+    
+    <style>
+        .newsletter-modern {
+            padding: 60px 0;
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #f3e8ff 100%);
+            position: relative;
+        }
+        
+        .newsletter-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+
+        
+        .newsletter-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--color-magenta), #d946ef);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(230, 0, 126, 0.3);
+        }
+        
+        .badge-icon {
+            font-size: 1rem;
+        }
+        
+        .newsletter-header h3 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+        
+        .newsletter-header p {
+            font-size: 1rem;
+            color: #6b7280;
+            line-height: 1.5;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+        
+        .newsletter-benefits {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+            color: #6b7280;
+            font-size: 0.9rem;
+            font-weight: 500;
+            flex-wrap: wrap;
+        }
+        
+        .newsletter-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--color-magenta), #d946ef);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(230, 0, 126, 0.3);
+        }
+        
+        .badge-icon {
+            font-size: 1rem;
+        }
+        
+        .newsletter-form-modern {
+            margin-bottom: 30px;
+        }
+        
+        .form-wrapper {
+            display: flex;
+            gap: 15px;
+            max-width: 450px;
+            margin: 0 auto;
+            align-items: stretch;
+        }
+        
+        .form-wrapper input {
+            flex: 1;
+            padding: 18px 24px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            color: #1a1a1a;
+        }
+        
+        .form-wrapper input:focus {
+            outline: none;
+            border-color: var(--color-magenta);
+            box-shadow: 0 12px 30px rgba(230, 0, 126, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .form-wrapper input::placeholder {
+            color: #9ca3af;
+            font-weight: 500;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, var(--color-magenta), #d946ef);
+            color: white;
+            border: none;
+            padding: 18px 32px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(230, 0, 126, 0.3);
+            white-space: nowrap;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(230, 0, 126, 0.4);
+            background: linear-gradient(135deg, #d946ef, var(--color-magenta));
+        }
+        
+        .form-feedback {
+            margin-top: 20px;
+            min-height: 30px;
+        }
+        
+        .success-message,
+        .error-message {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .success-message {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .success-message.show,
+        .error-message.show {
+            display: flex;
+        }
+        
+
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .newsletter-modern {
+                padding: 40px 0;
+            }
+            
+            .newsletter-content {
+                padding: 0 20px;
+            }
+            
+            .newsletter-header h3 {
+                font-size: 1.8rem;
+            }
+            
+            .newsletter-benefits {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .form-wrapper {
+                flex-direction: column;
+                gap: 15px;
+                max-width: 350px;
+            }
+            
+            .submit-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 18px 24px;
+            }
+        }
+    </style>
+    
+    <script>
+        // Validação e envio do formulário
+        document.getElementById('newsletterForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const emailInput = document.getElementById('emailInput');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const email = emailInput.value.trim();
+            
+            // Reset messages
+            successMessage.classList.remove('show');
+            errorMessage.classList.remove('show');
+            
+            // Validação de email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (!email || !emailRegex.test(email)) {
+                errorMessage.classList.add('show');
+                emailInput.focus();
+                return;
+            }
+            
+            // Simulação de envio (aqui você integraria com seu backend)
+            const button = this.querySelector('.submit-btn');
+            const originalText = button.querySelector('.btn-text').textContent;
+            
+            // Estado de loading
+            button.querySelector('.btn-text').textContent = 'Enviando...';
+            button.disabled = true;
+            button.style.opacity = '0.7';
+            
+            // Simular delay de envio
+            setTimeout(() => {
+                // Reset button
+                button.querySelector('.btn-text').textContent = originalText;
+                button.disabled = false;
+                button.style.opacity = '1';
+                
+                // Show success
+                successMessage.classList.add('show');
+                
+                // Clear input
+                emailInput.value = '';
+                
+                // Hide success message after 5 seconds
+                setTimeout(() => {
+                    successMessage.classList.remove('show');
+                }, 5000);
+            }, 1000);
+        });
+        
+        // Limpar mensagens de erro quando o usuário digita
+        document.getElementById('emailInput').addEventListener('input', function() {
+            const errorMessage = document.getElementById('errorMessage');
+            if (errorMessage.classList.contains('show')) {
+                errorMessage.classList.remove('show');
+            }
+        });
+    </script>
 
     <!-- ===== FOOTER ===== -->
     <footer class="footer-dz">
@@ -3450,6 +4229,57 @@ session_start();
         setInterval(() => {
             nextSlide();
         }, 6000);
+        
+        // ===== CARROSSEL LANÇAMENTOS =====
+        function scrollLancamentos(direction) {
+            const carousel = document.getElementById('lancamentosCarousel');
+            const cardWidth = 310; // 280px + 30px gap
+            const scrollAmount = cardWidth * direction;
+            
+            carousel.scrollBy({
+                left: scrollAmount,
+                behavior: 'smooth'
+            });
+        }
+        
+        // Auto scroll suave para lançamentos
+        function autoScrollLancamentos() {
+            const carousel = document.getElementById('lancamentosCarousel');
+            const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+            
+            if (carousel.scrollLeft >= maxScroll) {
+                carousel.scrollTo({ left: 0, behavior: 'smooth' });
+            } else {
+                scrollLancamentos(1);
+            }
+        }
+        
+        // Auto scroll a cada 8 segundos (opcional)
+        // setInterval(autoScrollLancamentos, 8000);
+        
+        // ===== CARROSSEL TODOS OS PRODUTOS =====
+        function scrollTodos(direction) {
+            const carousel = document.getElementById('todosCarousel');
+            const cardWidth = 310; // 280px + 30px gap
+            const scrollAmount = cardWidth * direction;
+            
+            carousel.scrollBy({
+                left: scrollAmount,
+                behavior: 'smooth'
+            });
+        }
+        
+        // Auto scroll suave para todos os produtos
+        function autoScrollTodos() {
+            const carousel = document.getElementById('todosCarousel');
+            const maxScroll = carousel.scrollWidth - carousel.clientWidth;
+            
+            if (carousel.scrollLeft >= maxScroll) {
+                carousel.scrollTo({ left: 0, behavior: 'smooth' });
+            } else {
+                scrollTodos(1);
+            }
+        }
     </script>
 
     <!-- Carrossel de Produtos -->
