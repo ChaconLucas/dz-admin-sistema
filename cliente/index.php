@@ -748,6 +748,7 @@ session_start();
             line-height: 1.5;
             display: -webkit-box;
             -webkit-line-clamp: 2;
+            line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
@@ -1233,15 +1234,15 @@ session_start();
         }
 
         
-        /* Footer */
-        .footer-dz {
-            background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
-            border-top: 1px solid rgba(0, 0, 0, 0.06);
-            padding: 80px 0 40px;
+        /* Footer Modern */
+        .footer-modern {
+            background: linear-gradient(135deg, #fefefe 0%, #f8f9fa 100%);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 60px 0 0;  
             position: relative;
         }
         
-        .footer-dz::before {
+        .footer-modern::before {
             content: '';
             position: absolute;
             top: 0;
@@ -1249,79 +1250,419 @@ session_start();
             width: 100%;
             height: 1px;
             background: linear-gradient(90deg, transparent 0%, var(--color-magenta) 50%, transparent 100%);
-            opacity: 0.3;
+            opacity: 0.4;
         }
         
-        .footer-grid {
+        .footer-content {
+            position: relative;
+        }
+        
+        .footer-top {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 50px;
+            grid-template-columns: 1fr 2fr;
+            gap: 60px;
             margin-bottom: 50px;
         }
         
-        .footer-section h5 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 24px;
-            color: #1a1a1a;
-            letter-spacing: -0.01em;
+        .footer-brand {
+            max-width: 400px;
         }
         
-        .footer-section ul {
-            list-style: none;
+        .brand-logo h3 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--color-magenta), #d946ef);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
         }
         
-        .footer-section ul li {
-            margin-bottom: 12px;
-        }
-        
-        .footer-section a {
-            color: #5a5a5a;
-            text-decoration: none;
-            transition: all 0.3s ease;
+        .brand-tagline {
+            font-size: 0.85rem;
+            color: #6b7280;
             font-weight: 500;
-            font-size: 0.95rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        
+        .brand-description {
+            color: #4b5563;
             line-height: 1.6;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
         }
         
-        .footer-section a:hover {
-            color: var(--color-magenta);
-            transform: translateX(2px);
+        .footer-social-main {
+            padding: 20px;
         }
         
-        .social-links {
+        .social-links-grid {
             display: flex;
-            gap: 20px;
-            margin-top: 24px;
+            justify-content: center;
+            gap: 12px;
         }
         
-        .social-links a {
-            color: #999;
-            font-size: 1.8rem;
-            transition: all 0.3s ease;
+        .social-btn {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 48px;
-            height: 48px;
+            width: 44px;
+            height: 44px;
+            background: rgba(230, 0, 126, 0.05);
             border-radius: 12px;
-            background: linear-gradient(145deg, #ffffff 0%, #f5f5f5 100%);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            color: #6b7280;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(230, 0, 126, 0.1);
         }
         
-        .social-links a:hover {
-            color: var(--color-magenta);
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        .social-btn:hover {
+            background: var(--color-magenta);
+            color: white;
+            transform: translateY(-2px);
+            border-color: var(--color-magenta);
         }
         
-        .footer-copyright {
-            text-align: center;
-            padding-top: 40px;
-            border-top: 1px solid rgba(0, 0, 0, 0.08);
-            color: #7a7a7a;
-            font-size: 0.95rem;
+        .social-btn .social-icon {
+            font-size: 1.3rem;
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .social-btn:hover .social-icon {
+            transform: scale(1.1);
+        }
+        
+        .footer-links {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 50px;
+        }
+        
+        .footer-column h5 {
+            color: #1f2937;
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .footer-column h5::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 25px;
+            height: 2px;
+            background: var(--color-magenta);
+            border-radius: 1px;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column ul li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-column a {
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
             font-weight: 500;
+        }
+        
+        .footer-column a:hover {
+            color: var(--color-magenta);
+            transform: translateX(3px);
+        }
+        
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            color: #6b7280;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .contact-icon {
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Footer Security Section */
+        .footer-security {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 40px;
+            padding: 24px 0;
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        
+        .payment-methods-section,
+        .shipping-methods-section,
+        .security-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .footer-security h6 {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin: 0;
+            text-align: center;
+        }
+        
+        .payment-icons,
+        .shipping-icons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .payment-icon,
+        .shipping-icon {
+            transition: all 0.3s ease;
+            opacity: 0.7;
+            filter: grayscale(30%);
+        }
+        
+        .payment-icon:hover,
+        .shipping-icon:hover {
+            transform: scale(1.05);
+            opacity: 1;
+            filter: grayscale(0%);
+        }
+        
+        .security-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+        }
+        
+        .security-badge:hover {
+            opacity: 1;
+            transform: scale(1.02);
+        }
+        
+        .security-icon {
+            transition: all 0.3s ease;
+        }
+        
+        .security-text {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #28A745;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        
+        /* SSL Protection Styles */
+        .ssl-protection {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .ssl-icon,
+        .trust-icon {
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+        
+        .ssl-text {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #2ECC71;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+        
+        /* Trust Badges Styles */
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            min-width: 90px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .trust-badge:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .trust-badge:hover .trust-icon,
+        .trust-badge:hover .ssl-icon {
+            transform: scale(1.1);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .footer-security {
+                gap: 12px;
+                padding: 20px 0;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .trust-badge {
+                min-width: 70px;
+                padding: 6px 8px;
+                gap: 4px;
+            }
+            
+            .payment-icons,
+            .shipping-icons {
+                gap: 14px;
+            }
+            
+            .payment-icon,
+            .shipping-icon {
+                width: 20px;
+                height: 13px;
+            }
+            
+            .ssl-icon,
+            .trust-icon {
+                width: 20px;
+                height: 20px;
+            }
+            
+            .ssl-text {
+                font-size: 0.65rem;
+            }
+            
+            .security-icon {
+                width: 14px;
+                height: 14px;
+            }
+            
+            .security-text {
+                font-size: 0.7rem;
+            }
+        }
+        
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 0;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            background: #fafafa;
+            margin: 0 -30px;
+            padding-left: 30px;
+            padding-right: 30px;
+        }
+        
+        .copyright {
+            color: #6b7280;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .payment-methods {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #6b7280;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .payment-icons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .payment-icons span {
+            font-size: 1.2rem;
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .footer-modern {
+                padding: 40px 0 0;
+            }
+            
+            .footer-top {
+                grid-template-columns: 1fr;
+                gap: 35px;
+            }
+            
+            .footer-links {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+            
+            .trust-section {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                padding: 20px 0;
+            }
+            
+            .payment-icons-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .shipping-icons-grid {
+                gap: 8px;
+            }
+            
+            .shipping-icon {
+                width: 40px;
+                height: 40px;
+                padding: 8px;
+                font-size: 1.1rem;
+            }
+            
+            .social-links-grid {
+                gap: 10px;
+            }
+            
+            .footer-bottom {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+                margin: 0 -15px;
+                padding-left: 15px;
+                padding-right: 15px;
+            }
         }
         
         /* Animações Premium */
@@ -1508,45 +1849,7 @@ session_start();
             left: 100%;
         }
         
-        /* Badges de segurança */
-        .security-badges {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 25px;
-            flex-wrap: wrap;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            margin: 30px 0;
-            border: 1px solid rgba(0, 0, 0, 0.05);
-        }
-        
-        .security-badge {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 15px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 25px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #2d3748;
-            border: 1px solid rgba(0, 0, 0, 0.08);
-            transition: all 0.2s ease;
-        }
-        
-        .security-badge:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        
-        .security-badge-icon {
-            width: 16px;
-            height: 16px;
-            color: #10b981;
-        }
+
         
         /* Contador em tempo real */
         .live-counter {
@@ -2250,7 +2553,6 @@ session_start();
             .hero-text h1 {
                 font-size: 2.5rem;
             }
-            }
             
             .categorias-grid-dz {
                 grid-template-columns: repeat(2, 1fr);
@@ -2288,7 +2590,7 @@ session_start();
                 grid-template-columns: 1fr;
                 gap: 30px;
             }
-        
+        }
         
         @media (max-width: 480px) {
             .categorias-grid-dz {
@@ -3595,118 +3897,180 @@ session_start();
     </script>
 
     <!-- ===== FOOTER ===== -->
-    <footer class="footer-dz">
+    <footer class="footer-modern">
         <div class="container-dz">
-            <div class="footer-grid">
-                
-                <!-- Logo e descrição -->
-                <div class="footer-section fade-in-up">
-                    <h4 style="font-size: 2rem; font-weight: bold; color: var(--color-magenta); margin-bottom: 16px;">D&Z</h4>
-                    <p style="color: #666; margin-bottom: 16px;">
-                        E-commerce premium de beleza para mulheres que sabem o que querem.
-                    </p>
-                    <!-- Redes sociais -->
-                    <div class="social-links">
-                        <a href="#">🐦</a>
-                        <a href="#">📌</a>
-                        <a href="#">📷</a>
+            <div class="footer-content">
+                <div class="footer-top">
+                    <div class="footer-brand">
+                        <div class="brand-logo">
+                            <h3>D&Z</h3>
+                            <div class="brand-tagline">Beauty & Style</div>
+                        </div>
+                        
+                        <p class="brand-description">
+                            Transformando a beleza das mulheres brasileiras com produtos premium e atendimento excepcional.
+                        </p>
+                        
+                        <div class="footer-social-main">
+                            <div class="social-links-grid">
+                                <a href="#" class="social-btn">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" class="social-icon">
+                                        <path fill="#E4405F" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                                    </svg>
+                                </a>
+                                <a href="#" class="social-btn">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" class="social-icon">
+                                        <path fill="#000" d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                                    </svg>
+                                </a>
+                                <a href="#" class="social-btn">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" class="social-icon">
+                                        <path fill="#25D366" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.465 3.488"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="footer-links">
+                        <div class="footer-column">
+                            <h5>Produtos</h5>
+                            <ul>
+                                <li><a href="#">Unhas Profissionais</a></li>
+                                <li><a href="#">Cílios Premium</a></li>
+                                <li><a href="#">Kits Completos</a></li>
+                                <li><a href="#">Novidades</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="footer-column">
+                            <h5>Atendimento</h5>
+                            <ul>
+                                <li><a href="#">Central de Ajuda</a></li>
+                                <li><a href="#">Política de Troca</a></li>
+                                <li><a href="#">Garantia</a></li>
+                                <li><a href="#">Rastreamento</a></li>
+                                <li><a href="#">Suporte Premium</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="footer-column">
+                            <h5>Contato</h5>
+                            <div class="contact-info">
+                                <div class="contact-item">
+                                    <span class="contact-icon">📞</span>
+                                    <span>(11) 9999-9999</span>
+                                </div>
+                                <div class="contact-item">
+                                    <span class="contact-icon">💬</span>
+                                    <span>WhatsApp 24h</span>
+                                </div>
+                                <div class="contact-item">
+                                    <span class="contact-icon">✉️</span>
+                                    <span>contato@dzecommerce.com</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Links produtos -->
-                <div class="footer-section fade-in-up">
-                    <h5>Produtos</h5>
-                    <ul>
-                        <li><a href="#">Unhas Profissionais</a></li>
-                        <li><a href="#">Cílios Premium</a></li>
-                        <li><a href="#">Kits Completos</a></li>
-                        <li><a href="#">Novidades</a></li>
-                    </ul>
-                </div>
-                
-                <!-- Links institucional -->
-                <div class="footer-section fade-in-up">
-                    <h5>Institucional</h5>
-                    <ul>
-                        <li><a href="#">Sobre Nós</a></li>
-                        <li><a href="#">Política de Privacidade</a></li>
-                        <li><a href="#">Termos de Uso</a></li>
-                        <li><a href="#">Trabalhe Conosco</a></li>
-                    </ul>
-                </div>
-                
-                <!-- Contato -->
-                <div class="footer-section fade-in-up">
-                    <h5>Contato</h5>
-                    <ul>
-                        <li style="color: #666;">contato@dzecommerce.com.br</li>
-                        <li style="color: #666;">(11) 9999-9999</li>
-                        <li style="color: #666;">Segunda à Sexta, 9h às 18h</li>
-                    </ul>
-                </div>
+                <div class="footer-security">
+                    <div class="trust-badge">
+                        <h6>Formas de pagamento</h6>
+                        <div class="payment-icons">
+                            <!-- Visa -->
+                            <svg width="28" height="18" viewBox="0 0 780 500" class="payment-icon">
+                                <path fill="#1434CB" d="M40 0h700c22 0 40 18 40 40v420c0 22-18 40-40 40H40c-22 0-40-18-40-40V40C0 18 18 0 40 0z"/>
+                                <text x="390" y="350" text-anchor="middle" font-size="180" fill="#FFF" font-family="Arial, sans-serif" font-weight="bold">VISA</text>
+                            </svg>
+                            <!-- Mastercard -->
+                            <svg width="28" height="18" viewBox="0 0 780 500" class="payment-icon">
+                                <rect width="780" height="500" rx="40" fill="#000"/>
+                                <circle cx="270" cy="250" r="125" fill="#EB001B"/>
+                                <circle cx="510" cy="250" r="125" fill="#F79E1B"/>
+                                <path d="M380 135.6v44.9c-11-17-30-28.4-51.6-28.4-35.3 0-64 28.7-64 64s28.7 64 64 64c21.6 0 40.6-11.4 51.6-28.4v44.9h32v-158H380v-.8z" fill="#FF5F00"/>
+                            </svg>
+                            <!-- PIX -->
+                            <svg width="28" height="18" viewBox="0 0 512 512" class="payment-icon">
+                                <rect width="512" height="512" rx="45" fill="#32BCAD"/>
+                                <text x="256" y="280" text-anchor="middle" font-size="120" fill="#FFF" font-family="Arial, sans-serif" font-weight="bold">PIX</text>
+                            </svg>
+                            <!-- Boleto -->
+                            <svg width="28" height="18" viewBox="0 0 100 64" class="payment-icon">
+                                <rect width="100" height="64" rx="4" fill="#333" stroke="#666"/>
+                                <rect x="4" y="8" width="92" height="2" fill="#FFF"/>
+                                <rect x="4" y="12" width="92" height="2" fill="#FFF"/>
+                                <rect x="4" y="16" width="70" height="2" fill="#FFF"/>
+                                <rect x="4" y="20" width="85" height="2" fill="#FFF"/>
+                                <text x="50" y="45" text-anchor="middle" font-size="10" fill="#FFF" font-family="Arial, sans-serif" font-weight="bold">BOLETO</text>
+                            </svg>
+                            <!-- Cartão de Crédito -->
+                            <svg width="28" height="18" viewBox="0 0 100 64" class="payment-icon">
+                                <rect width="100" height="64" rx="6" fill="#4A90E2" stroke="#357ABD"/>
+                                <rect y="20" width="100" height="12" fill="#357ABD"/>
+                                <rect x="8" y="42" width="20" height="4" fill="#FFF"/>
+                                <circle cx="85" cy="50" r="4" fill="#FFF"/>
+                            </svg>
+                            <!-- Cartão de Débito -->
+                            <svg width="28" height="18" viewBox="0 0 100 64" class="payment-icon">
+                                <rect width="100" height="64" rx="6" fill="#28A745" stroke="#1E7E34"/>
+                                <rect y="20" width="100" height="12" fill="#1E7E34"/>
+                                <text x="8" y="55" font-size="8" fill="#FFF" font-family="Arial, sans-serif" font-weight="bold">DÉBITO</text>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <div class="trust-badge">
+                        <div class="ssl-protection">
+                            <svg width="20" height="20" viewBox="0 0 24 24" class="ssl-icon">
+                                <path d="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9L10,17Z" fill="#2ECC71"/>
+                            </svg>
+                            <span class="ssl-text">SSL</span>
+                        </div>
+                    </div>
+                    
+                    <div class="trust-badge">
+                        <!-- CE -->
+                        <svg width="20" height="20" viewBox="0 0 100 100" class="trust-icon">
+                            <rect width="100" height="100" rx="8" fill="#003399"/>
+                            <text x="50" y="60" text-anchor="middle" font-size="28" fill="#FFF" font-family="Arial, sans-serif" font-weight="bold">CE</text>
+                        </svg>
+                    </div>
+                    
+                    <div class="trust-badge">
+                        <!-- ISO 9001 -->
+                        <svg width="20" height="20" viewBox="0 0 100 100" class="trust-icon">
+                            <circle cx="50" cy="50" r="45" fill="#FFF" stroke="#000" stroke-width="2"/>
+                            <text x="50" y="35" text-anchor="middle" font-size="12" fill="#000" font-family="Arial, sans-serif" font-weight="bold">ISO</text>
+                            <text x="50" y="50" text-anchor="middle" font-size="16" fill="#000" font-family="Arial, sans-serif" font-weight="bold">9001</text>
+                            <text x="50" y="65" text-anchor="middle" font-size="8" fill="#000" font-family="Arial, sans-serif">Quality</text>
+                        </svg>
+                    </div>
+                    
+                    <div class="trust-badge">
+                        <!-- Google Safe Browsing -->
+                        <svg width="20" height="20" viewBox="0 0 100 100" class="trust-icon">
+                            <rect width="100" height="100" rx="8" fill="#1a73e8"/>
+                            <path d="M50 20L30 40v30l20 10 20-10V40L50 20z" fill="#34a853"/>
+                            <path d="M45 45h10v20h-10V45z" fill="#FFF"/>
+                            <circle cx="50" cy="38" r="3" fill="#FFF"/>
+                        </svg>
+                    </div>
+                    
+                    <div class="trust-badge">
+                        <!-- CO2 Neutral -->
+                        <svg width="20" height="20" viewBox="0 0 100 100" class="trust-icon">
+                            <circle cx="50" cy="50" r="45" fill="#228B22"/>
+                            <text x="50" y="40" text-anchor="middle" font-size="14" fill="#FFF" font-family="Arial, sans-serif" font-weight="bold">CO₂</text>
+                            <text x="50" y="60" text-anchor="middle" font-size="10" fill="#FFF" font-family="Arial, sans-serif">NEUTRAL</text>
+                        </svg>
+                    </div>
             </div>
-            
-            <!-- Badges de segurança -->
-            <div class="security-badges fade-in-up">
-                <div class="security-badge">
-                    <svg class="security-badge-icon" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                    </svg>
-                    Compra Segura
-                </div>
-                <div class="security-badge">
-                    <svg class="security-badge-icon" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"></path>
-                    </svg>
-                    SSL 256-bit
-                </div>
-                <div class="security-badge">
-                    <svg class="security-badge-icon" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    Site Verificado
-                </div>
-                <div class="security-badge">
-                    <svg class="security-badge-icon" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M1 8a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 018.07 3h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0016.07 6H17a2 2 0 012 2v7a2 2 0 01-2 2H3a2 2 0 01-2-2V8zm13.5 3a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM10 14a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
-                    </svg>
-                    Produtos Originais
-                </div>
-            </div>
-            
-            <!-- Badges de segurança -->
-            <div class="security-badges fade-in-up">
-                <div class="security-badge">
-                    <svg class="security-badge-icon" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                    </svg>
-                    Compra Segura
-                </div>
-                <div class="security-badge">
-                    <svg class="security-badge-icon" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"></path>
-                    </svg>
-                    SSL 256-bit
-                </div>
-                <div class="security-badge">
-                    <svg class="security-badge-icon" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    Site Verificado
-                </div>
-                <div class="security-badge">
-                    <svg class="security-badge-icon" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M1 8a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 018.07 3h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0016.07 6H17a2 2 0 012 2v7a2 2 0 01-2 2H3a2 2 0 01-2-2V8zm13.5 3a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM10 14a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
-                    </svg>
-                    Produtos Originais
-                </div>
-            </div>
-            
-            <!-- Copyright -->
-            <div class="footer-copyright">
-                <p>
-                    © 2026 D&Z E-commerce. Todos os direitos reservados.
-                </p>
+        </div>
+        
+        <div class="footer-bottom">
+            <div class="copyright">
+                © 2026 D&Z Beauty • Todos os direitos reservados
             </div>
         </div>
     </footer>
