@@ -260,6 +260,39 @@ session_start();
             display: flex;
             align-items: center;
             gap: 12px;
+            position: relative;
+        }
+
+        .search-panel {
+            width: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-panel.active {
+            width: 260px;
+            opacity: 1;
+            margin-left: 16px;
+        }
+
+        .search-panel input {
+            width: 260px;
+            padding: 10px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(230, 0, 126, 0.2);
+            background: white;
+            color: #1e293b;
+            font-size: 0.9rem;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+            outline: none;
+        }
+
+        .search-panel input:focus {
+            border-color: var(--color-magenta);
+            box-shadow: 0 8px 20px rgba(230, 0, 126, 0.2);
         }
         
         .btn-icon {
@@ -2684,8 +2717,12 @@ session_start();
                         <span></span>
                     </div>
                 </button>
+
+                <div class="search-panel" id="searchPanel">
+                    <input type="search" id="searchInput" placeholder="Buscar produtos" aria-label="Buscar produtos">
+                </div>
                 
-                <button class="btn-icon" title="Pesquisar">
+                <button class="btn-icon btn-search" id="searchToggle" title="Pesquisar" aria-expanded="false" aria-controls="searchPanel">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
                     </svg>
@@ -4149,6 +4186,41 @@ session_start();
                 navbar.classList.add('scrolled');
             } else {
                 navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Barra de pesquisa na navbar
+        const searchToggle = document.getElementById('searchToggle');
+        const searchPanel = document.getElementById('searchPanel');
+        const searchInput = document.getElementById('searchInput');
+
+        function closeSearchPanel() {
+            if (!searchPanel || !searchToggle) return;
+            searchPanel.classList.remove('active');
+            searchToggle.setAttribute('aria-expanded', 'false');
+        }
+
+        if (searchToggle && searchPanel) {
+            searchToggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                const isOpen = searchPanel.classList.toggle('active');
+                searchToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                if (isOpen && searchInput) {
+                    searchInput.focus();
+                }
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!searchPanel || !searchToggle) return;
+            if (!searchPanel.classList.contains('active')) return;
+            if (searchPanel.contains(e.target) || searchToggle.contains(e.target)) return;
+            closeSearchPanel();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeSearchPanel();
             }
         });
         
