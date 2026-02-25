@@ -18,10 +18,10 @@ DirectoryIndex index.php
 # Configurações de segurança
 
 # Bloqueia acesso direto a arquivos de configuração
-<Files "config-cliente.php">
+<FilesMatch "^(config|config-cliente)\.php$">
     Order Deny,Allow
     Deny from all
-</Files>
+</FilesMatch>
 
 # Bloqueia acesso a arquivos sensíveis
 <FilesMatch "\.(htaccess|htpasswd|ini|log|sql|conf)$">
