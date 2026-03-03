@@ -68,7 +68,7 @@ try {
     // Buscar itens de cada pedido
     foreach ($pedidos as $key => $pedido) {
         try {
-            $stmtItens = $pdo->prepare("SELECT ip.quantidade, ip.preco_unitario, pr.nome, pr.imagem, pr.categoria FROM itens_pedido ip LEFT JOIN produtos pr ON ip.produto_id = pr.id WHERE ip.pedido_id = ?");
+            $stmtItens = $pdo->prepare("SELECT ip.quantidade, ip.preco_unitario, pr.nome, pr.imagem_principal as imagem, pr.categoria FROM itens_pedido ip LEFT JOIN produtos pr ON ip.produto_id = pr.id WHERE ip.pedido_id = ?");
             $stmtItens->execute([$pedido['id']]);
             $pedidos[$key]['itens'] = $stmtItens->fetchAll(PDO::FETCH_ASSOC) ?: [];
         } catch (PDOException $eItens) {
@@ -1375,7 +1375,16 @@ function corStatus($status) {
                                         <div class="pedido-itens">
                                             <?php foreach ($pedido['itens'] as $item): ?>
                                                 <div class="item-produto">
-                                                    <div class="item-imagem">📦</div>
+                                                    <div class="item-imagem">
+                                                        <?php if (!empty($item['imagem'])): ?>
+                                                            <img src="../../admin/assets/images/produtos/<?php echo htmlspecialchars($item['imagem']); ?>" 
+                                                                 alt="<?php echo htmlspecialchars($item['nome'] ?? 'Produto'); ?>"
+                                                                 style="width: 100%; height: 100%; object-fit: cover;"
+                                                                 onerror="this.parentElement.innerHTML='📦';">
+                                                        <?php else: ?>
+                                                            📦
+                                                        <?php endif; ?>
+                                                    </div>
                                                     <div class="item-info">
                                                         <div class="item-nome"><?php echo htmlspecialchars($item['nome'] ?? 'Produto'); ?></div>
                                                         <div class="item-detalhes">

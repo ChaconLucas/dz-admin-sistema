@@ -3340,9 +3340,10 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                         <div class="produto-card">
                             <div class="produto-image novo">
                                 <?php if (!empty($product['imagem_principal'])): ?>
-                                <img src="/assets/images/produtos/<?php echo htmlspecialchars($product['imagem_principal']); ?>" 
+                                <img src="../admin/assets/images/produtos/<?php echo htmlspecialchars($product['imagem_principal']); ?>" 
                                      alt="<?php echo htmlspecialchars($product['nome']); ?>"
-                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;"
+                                     onerror="this.parentElement.innerHTML='<div class=\'produto-placeholder\'>💅</div>';">
                                 <?php else: ?>
                                 <div class="produto-placeholder">💅</div>
                                 <?php endif; ?>
