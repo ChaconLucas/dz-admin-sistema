@@ -4,6 +4,8 @@ ob_start();
 
 session_start();
 
+require_once '../../../config/base.php';
+
 // ENDPOINTS AJAX - MOVER PARA O TOPO ANTES DE QUALQUER HTML
 // Endpoint AJAX para buscar status da IA
 if (isset($_GET['action']) && $_GET['action'] === 'get_performance_metrics' && isset($_SERVER['HTTP_X_REQUESTED_WITH'])) {
@@ -681,6 +683,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_critical_alerts' && isset
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="<?php echo BASE_URL; ?>admin/favicon.ico">
     <link rel="stylesheet" href="../../css/dashboard.css?v=<?php echo time(); ?>" />
     <link rel="stylesheet" href="../../css/modern-chat.css?v=<?php echo time(); ?>" />
     <link
@@ -747,6 +750,40 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_critical_alerts' && isset
             <span class="material-symbols-sharp">account_tree</span>
             <h3>Gestão de Fluxo</h3>
           </a>
+
+          <div class="menu-item-container">
+            <a href="cms/home.php" class="menu-item-with-submenu">
+              <span class="material-symbols-sharp">web</span>
+              <h3>CMS</h3>
+            </a>
+            
+            <div class="submenu">
+              <a href="cms/home.php">
+                <span class="material-symbols-sharp">home</span>
+                <h3>Home (Textos)</h3>
+              </a>
+              <a href="cms/banners.php">
+                <span class="material-symbols-sharp">view_carousel</span>
+                <h3>Banners</h3>
+              </a>
+              <a href="cms/featured.php">
+                <span class="material-symbols-sharp">star</span>
+                <h3>Lançamentos</h3>
+              </a>
+              <a href="cms/promos.php">
+                <span class="material-symbols-sharp">local_offer</span>
+                <h3>Promoções</h3>
+              </a>
+              <a href="cms/testimonials.php">
+                <span class="material-symbols-sharp">format_quote</span>
+                <h3>Depoimentos</h3>
+              </a>
+              <a href="cms/metrics.php">
+                <span class="material-symbols-sharp">speed</span>
+                <h3>Métricas</h3>
+              </a>
+            </div>
+          </div>
 
           <div class="menu-item-container">
             <a href="geral.php" class="menu-item-with-submenu">
@@ -1133,6 +1170,13 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_critical_alerts' && isset
         </div>
       </div>
     </div>
+
+    <!-- Configuração Global de Caminhos -->
+    <script>
+        window.BASE_URL = '<?php echo BASE_URL; ?>';
+        window.API_CONTADOR_URL = '<?php echo API_CONTADOR_URL; ?>';
+        window.API_SISTEMA_URL = '<?php echo API_SISTEMA_URL; ?>';
+    </script>
 
     <script src="../../js/dashboard.js?v=<?php echo time(); ?>"></script>
     

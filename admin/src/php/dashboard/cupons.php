@@ -1236,6 +1236,40 @@ if ($result) {
           </a>
 
           <div class="menu-item-container">
+            <a href="cms/home.php" id="cms-link" class="menu-item-with-submenu">
+              <span class="material-symbols-sharp">web</span>
+              <h3>CMS</h3>
+            </a>
+            
+            <div class="submenu">
+              <a href="cms/home.php">
+                <span class="material-symbols-sharp">home</span>
+                <h3>Home (Textos)</h3>
+              </a>
+              <a href="cms/banners.php">
+                <span class="material-symbols-sharp">view_carousel</span>
+                <h3>Banners</h3>
+              </a>
+              <a href="cms/featured.php">
+                <span class="material-symbols-sharp">star</span>
+                <h3>Lançamentos</h3>
+              </a>
+              <a href="cms/promos.php">
+                <span class="material-symbols-sharp">local_offer</span>
+                <h3>Promoções</h3>
+              </a>
+              <a href="cms/testimonials.php">
+                <span class="material-symbols-sharp">format_quote</span>
+                <h3>Depoimentos</h3>
+              </a>
+              <a href="cms/metrics.php">
+                <span class="material-symbols-sharp">speed</span>
+                <h3>Métricas</h3>
+              </a>
+            </div>
+          </div>
+
+          <div class="menu-item-container">
             <a href="geral.php" id="configuracoes-link" class="menu-item-with-submenu">
               <span class="material-symbols-sharp">Settings</span>
               <h3>Configurações</h3>
@@ -1760,7 +1794,7 @@ if ($result) {
               <small class="text-muted">Admin</small>
             </div>
             <div class="profile-photo">
-              <img src="../../../assets/images/profile-1.jpg" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNmZjAwY2MiLz4KPHBhdGggZD0iTTIwIDIwYzIuMjEgMCA0LTEuNzkgNC00cy0xLjc5LTQtNC00LTQgMS43OS00IDQgMS43OSA0IDQgNHptMCAyYy0yLjY3IDAtOCAxLjM0LTggNHYyaDE2di0yYzAtMi42Ni01LjMzLTQtOC00eiIgZmlsbD0iI2ZmZiIvPgo8L3N2Zz4='" alt="Profile" />
+              <img src="../../../assets/images/Logodz.png" alt="Logo D&Z" />
             </div>
           </div>
         </div>

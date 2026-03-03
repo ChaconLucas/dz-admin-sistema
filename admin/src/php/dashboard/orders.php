@@ -6,6 +6,7 @@ if (!isset($_SESSION['usuario_logado'])) {
     exit();
 }
 
+require_once '../../../config/base.php';
 // Incluir contador de mensagens
 require_once 'helper-contador.php';
 
@@ -876,6 +877,7 @@ try {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="<?php echo BASE_URL; ?>admin/favicon.ico">
     <link rel="stylesheet" href="../../css/dashboard.css">
 
      <link
@@ -2234,6 +2236,40 @@ try {
           </a>
 
           <div class="menu-item-container">
+            <a href="cms/home.php" class="menu-item-with-submenu">
+              <span class="material-symbols-sharp">web</span>
+              <h3>CMS</h3>
+            </a>
+            
+            <div class="submenu">
+              <a href="cms/home.php">
+                <span class="material-symbols-sharp">home</span>
+                <h3>Home (Textos)</h3>
+              </a>
+              <a href="cms/banners.php">
+                <span class="material-symbols-sharp">view_carousel</span>
+                <h3>Banners</h3>
+              </a>
+              <a href="cms/featured.php">
+                <span class="material-symbols-sharp">star</span>
+                <h3>Lançamentos</h3>
+              </a>
+              <a href="cms/promos.php">
+                <span class="material-symbols-sharp">local_offer</span>
+                <h3>Promoções</h3>
+              </a>
+              <a href="cms/testimonials.php">
+                <span class="material-symbols-sharp">format_quote</span>
+                <h3>Depoimentos</h3>
+              </a>
+              <a href="cms/metrics.php">
+                <span class="material-symbols-sharp">speed</span>
+                <h3>Métricas</h3>
+              </a>
+            </div>
+          </div>
+
+          <div class="menu-item-container">
             <a href="geral.php" class="menu-item-with-submenu">
               <span class="material-symbols-sharp">Settings</span>
               <h3>Configurações</h3>
@@ -2628,6 +2664,13 @@ try {
             </div>
         </div>
     </div>
+
+    <!-- Configuração Global de Caminhos -->
+    <script>
+        window.BASE_URL = '<?php echo BASE_URL; ?>';
+        window.API_CONTADOR_URL = '<?php echo API_CONTADOR_URL; ?>';
+        window.API_SISTEMA_URL = '<?php echo API_SISTEMA_URL; ?>';
+    </script>
 
     
 <script src="../../js/dashboard.js"></script>

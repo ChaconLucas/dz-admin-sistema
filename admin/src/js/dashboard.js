@@ -131,9 +131,17 @@ document.addEventListener("DOMContentLoaded", function () {
 // Função para atualizar o contador de mensagens não lidas
 window.atualizarContadorMensagens = async function () {
   try {
-    const response = await fetch(
-      "../sistema.php?api=1&endpoint=admin&action=get_stats",
-    );
+    const apiUrl = window.API_SISTEMA_URL
+      ? `${window.API_SISTEMA_URL}?api=1&endpoint=admin&action=get_stats`
+      : window.BASE_URL +
+        "admin/src/php/sistema.php?api=1&endpoint=admin&action=get_stats";
+
+    const response = await fetch(apiUrl);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error ${response.status}`);
+    }
+
     if (response.ok) {
       const stats = await response.json();
       console.log("📊 Stats recebidas:", stats);

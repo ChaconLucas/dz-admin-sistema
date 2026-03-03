@@ -4,7 +4,11 @@
 
 // Função para atualizar contador de mensagens não lidas
 function atualizarContador() {
-  fetch("api-contador.php")
+  const apiUrl =
+    window.API_CONTADOR_URL ||
+    window.BASE_URL + "admin/src/php/dashboard/api-contador.php";
+
+  fetch(apiUrl)
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {

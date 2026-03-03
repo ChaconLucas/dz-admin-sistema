@@ -1,6 +1,6 @@
-# 🎯 D&Z Admin - Sistema Completo de Gestão
+# 🎯 D&Z Admin - Sistema Completo de Gestão E-commerce
 
-**Painel administrativo moderno e completo para gerenciamento de produtos, vendedores, pedidos, chat com IA e sistema avançado de logs de auditoria.**
+**Painel administrativo moderno com CMS integrado para gerenciamento completo de e-commerce de produtos de beleza profissional.**
 
 ---
 
@@ -9,30 +9,25 @@
 1. [Sobre o Projeto](#-sobre-o-projeto)
 2. [Tecnologias Utilizadas](#-tecnologias-utilizadas)
 3. [Estrutura do Projeto](#-estrutura-do-projeto)
-4. [Instalação e Configuração](#-instalação-e-configuração)
-5. [Funcionalidades Principais](#-funcionalidades-principais)
-6. [Sistema de Detecção Online](#-sistema-de-detecção-online)
-7. [Sistema de Logs](#-sistema-de-logs)
-8. [API Endpoints](#-api-endpoints-disponíveis)
-9. [Como Usar](#-como-usar)
-10. [Configurações Avançadas](#-configurações-avançadas)
-11. [Módulo Gestão de Fluxo](#-módulo-gestão-de-fluxo)
-12. [Segurança](#-segurança)
-13. [Suporte](#-suporte)
+4. [Instalação Rápida](#-instalação-rápida)
+5. [Módulo CMS](#-módulo-cms)
+6. [Sistema de Chat com IA](#-sistema-de-chat-com-ia)
+7. [Área do Cliente](#-área-do-cliente)
+8. [Configurações](#-configurações)
+9. [Segurança](#-segurança)
 
 ---
 
 ## 🚀 **Sobre o Projeto**
 
-O **D&Z Admin** é um sistema completo de administração desenvolvido para pequenas e médias empresas que precisam de:
+O **D&Z Admin** é um sistema completo de administração desenvolvido para e-commerce de produtos profissionais de beleza (unhas, cílios) com:
 
-- **Gestão de Produtos**: Cadastro, edição, controle de estoque e preços
-- **Chat Inteligente**: Sistema de chat com IA integrada (Groq API)
-- **Painel de Vendedores**: Controle de equipe e performance
-- **Sistema de Logs**: Auditoria completa de todas as ações
-- **Dashboard Analytics**: Métricas e gráficos em tempo real
-- **Interface Moderna**: Design responsivo com tema D&Z
-- **Sistema de Detecção Online**: Monitoramento real de administradores ativos
+- ✅ **Painel Admin Completo**: Produtos, pedidos, vendedores, métricas
+- ✅ **CMS Integrado**: Gerenciamento de conteúdo do site público
+- ✅ **Chat com IA**: Sistema de atendimento automatizado (Groq API)
+- ✅ **Sistema de Logs**: Auditoria completa de ações
+- ✅ **Site Público**: Loja virtual integrada ao admin
+- ✅ **Dashboard Analytics**: Gráficos e métricas em tempo real
 
 ---
 
@@ -40,21 +35,21 @@ O **D&Z Admin** é um sistema completo de administração desenvolvido para pequ
 
 ### **Backend:**
 
-- ![PHP](https://img.shields.io/badge/PHP-8.0+-777BB4?style=flat&logo=php&logoColor=white) **PHP 8.0+**
-- ![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat&logo=mysql&logoColor=white) **MySQL 8.0**
-- ![XAMPP](https://img.shields.io/badge/XAMPP-Local_Server-FB7A24?style=flat&logo=xampp&logoColor=white) **XAMPP**
+- PHP 8.0+
+- MySQL 8.0 (utf8mb4)
+- XAMPP Local Server
 
 ### **Frontend:**
 
-- ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white) **HTML5**
-- ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white) **CSS3** (Grid/Flexbox)
-- ![JavaScript](https://img.shields.io/badge/JavaScript-ES6-F7DF1E?style=flat&logo=javascript&logoColor=black) **JavaScript ES6+**
-- ![Chart.js](https://img.shields.io/badge/Chart.js-Charts-FF6384?style=flat&logo=chart.js&logoColor=white) **Chart.js**
+- HTML5 + CSS3 (Grid/Flexbox)
+- JavaScript ES6+ (Vanilla)
+- Chart.js
+- Material Symbols Sharp
 
-### **APIs Externas:**
+### **APIs:**
 
-- ![Groq](https://img.shields.io/badge/Groq-AI_Chat-000000?style=flat&logo=ai&logoColor=white) **Groq API** (llama-3.3-70b-versatile)
-- ![Material](https://img.shields.io/badge/Material-Icons-757575?style=flat&logo=material-design&logoColor=white) **Material Symbols**
+- Groq API (llama-3.3-70b-versatile) - Chat IA
+- PHPMailer - Envio de e-mails
 
 ---
 
@@ -62,944 +57,462 @@ O **D&Z Admin** é um sistema completo de administração desenvolvido para pequ
 
 ```
 admin-teste/
-├── 📂 PHP/                     # Core PHP
-│   ├── acoes.php              # CRUD de usuários
-│   ├── conexao.php            # Conexão MySQL
-│   └── ...
-├── 📂 src/                     # Código fonte principal
-│   ├── 📂 css/                # Estilos
-│   │   ├── dashboard.css      # Tema principal
-│   │   ├── dashboard-cards.css
-│   │   └── dashboard-sections.css
-│   ├── 📂 js/                 # JavaScript
-│   │   ├── dashboard.js       # Funcionalidades principais
-│   │   ├── chat-auto.js       # Chat automático
-│   │   └── mensagens-simples.js
-│   └── 📂 php/                # Módulos PHP
-│       ├── sistema.php        # API principal
-│       ├── auto_log.php       # Sistema de logs
-│       └── 📂 dashboard/      # Páginas do painel
-│           ├── index.php      # Dashboard principal
-│           ├── products.php   # Gestão de produtos
-│           ├── all-logs.php   # Visualizar logs
-│           ├── menssage.php   # Chat/mensagens
-│           └── ...
-├── 📂 config/                 # Configurações
-├── 📂 uploads/                # Uploads de arquivos
-├── 📂 assets/                 # Recursos estáticos
-└── 📄 README.md              # Este arquivo
+├── 📂 admin/                      # Painel administrativo
+│   ├── config/
+│   │   └── base.php              # BASE_URL e caminhos globais
+│   ├── src/
+│   │   ├── css/                  # Estilos do dashboard
+│   │   ├── js/                   # JavaScript
+│   │   │   ├── dashboard.js      # Funções principais
+│   │   │   └── contador-auto.js  # Contador mensagens
+│   │   └── php/
+│   │       ├── sistema.php       # API principal
+│   │       └── dashboard/        # Páginas admin
+│   │           ├── index.php     # Dashboard
+│   │           ├── products.php  # Produtos
+│   │           ├── orders.php    # Pedidos
+│   │           ├── menssage.php  # Chat
+│   │           └── cms/          # Sistema CMS ⭐
+│   │               ├── home.php       # Textos da home
+│   │               ├── banners.php    # Banners carrossel
+│   │               ├── featured.php   # Produtos destaque
+│   │               ├── promos.php     # Promoções
+│   │               ├── testimonials.php # Depoimentos
+│   │               ├── metrics.php    # Métricas empresa
+│   │               ├── cms_api.php    # API do CMS
+│   │               └── setup_cms_tables.sql # SQL setup
+│   └── PHP/                      # Core PHP
+│       ├── conexao.php           # Conexão MySQL
+│       ├── acoes.php             # CRUD usuários
+│       └── ...
+├── 📂 cliente/                    # Site público (loja)
+│   ├── index.php                 # Home da loja
+│   ├── cms_data_provider.php     # Provider CMS ⭐
+│   ├── conexao.php               # Conexão cliente
+│   └── pages/                    # Páginas cliente
+│       ├── carrinho.php
+│       ├── login.php
+│       └── ...
+├── 📂 uploads/                    # Uploads de arquivos
+│   ├── banners/                  # Imagens de banners
+│   └── produtos/                 # Imagens de produtos
+├── 📂 config/                     # Configurações globais
+│   └── config.php                # Credenciais banco
+└── favicon.ico                    # Ícone do site
 ```
 
 ---
 
-## 🛠 **Instalação e Configuração**
+## 🛠 **Instalação Rápida**
 
-### **1. Pré-requisitos:**
+### **Passo 1: Requisitos**
 
-- **XAMPP** instalado
-- **PHP 7.4+**
-- **MySQL 8.0+**
-- **Navegador** moderno
+- XAMPP instalado
+- PHP 7.4+ com extensões: mysqli, curl, gd
+- MySQL 8.0+
 
-### **2. Clone o Projeto:**
+### **Passo 2: Banco de Dados**
 
-```bash
-cd C:\XAMPP-install\htdocs\
-git clone [repositório] admin-teste
-```
+1. Acesse phpMyAdmin: `http://localhost/phpmyadmin`
+2. Crie o banco: `teste_dz` (Cotejamento: `utf8mb4_unicode_ci`)
+3. Execute os scripts SQL:
+   - `admin/sql/criar_tabelas_dashboard.sql` (tabelas principais)
+   - `admin/src/php/dashboard/cms/setup_cms_tables.sql` (CMS) ⭐
 
-### **3. Configuração do Banco:**
+### **Passo 3: Configuração**
 
-```bash
-# Acesse o MySQL
-mysql -u root -p
-
-# Execute o script de criação
-source admin-teste/sql/criar_tabelas_dashboard.sql;
-```
-
-### **4. Configuração do PHP:**
-
-```php
-// config/config.php
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'seu_banco');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('GROQ_API_KEY', 'sua_chave_groq');
-```
-
-### **5. Iniciar Servidor:**
-
-```bash
-# Inicie o XAMPP
-# Acesse: http://localhost/admin-teste
-```
-
----
-
-## 🎯 **Funcionalidades Principais**
-
-### **📊 Dashboard Principal**
-
-- **Cards de Métricas**: Vendas, pedidos, produtos em tempo real
-- **Gráficos Interativos**: Chart.js com dados dinâmicos
-- **Timeline de Atividades**: Últimas ações do sistema
-
-### **🛍 Gestão de Produtos**
-
-- ✅ Cadastro completo com imagens múltiplas
-- ✅ Controle de estoque e preços promocionais
-- ✅ Categorização e SKU único
-- ✅ Edição inline com AJAX
-- ✅ Upload de imagens com preview
-
-### **💬 Sistema de Chat Inteligente**
-
-- 🤖 **IA Integrada**: Groq API para respostas automáticas
-- 📱 **Interface Moderna**: Design tipo WhatsApp
-- 🔔 **Notificações**: Tempo real para novas mensagens
-- 💾 **Histórico Completo**: Todas as conversas salvas
-
-### **👥 Gestão de Vendedores**
-
-- 📋 Cadastro de equipe de vendas
-- 📈 Métricas individuais de performance
-- 🎯 Atribuição de leads e clientes
-- 📊 Relatórios de vendas por vendedor
-
-### **🛒 Gestão de Pedidos**
-
-- 📦 Controle completo de pedidos
-- 🚚 Integração com sistema de frete
-- 💳 Status de pagamento
-- 📋 Histórico de compras
-
-### **📋 Gestão de Revendedores**
-
-- 🏪 Cadastro de revendedores
-- 📊 Controle de comissões
-- 🎯 Sistema de leads
-- 📈 Acompanhamento de performance
-
----
-
-## 📋 **Sistema de Logs**
-
-### **🔍 Auditoria Completa:**
-
-- ✅ **Todas as ações** são registradas automaticamente
-- ✅ **Quem fez**, **quando** e **o que mudou**
-- ✅ **Valores antes/depois** para alterações
-- ✅ **IP do usuário** e timestamp brasileiro
-
-### **📊 Visualização de Logs:**
-
-- 🔍 **Pesquisa avançada**: Nome, ação, IP, data
-- 📄 **Paginação inteligente**: 20 itens por página
-- 📥 **Export CSV**: Download de relatórios
-- 🗑 **Exclusão seletiva**: Limpar logs antigos
-
-### **Exemplos de Logs:**
-
-```
-João alterou preço do produto Notebook de R$ 2.500,00 para R$ 2.300,00
-Maria excluiu usuário Carlos Silva (email: carlos@email.com)
-Admin criou produto Smartphone Galaxy (categoria: eletrônicos)
-```
-
----
-
-## 🎮 **Como Usar**
-
-### **1. Primeiro Acesso:**
-
-```bash
-# Acesse: http://localhost/admin-teste
-# Login: admin / Senha: sua_senha
-```
-
-### **2. Configurar Sistema:**
-
-1. **Configurações**: Acesse `settings.php`
-2. **API Keys**: Configure Groq API
-3. **Usuários**: Crie usuários administrativos
-4. **Produtos**: Cadastre primeiros produtos
-
-### **3. Operação Diária:**
-
-1. **Dashboard**: Monitore métricas
-2. **Produtos**: Gerencie estoque
-3. **Chat**: Responda clientes
-4. **Logs**: Auditoria de ações
-
----
-
-## 📋 **Módulo Gestão de Fluxo**
-
-### 🎯 **Sobre o Módulo**
-
-O módulo de **Gestão de Fluxo** permite configurar status personalizados para pedidos com regras de negócio automatizadas e notificações inteligentes.
-
-### ✨ **Funcionalidades do Módulo**
-
-#### 🎯 **Configuração de Status**
-
-- **Status Personalizados**: Crie quantos status precisar (ex: Pago, Enviado, Entregue)
-- **Cores Personalizadas**: Color picker com preview em tempo real
-- **Ordenação Automática**: Os status são organizados por ordem de criação
-
-#### ⚙️ **Regras de Negócio Automatizadas**
-
-- **Baixar Estoque**: Subtrai automaticamente produtos do inventário
-- **Bloquear Edição**: Impede modificações no pedido após atingir o status
-- **Gerar Logística**: Habilita integração com Melhor Envio para rastreamento
-- **Notificações**: Ativa envio automático de mensagens
-
-#### 📱 **Central de Mensagens Automáticas**
-
-- **Templates Personalizados**: Crie mensagens para WhatsApp/E-mail
-- **Shortcodes Dinâmicos**: Use variáveis como `{cliente}`, `{id_pedido}`, `{status}`
-- **Preview em Tempo Real**: Visualize como ficará a mensagem no card
-
-### 🎨 **Interface do Módulo**
-
-#### **Layout Integrado**
-
-- ✅ **Sidebar**: Item "Gestão de Fluxo" com ícone `account_tree`
-- ✅ **Header**: Mantém alternador de tema e perfil do usuário
-- ✅ **Responsivo**: Interface adaptável para desktop e mobile
-- ✅ **Tema Dark/Light**: Totalmente compatível com o sistema de temas
-
-#### **Cards Intuitivos**
-
-- 🎨 **Badge Preview**: Mostra como o status aparecerá nos pedidos
-- ⚡ **Edição Rápida**: Botões de editar/excluir em cada card
-- 📋 **Regras Visuais**: Ícones indicam quais regras estão ativas
-- 💬 **Template Preview**: Mensagem formatada com destaque
-
-### 🛠 **Instalação do Módulo**
-
-#### 1. **Estrutura do Banco**
-
-```sql
-CREATE TABLE IF NOT EXISTS status_fluxo (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(255) NOT NULL,
-    cor_hex VARCHAR(7) NOT NULL DEFAULT '#ff00d4',
-    baixa_estoque TINYINT(1) DEFAULT 0,
-    bloquear_edicao TINYINT(1) DEFAULT 0,
-    gerar_logistica TINYINT(1) DEFAULT 0,
-    notificar TINYINT(1) DEFAULT 0,
-    mensagem_template TEXT,
-    ordem INT DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-```
-
-#### 2. **Arquivos do Módulo**
-
-- **`gestao-fluxo.php`**: Página principal do módulo
-- **Sidebar atualizada**: Todos os arquivos principais incluem o novo item
-
-#### 3. **Status Padrão**
-
-O sistema criará automaticamente 5 status iniciais:
-
-1. **Pedido Recebido** (Rosa #ff00d4)
-2. **Pagamento Confirmado** (Verde #41f1b6)
-3. **Em Preparação** (Amarelo #ffbb55)
-4. **Enviado** (Azul #007bff)
-5. **Entregue** (Verde #28a745)
-
-### 🔄 **Integração com o Sistema**
-
-#### **Compatibilidade Total**
-
-- ✅ **CSS**: Usa variáveis CSS existentes do projeto
-- ✅ **JavaScript**: Integrado com `dashboard.js`
-- ✅ **PHP**: Segue padrão de sessões e conexão do projeto
-- ✅ **Logs**: Sistema de auditoria automática integrado
-
-#### **Shortcodes Disponíveis**
-
-- `{cliente}` - Nome do cliente
-- `{id_pedido}` - ID do pedido
-- `{status}` - Nome do status atual
-- `{codigo_rastreio}` - Código de rastreamento
-- `{link_rastreio}` - Link para rastreamento
-
-### 🎯 **Como Usar o Módulo**
-
-#### **Adicionar Novo Status**
-
-1. Clique em "**+ Adicionar Novo Status**"
-2. Preencha o nome do status
-3. Escolha uma cor no color picker
-4. Configure as regras de negócio (checkboxes)
-5. Se ativar notificações, escreva o template da mensagem
-6. Clique em "**Adicionar Status**"
-
-#### **Editar Status Existente**
-
-1. Clique no botão **✏️ editar** do card
-2. Modifique os campos desejados
-3. Clique em "**Atualizar Status**"
-
-#### **Excluir Status**
-
-1. Clique no botão **🗑️ excluir** do card
-2. Confirme a exclusão no modal
-
-### 🔧 **Personalização do Módulo**
-
-#### **Cores do Projeto**
-
-O sistema usa as variáveis CSS do projeto:
-
-- `--color-primary`: #ff00d4 (Rosa principal)
-- `--color-success`: #41f1b6 (Verde)
-- `--color-warning`: #ffbb55 (Amarelo)
-- `--color-danger`: #ff00d4 (Rosa para danger)
-
-#### **Responsividade**
-
-- **Desktop**: Grid de 2-3 colunas
-- **Tablet**: Grid de 2 colunas
-- **Mobile**: Coluna única
-
-### 🚀 **Funcionalidades Futuras**
-
-- [ ] Reordenar status por arrastar e soltar
-- [ ] Importar/Exportar configurações
-- [ ] Histórico de mudanças de status
-- [ ] Relatórios por status
-- [ ] Integração com API do WhatsApp
-
----
-
-## ⚙ **Configurações Avançadas**
-
-### **🎨 Personalização Visual:**
-
-```css
-/* src/css/dashboard.css */
-:root {
-  --color-primary: #28a745; /* Verde D&Z */
-  --color-danger: #ff1493; /* Rosa D&Z */
-  --color-success: #28a745; /* Verde sucesso */
-}
-```
-
-### **🤖 Configurar Chat IA:**
-
-```php
-// config/config.php
-define('GROQ_API_KEY', 'gsk_sua_chave_aqui');
-define('GROQ_MODEL', 'mixtral-8x7b-32768');
-define('GROQ_TEMPERATURE', 0.7);
-```
-
-### **📊 Métricas Dashboard:**
-
-```php
-// Personalizar cards do dashboard
-// src/php/dashboard/index.php - linha 120+
-```
-
-### **🔔 Notificações:**
-
-```javascript
-// Intervalo de atualização (ms)
-const UPDATE_INTERVAL = 2000; // 2 segundos
-```
-
----
-
-## 🔐 **Segurança**
-
-### **🛡 Proteções Implementadas:**
-
-- ✅ **Hash de Senhas**: bcrypt para todas as senhas
-- ✅ **Prepared Statements**: SQL injection prevention
-- ✅ **CSRF Protection**: Tokens de validação
-- ✅ **XSS Prevention**: htmlspecialchars em outputs
-- ✅ **Session Security**: Validação de sessões
-
-## 🔍 **Sistema de Detecção Online**
-
-### **🎯 Monitoramento Real de Administradores**
-
-O sistema detecta apenas administradores que estão **realmente logados** no momento:
-
-#### ✅ **Critérios para estar "Online":**
-
-- Usuário deve ter sessão ativa
-- Atividade nos **últimos 5 minutos**
-- Sessão registrada na tabela `admin_sessions`
-
-#### 🔄 **Funcionamento:**
-
-1. **Ao acessar qualquer página**: Sessão é registrada/atualizada
-2. **A cada 1 minuto**: JavaScript faz ping para manter sessão ativa
-3. **A cada 20 segundos**: Lista de admins online é atualizada
-4. **Limpeza automática**: Sessões inativas há mais de 10 minutos são removidas
-
-#### 🛠️ **Para aplicar em outras páginas do dashboard:**
-
-Adicione no início de cada arquivo PHP do dashboard:
-
-```php
-// Incluir session tracker (APÓS includes de sessão e conexão)
-require_once '../session-tracker.php';
-```
-
-**Exemplo para index.php:**
+**Arquivo:** `admin/config/config.php`
 
 ```php
 <?php
-session_start();
-if (!isset($_SESSION['usuario_logado'])) {
-    header('Location: login.php');
-    exit();
-}
+define('DB_HOST', 'localhost');
+define('DB_USER', 'root');
+define('DB_PASS', '');
+define('DB_NAME', 'teste_dz');
 
-require_once '../../../PHP/conexao.php';
-require_once '../session-tracker.php'; // ← ADICIONAR ESTA LINHA
-?>
+// API Groq (Chat IA)
+define('GROQ_API_KEY', 'sua-chave-aqui');
 ```
 
-#### 📊 **Tabela criada automaticamente:**
+**Arquivo:** `admin/config/base.php` (já configurado)
+
+```php
+<?php
+define('BASE_URL', '/admin-teste/');  // Ajustar se necessário
+define('API_SISTEMA_URL', BASE_URL . 'admin/src/php/sistema.php');
+```
+
+### **Passo 4: Acesso**
+
+- **Admin:** `http://localhost/admin-teste/admin/PHP/login.php`
+- **Site Público:** `http://localhost/admin-teste/cliente/`
+
+**Credenciais padrão:** (criar no banco ou via cadastro)
+
+---
+
+## 🎨 **Módulo CMS**
+
+### **O que é?**
+
+Sistema de gerenciamento de conteúdo integrado ao painel admin para editar o site público sem alterar código.
+
+### **Funcionalidades:**
+
+#### 1️⃣ **Home - Textos Principais**
+
+- Seção Hero (título, subtítulo, descrição, botão)
+- Seção Lançamentos (título, subtítulo)
+
+#### 2️⃣ **Banners do Carrossel**
+
+- Upload de imagens (JPG, PNG, WEBP - máx 2MB)
+- Título, subtítulo, descrição
+- Botão de ação (texto + link)
+- Ativar/Desativar
+- Ordenação (↑↓)
+- CRUD completo
+
+#### 3️⃣ **Produtos em Destaque**
+
+- Selecionar produtos da base existente
+- Busca/filtro em tempo real
+- Ordenação personalizada
+- Limite: 4-8 produtos
+
+#### 4️⃣ **Promoções**
+
+- Blocos promocionais configuráveis
+
+#### 5️⃣ **Depoimentos**
+
+- CRUD de depoimentos de clientes
+
+#### 6️⃣ **Métricas da Empresa**
+
+- Números estatísticos (anos mercado, clientes, produtos, etc)
+
+---
+
+### **Tabelas do CMS:**
 
 ```sql
-CREATE TABLE admin_sessions (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    session_id VARCHAR(255) NOT NULL,
-    last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    ip_address VARCHAR(45),
-    user_agent TEXT,
-    INDEX idx_user_activity (user_id, last_activity),
-    INDEX idx_session (session_id),
-    UNIQUE KEY unique_user_session (user_id, session_id)
-);
-```
-
-#### 🎯 **Resultado:**
-
-- ✅ Apenas admins **realmente logados** aparecem online
-- ✅ Detecção automática de logout/inatividade
-- ✅ Sistema escalável para múltiplas páginas
-- ✅ Limpeza automática de sessões expiradas
-
----
-
-## 🎯 **API Endpoints Disponíveis**
-
-### **Chat Cliente**
-
-```javascript
-// Iniciar nova conversa
-POST sistema.php?api=1&endpoint=client&action=start_conversation
-{
-  "nome": "Cliente",
-  "email": "cliente@email.com",
-  "mensagem": "Preciso de ajuda"
-}
-
-// Enviar mensagem
-POST sistema.php?api=1&endpoint=client&action=send_message
-{
-  "conversa_id": 123,
-  "mensagem": "Nova mensagem"
-}
-```
-
-### **Chat Admin**
-
-```javascript
-// Listar conversas com filtros
-GET sistema.php?api=1&endpoint=admin&action=get_conversations&filter=unread
-
-// Obter mensagens de conversa
-GET sistema.php?api=1&endpoint=admin&action=get_messages&conversa_id=123
-
-// Enviar resposta admin
-POST sistema.php?api=1&endpoint=admin&action=send_admin_message
-{
-  "conversa_id": 123,
-  "mensagem": "Resposta do administrador"
-}
-
-// Marcar como não lida
-POST sistema.php?api=1&endpoint=admin&action=marcarComoNaoLida
-{
-  "conversa_id": 123
-}
-
-// Deletar conversa
-POST sistema.php?api=1&endpoint=admin&action=deletarConversa
-{
-  "conversa_id": 123
-}
-
-// Escalar para humano
-POST sistema.php?api=1&endpoint=admin&action=escalar_conversa
-{
-  "conversa_id": 123
-}
-```
-
-### **Sistema de Contadores**
-
-```javascript
-// Contador em tempo real
-GET sistema.php?api=1&endpoint=admin&action=get_message_count&filter=unread
-// Retorna: {"count": 5, "filter": "unread"}
-```
-
-### **Detecção de Admins Online**
-
-```javascript
-// Buscar administradores online
-GET menssage.php?action=buscar_administradores_online
-// Retorna: [{"nome": "João Silva", "email": "joao@email.com", "ultimo_acesso": "2026-01-30 15:30:00"}]
-
-// Ping para manter sessão ativa
-POST menssage.php?action=ping_session
+-- 3 tabelas principais
+home_settings         -- Textos da home (singleton)
+home_banners          -- Banners do carrossel
+home_featured_products -- Produtos em destaque
 ```
 
 ---
 
-## 📋 **Sistema de Logs**
+### **Integração Site Público:**
 
-### **🔍 Auditoria Completa:**
-
-- ✅ **Todas as ações** são registradas automaticamente
-- ✅ **Quem fez**, **quando** e **o que mudou**
-- ✅ **Valores antes/depois** para alterações
-- ✅ **IP do usuário** e timestamp brasileiro
-
-### **📊 Visualização de Logs:**
-
-- 🔍 **Pesquisa avançada**: Nome, ação, IP, data
-- 📄 **Paginação inteligente**: 20 itens por página
-- 📥 **Export CSV**: Download de relatórios
-- 🗑 **Exclusão seletiva**: Limpar logs antigos
-
-### **Exemplos de Logs:**
-
-```
-João alterou preço do produto Notebook de R$ 2.500,00 para R$ 2.300,00
-Maria excluiu usuário Carlos Silva (email: carlos@email.com)
-Admin criou produto Smartphone Galaxy (categoria: eletrônicos)
-```
-
-### **📋 Logs de Segurança:**
-
-- ✅ **Todas as ações** são auditadas
-- ✅ **IPs registrados** para rastreamento
-- ✅ **Tentativas de acesso** logadas
-- ✅ **Exclusões críticas** com backup
-
-### **🔧 Configurações de Segurança:**
+**Arquivo:** `cliente/index.php`
 
 ```php
-// PHP configurações recomendadas
-ini_set('session.cookie_httponly', 1);
-ini_set('session.use_only_cookies', 1);
-ini_set('session.cookie_secure', 1); // HTTPS only
+<?php
+// Incluir provider CMS
+require_once 'cms_data_provider.php';
+
+// Carregar dados do CMS
+$cms = new CMSProvider($conexao);
+$cmsData = $cms->getAllData();
+
+// Usar dados no HTML
+$banners = $cmsData['banners'];
+$settings = $cmsData['settings'];
+$featuredProducts = $cmsData['featured_products'];
+?>
+
+<!-- Exemplo: Banners dinâmicos -->
+<div class="carousel">
+    <?php foreach ($banners as $banner): ?>
+        <div class="banner-slide">
+            <img src="<?= getBannerImageUrl($banner['image_path']) ?>"
+                 alt="<?= htmlspecialchars($banner['title']) ?>">
+            <h2><?= htmlspecialchars($banner['title']) ?></h2>
+            <p><?= htmlspecialchars($banner['subtitle']) ?></p>
+        </div>
+    <?php endforeach; ?>
+</div>
 ```
 
 ---
 
-## 🚨 **Solução de Problemas**
+## 🤖 **Sistema de Chat com IA**
 
-### **❌ Problemas Comuns:**
+### **Tecnologia:**
 
-#### **1. Erro de Conexão MySQL:**
+- **API:** Groq (llama-3.3-70b-versatile)
+- **Personalidade:** DAIze - Consultora digital D&Z
 
-```bash
-# Verifique se MySQL está rodando
-net start mysql80
+### **Funcionalidades:**
 
-# Teste conexão
-mysql -u root -p
-```
+- ✅ Atendimento automatizado 24/7
+- ✅ Respostas sobre produtos (unhas, cílios)
+- ✅ Escalonamento para humano quando necessário
+- ✅ Histórico de conversas
+- ✅ Interface moderna com status online/offline
 
-#### **2. Erro PHP Fatal:**
+### **Configuração:**
 
-```bash
-# Verifique sintaxe
-php -l arquivo.php
-
-# Ative error reporting
-ini_set('display_errors', 1);
-```
-
-#### **3. Chat IA não responde:**
+1. Obtenha API key em: https://console.groq.com
+2. Configure em `admin/config/config.php`:
 
 ```php
-// Verifique API key
-var_dump(GROQ_API_KEY);
-
-// Teste conectividade
-curl "https://api.groq.com/openai/v1/models"
+define('GROQ_API_KEY', 'gsk_...sua_chave');
 ```
 
-#### **4. Upload de imagens falha:**
+### **Endpoints da API:**
+
+```javascript
+// Cliente (site público)
+POST /admin/src/php/sistema.php?api=1&endpoint=client&action=send_message
+
+// Admin (painel)
+GET /admin/src/php/sistema.php?api=1&endpoint=admin&action=get_stats
+GET /admin/src/php/sistema.php?api=1&endpoint=admin&action=get_conversations
+```
+
+---
+
+## 🛍️ **Área do Cliente**
+
+### **Funcionalidades:**
+
+- ✅ Vitrine de produtos com filtros
+- ✅ Carrinho de compras
+- ✅ Sistema de login/cadastro
+- ✅ Minha conta
+- ✅ Histórico de pedidos
+- ✅ Chat com IA integrado
+- ✅ Conteúdo dinâmico via CMS
+
+### **Arquivos principais:**
+
+```
+cliente/
+├── index.php              # Home da loja
+├── conexao.php            # Conexão compartilhada
+├── cms_data_provider.php  # Provider CMS
+└── pages/
+    ├── carrinho.php       # Carrinho
+    ├── login.php          # Login
+    ├── minha-conta.php    # Conta do cliente
+    └── pedidos.php        # Histórico
+```
+
+---
+
+## ⚙️ **Configurações**
+
+### **BASE_URL Global:**
+
+Todas as páginas admin usam caminhos absolutos definidos em `admin/config/base.php`:
+
+```php
+define('BASE_URL', '/admin-teste/');
+define('UPLOADS_URL', BASE_URL . 'uploads/');
+define('BANNERS_URL', UPLOADS_URL . 'banners/');
+```
+
+**JavaScript:**
+
+```html
+<script>
+  window.BASE_URL = "<?php echo BASE_URL; ?>";
+  window.API_SISTEMA_URL = "<?php echo API_SISTEMA_URL; ?>";
+</script>
+```
+
+### **Upload de Imagens:**
+
+**Configuração:** `admin/src/php/dashboard/cms/cms_api.php`
+
+```php
+// Pasta de upload (criada automaticamente)
+$upload_dir = dirname(__DIR__, 5) . '/uploads/banners/';
+
+// Permissões: 0755
+// Tamanho máx: 2MB
+// Formatos: JPG, PNG, WEBP
+```
+
+---
+
+## 🔒 **Segurança**
+
+### **Implementado:**
+
+✅ **Prepared Statements** - Prevenção SQL Injection
+✅ **XSS Protection** - `htmlspecialchars()` em outputs
+✅ **Session Management** - Controle de sessões seguro
+✅ **CSRF Protection** - Tokens em formulários críticos
+✅ **File Upload Validation** - Verificação de tipo MIME
+✅ **Path Sanitization** - Prevenção directory traversal
+✅ **Password Hashing** - `password_hash()` bcrypt
+
+### **Recomendações Produção:**
+
+⚠️ **IMPORTANTE - Antes de publicar:**
+
+1. Alterar credenciais do banco
+2. Ativar HTTPS (certificado SSL)
+3. Configurar `.htaccess` robusto:
+
+```apache
+# Bloquear acesso a arquivos sensíveis
+<FilesMatch "^(config\.php|conexao\.php)$">
+    Require all denied
+</FilesMatch>
+
+# Proteção contra listagem de diretórios
+Options -Indexes
+```
+
+4. Remover arquivos de teste/debug
+5. Ativar display_errors = Off no php.ini
+6. Implementar rate limiting nas APIs
+7. Configurar backup automático do banco
+
+---
+
+## 📊 **Sistema de Logs**
+
+Todas as ações administrativas são registradas automaticamente:
+
+**Tabela:** `admin_logs`
+
+**Campos:**
+
+- ID, admin_id, admin_nome
+- acao (descrição da ação)
+- ip_address
+- timestamp
+
+**Visualização:** `admin/src/php/dashboard/all-logs.php`
+
+---
+
+## 🚀 **Deploy / Mudança de Ambiente**
+
+### **Local → Servidor:**
+
+1. **Atualizar BASE_URL:**
+
+```php
+// admin/config/base.php
+define('BASE_URL', '/');  // Se na raiz do domínio
+// OU
+define('BASE_URL', '/subpasta/');  // Se em subpasta
+```
+
+2. **Atualizar conexão:**
+
+```php
+// config/config.php
+define('DB_HOST', 'seu-servidor-mysql');
+define('DB_USER', 'usuario-producao');
+define('DB_PASS', 'senha-forte');
+define('DB_NAME', 'banco-producao');
+```
+
+3. **Ajustar permissões:**
 
 ```bash
-# Verifique permissões
 chmod 755 uploads/
+chmod 755 uploads/banners/
 chmod 755 uploads/produtos/
+```
+
+4. **Testar:**
+
+- ✅ Login admin
+- ✅ Upload de imagens (CMS)
+- ✅ Chat funcionando
+- ✅ Site público carregando dados CMS
+
+---
+
+## 📝 **Notas Técnicas**
+
+### **Encoding:**
+
+- Banco: `utf8mb4_unicode_ci`
+- Arquivos PHP: UTF-8 (sem BOM)
+- Headers: `Content-Type: text/html; charset=UTF-8`
+
+### **Compatibilidade:**
+
+- PHP 7.4+
+- MySQL 5.7+ (recomendado 8.0+)
+- Navegadores modernos (Chrome, Firefox, Safari, Edge)
+
+### **Performance:**
+
+- Imagens otimizadas (WebP recomendado)
+- Cache de dados CMS implementado
+- Queries otimizadas com índices
+
+---
+
+## 🆘 **Troubleshooting**
+
+### **Problema: Imagens não aparecem**
+
+```bash
+# Verificar permissões
+ls -la uploads/banners/
+
+# Corrigir
+chmod 755 uploads/banners/
+```
+
+### **Problema: Erro 404 nas APIs**
+
+```php
+// Verificar BASE_URL em admin/config/base.php
+echo BASE_URL;  // Deve corresponder ao caminho real
+```
+
+### **Problema: Chat IA não responde**
+
+```php
+// Verificar API key
+var_dump(defined('GROQ_API_KEY'));  // Deve retornar true
+```
+
+### **Problema: Encoding errado (caracteres estranhos)**
+
+```sql
+-- Verificar tabelas
+SHOW TABLE STATUS WHERE Name='home_settings';
+-- Collation deve ser utf8mb4_unicode_ci
+
+-- Corrigir se necessário
+ALTER TABLE home_settings CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
 ---
 
 ## 📞 **Suporte**
 
-### **🆘 Precisa de Ajuda?**
+Para dúvidas ou problemas:
 
-- 📧 **Email**: suporte@dz.com
-- 💬 **Chat**: Sistema interno do painel
-- 📱 **WhatsApp**: (11) 99999-9999
-- 🌐 **Website**: www.dz.com.br
-
-### **🐛 Reportar Bugs:**
-
-1. Descreva o problema
-2. Inclua logs de erro
-3. Passos para reproduzir
-4. Screenshot se possível
-
-### **📈 Melhorias:**
-
-- Sugestões são bem-vindas!
-- Fork o projeto e contribua
-- Documentação sempre atualizada
+1. Verificar logs do Apache/PHP (`error.log`)
+2. Console do navegador (F12)
+3. Verificar permissões de arquivos/pastas
+4. Consultar este README
 
 ---
 
 ## 📄 **Licença**
 
-Este projeto é propriedade da **D&Z** e está sob licença proprietária.
-Todos os direitos reservados © 2026 D&Z Sistemas.
+Sistema proprietário desenvolvido para D&Z.
 
 ---
 
-## 🎉 **Créditos**
+**Desenvolvido com ❤️ para D&Z - Produtos Profissionais de Beleza**
 
-- **Desenvolvimento**: Equipe D&Z
-- **Design**: Sistema próprio D&Z
-- **IA Integration**: Groq API
-- **Icons**: Google Material Symbols
-- **Charts**: Chart.js
-
----
-
-**🚀 Sistema D&Z Admin - Transformando gestão em resultados!**
-
-- ✅ Redirecionamento automático para não autenticados
-- ✅ Gerenciamento de usuários admin completo
-
-### 💬 Chat com IA Avançado
-
-- ✅ **Interface moderna** com design rosa/pink da marca
-- ✅ **Sistema de filtros:** All, Unread, Active, Escalated, Resolved
-- ✅ **Contador de mensagens em tempo real** (PHP + JavaScript)
-- ✅ **Groq API integrada** (llama-3.3-70b-versatile)
-- ✅ **Ações rápidas:** marcar como não lido, deletar conversas
-- ✅ **Status visual** para mensagens lidas/não lidas
-- ✅ **Escalação para atendimento humano**
-- ✅ **Histórico completo** de conversas
-
-### 📊 Dashboard Administrativo
-
-- ✅ **Painel responsivo** com sidebar dinâmica
-- ✅ **Tema dark/light** com transições suaves
-- ✅ **Navegação intuitiva** entre módulos
-- ✅ **Cards informativos** com estatísticas
-- ✅ **Interface mobile-friendly**
-
-### 👥 Gerenciamento CRUD Completo
-
-- ✅ **Usuários:** criar, editar, excluir com validações
-- ✅ **Produtos:** gestão completa de catálogo
-- ✅ **Clientes:** cadastro e histórico
-- ✅ **Pedidos:** controle de vendas
-- ✅ **Analytics:** relatórios e métricas
-
-### 🎨 Design Moderno
-
-- ✅ **Paleta rosa/pink** da marca (#ff00d4, #ff6b9d, #ffccf9)
-- ✅ **Google Material Symbols** para ícones
-- ✅ **Animações CSS** e transições fluidas
-- ✅ **Layout responsivo** para todos dispositivos
-- ✅ **Compatibilidade** com temas dark/light
-
-## 🛠️ Tecnologias Utilizadas
-
-- **Backend:** PHP 8.0+ com PDO e prepared statements
-- **Database:** MySQL/MariaDB com estrutura otimizada
-- **Frontend:** HTML5, CSS3, JavaScript Vanilla
-- **API IA:** Groq API (llama-3.3-70b-versatile)
-- **Icons:** Google Material Symbols Sharp
-- **Ambiente:** XAMPP (Apache + MySQL + PHP)
-
-## 📁 Estrutura do Projeto Organizada
-
-```
-admin-teste/
-├── src/                          # 📁 CÓDIGO FONTE POR LINGUAGEM
-│   ├── php/
-│   │   ├── sistema.php          # 🔥 Backend consolidado completo
-│   │   └── dashboard/           # Páginas do painel admin
-│   │       ├── menssage.php     # Interface moderna de chat
-│   │       ├── index.php        # Dashboard principal
-│   │       ├── products.php     # Gestão produtos
-│   │       ├── customers.php    # Gestão clientes
-│   │       ├── orders.php       # Gestão pedidos
-│   │       └── settings.php     # Configurações
-│   │
-│   ├── css/
-│   │   ├── dashboard.css        # Estilos do painel
-│   │   ├── modern-chat.css      # 🎨 Estilos modernos do chat
-│   │   └── style-legacy.css     # Estilos base
-│   │
-│   ├── js/
-│   │   ├── dashboard.js         # 🚀 JavaScript consolidado
-│   │   └── sistema.js           # Funcionalidades auxiliares
-│   │
-│   └── html/
-│       └── chat-cliente.html    # Interface cliente
-│
-├── config/
-│   └── config.php              # ⚙️ Configurações centralizadas
-│
-├── public/
-│   ├── index.html              # Página inicial
-│   └── admin.html              # Dashboard público
-│
-├── Login_v3/                   # Sistema de login estilizado
-├── PHP/                        # Scripts legados (compatibilidade)
-├── .env.example               # Template de configurações
-├── .gitignore                 # Arquivos ignorados pelo git
-└── README.md                  # Esta documentação
-```
-
-## ⚙️ Configuração e Instalação
-
-### 1. **Pré-requisitos**
-
-- XAMPP com PHP 8.0+ e MySQL
-- Conta na Groq API (gratuita)
-- Navegador moderno com suporte a ES6+
-
-### 2. **Configuração do Banco**
-
-```sql
--- Criar banco de dados
-CREATE DATABASE teste_dz;
-
--- Tabelas principais
-CREATE TABLE conversas (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    usuario_nome VARCHAR(255) NOT NULL,
-    usuario_email VARCHAR(255) NOT NULL,
-    status ENUM('ativa', 'resolvida', 'escalada') DEFAULT 'ativa',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE mensagens (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    conversa_id INT NOT NULL,
-    remetente ENUM('cliente', 'admin', 'ia') NOT NULL,
-    conteudo TEXT NOT NULL,
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    lida BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (conversa_id) REFERENCES conversas(id)
-);
-
-CREATE TABLE usuarios (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nome VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    senha VARCHAR(255) NOT NULL,
-    data_nascimento DATE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-### 3. **Configuração de Ambiente**
-
-```bash
-# Copiar arquivo de exemplo
-cp .env.example .env
-
-# Editar com suas configurações
-GROQ_API_KEY=sua_chave_groq_aqui
-DB_HOST=localhost
-DB_NAME=teste_dz
-DB_USER=root
-DB_PASS=
-DEBUG_MODE=true
-```
-
-### 4. **Acesso ao Sistema**
-
-```
-# Dashboard Principal
-http://localhost/admin-teste/src/php/dashboard/
-
-# Chat Admin (Interface Moderna)
-http://localhost/admin-teste/src/php/dashboard/menssage.php
-
-# Chat Cliente
-http://localhost/admin-teste/src/html/chat-cliente.html
-
-# Login Admin
-http://localhost/admin-teste/Login_v3/login.html
-```
-
-## 🎯 API Endpoints Disponíveis
-
-### **Chat Cliente**
-
-```javascript
-// Iniciar nova conversa
-POST sistema.php?api=1&endpoint=client&action=start_conversation
-{
-  "nome": "Cliente",
-  "email": "cliente@email.com",
-  "mensagem": "Preciso de ajuda"
-}
-
-// Enviar mensagem
-POST sistema.php?api=1&endpoint=client&action=send_message
-{
-  "conversa_id": 123,
-  "mensagem": "Nova mensagem"
-}
-```
-
-### **Chat Admin**
-
-```javascript
-// Listar conversas com filtros
-GET sistema.php?api=1&endpoint=admin&action=get_conversations&filter=unread
-
-// Obter mensagens de conversa
-GET sistema.php?api=1&endpoint=admin&action=get_messages&conversa_id=123
-
-// Enviar resposta admin
-POST sistema.php?api=1&endpoint=admin&action=send_admin_message
-{
-  "conversa_id": 123,
-  "mensagem": "Resposta do administrador"
-}
-
-// Marcar como não lida
-POST sistema.php?api=1&endpoint=admin&action=marcarComoNaoLida
-{
-  "conversa_id": 123
-}
-
-// Deletar conversa
-POST sistema.php?api=1&endpoint=admin&action=deletarConversa
-{
-  "conversa_id": 123
-}
-
-// Escalar para humano
-POST sistema.php?api=1&endpoint=admin&action=escalar_conversa
-{
-  "conversa_id": 123
-}
-```
-
-### **Sistema de Contadores**
-
-```javascript
-// Contador em tempo real
-GET sistema.php?api=1&endpoint=admin&action=get_message_count&filter=unread
-// Retorna: {"count": 5, "filter": "unread"}
-```
-
-## 🌟 Funcionalidades Especiais
-
-### **Sistema de Filtros Inteligente**
-
-- **All:** Todas as conversas
-- **Unread:** Apenas não lidas
-- **Active:** Conversas ativas
-- **Escalated:** Escaladas para humanos
-- **Resolved:** Conversas resolvidas
-
-### **Interface Responsiva**
-
-- **Desktop:** Layout completo com sidebar
-- **Tablet:** Adaptação otimizada
-- **Mobile:** Interface touch-friendly
-
-### **Tema da Marca**
-
-- **Cores primárias:** Rosa/pink gradiente
-- **Transições:** Suaves entre dark/light
-- **Consistência:** Visual em todos módulos
-
-## 🔧 Desenvolvimento e Manutenção
-
-### **Estrutura Modular**
-
-- Backend consolidado em `sistema.php`
-- Frontend componentizado
-- CSS organizado por funcionalidade
-- JavaScript modular e reutilizável
-
-### **Segurança Implementada**
-
-- Configurações sensíveis em `.env`
-- Prepared statements contra SQL injection
-- Validação de entrada em todos endpoints
-- Sistema de sessões seguro
-
-### **Performance Otimizada**
-
-- Polling eficiente para atualizações
-- Cache inteligente de consultas
-- Carregamento assíncrono de dados
-- Minificação de assets
-
-## 🚀 Deploy e Produção
-
-### **Checklist de Deploy**
-
-- ✅ Configurar `.env` com chaves de produção
-- ✅ Ajustar permissões de arquivos (644/755)
-- ✅ Configurar SSL/HTTPS
-- ✅ Otimizar configurações do MySQL
-- ✅ Configurar backups automáticos
-
-### **Monitoramento**
-
-- Logs de erro em `error_log`
-- Métricas de uso da API Groq
-- Performance do banco de dados
-- Tempo de resposta das requisições
-
-## 📞 Suporte e Contribuição
-
-Este sistema foi desenvolvido com foco em:
-
-- **Facilidade de uso** para administradores
-- **Interface intuitiva** para clientes
-- **Manutenção simplificada** para desenvolvedores
-- **Escalabilidade** para crescimento futuro
-
-Para dúvidas ou melhorias, consulte a documentação inline no código ou abra uma issue no repositório.
-
----
-
-**Desenvolvido com ❤️ para D&Z** | **Versão 2.0** | **PHP 8.0+** | **Groq API Integration**
+**Versão:** 2.0 (CMS Integrado)  
+**Data:** Março 2026

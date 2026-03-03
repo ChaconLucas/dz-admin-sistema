@@ -6,8 +6,35 @@
 // Configurações iniciais
 session_start();
 
-// Incluir configuração de banco de dados
+// Incluir configuração de banco de dados (constantes e PDO)
 require_once 'config.php';
+
+// Incluir conexão mysqli (cria $conn reutilizável)
+require_once 'conexao.php';
+
+// ===== INTEGRAÇÃO CMS =====
+require_once 'cms_data_provider.php';
+
+// Instanciar provider usando conexão compartilhada
+$cms = new CMSProvider($conn);
+
+// Buscar dados do CMS
+$homeSettings = $cms->getHomeSettings();
+$banners = $cms->getActiveBanners();
+$featuredProducts = $cms->getFeaturedProducts(6);
+
+// Fallback se banners vazios
+if (empty($banners)) {
+    $banners = [[
+        'title' => 'Novidade D&Z',
+        'subtitle' => 'Coleção Premium',
+        'description' => 'Descubra nossa nova linha de produtos profissionais para unhas e cílios',
+        'image_path' => '',
+        'button_text' => 'Ver Novidades',
+        'button_link' => '#catalogo'
+    ]];
+}
+// ==========================
 
 // Verificar se usuário está logado
 $usuarioLogado = isset($_SESSION['cliente']);
@@ -29,7 +56,7 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
     <meta name="keywords" content="unhas, cílios, beleza, kit beleza, D&Z, e-commerce premium">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
     
     <!-- Cores customizadas para o tema D&Z -->
     <style>
@@ -2890,78 +2917,65 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
     <section class="banner-carousel">
         <!-- Container do Carrossel -->
         <div class="carousel-container" id="carouselContainer">
-            <!-- Slide 1 - Lançamento -->
+            <?php foreach ($banners as $index => $banner): ?>
+            <!-- Slide <?php echo $index + 1; ?> -->
             <div class="carousel-slide">
                 <div class="carousel-content">
                     <h1 class="carousel-title">
-                        Novidade <span style="color: var(--color-magenta);">D&Z</span><br>
-                        Coleção Premium
+                        <?php echo htmlspecialchars($banner['title'] ?? 'D&Z'); ?>
                     </h1>
+                    <?php if (!empty($banner['subtitle'])): ?>
                     <p class="carousel-subtitle">
-                        Descubra nossa nova linha de produtos profissionais para unhas e cílios. Qualidade superior para resultados incríveis.
+                        <?php echo htmlspecialchars($banner['subtitle']); ?>
                     </p>
-                    <button class="carousel-btn">Ver Novidades</button>
+                    <?php endif; ?>
+                    <?php if (!empty($banner['description'])): ?>
+                    <p class="carousel-subtitle" style="margin-top: 8px; font-size: 0.95rem; opacity: 0.85;">
+                        <?php echo htmlspecialchars($banner['description']); ?>
+                    </p>
+                    <?php endif; ?>
+                    <?php if (!empty($banner['button_text'])): ?>
+                    <button class="carousel-btn" onclick="window.location.href='<?php echo htmlspecialchars($banner['button_link'] ?? '#'); ?>'">
+                        <?php echo htmlspecialchars($banner['button_text']); ?>
+                    </button>
+                    <?php endif; ?>
                 </div>
                 <div class="carousel-visual">
                     <div class="carousel-image">
-                        <div style="text-align: center; color: var(--color-magenta);">
-                            <div style="font-size: 64px; margin-bottom: 12px;">💅</div>
-                            <p style="font-weight: 600; margin: 0;">Nova Coleção</p>
-                        </div>
+                        <?php 
+                        $imageUrl = getBannerImageUrl($banner['image_path'] ?? '');
+                        if (!empty($imageUrl)): 
+                        ?>
+                            <img src="<?php echo htmlspecialchars($imageUrl); ?>" 
+                                 alt="<?php echo htmlspecialchars($banner['title'] ?? 'Banner'); ?>"
+                                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px;"
+                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <!-- Fallback se imagem não carregar -->
+                            <div style="text-align: center; color: var(--color-magenta); display: none;">
+                                <div style="font-size: 64px; margin-bottom: 12px;">💅</div>
+                                <p style="font-weight: 600; margin: 0;">
+                                    <?php echo htmlspecialchars($banner['title'] ?? 'D&Z'); ?>
+                                </p>
+                            </div>
+                        <?php else: ?>
+                            <div style="text-align: center; color: var(--color-magenta);">
+                                <div style="font-size: 64px; margin-bottom: 12px;">💅</div>
+                                <p style="font-weight: 600; margin: 0;">
+                                    <?php echo htmlspecialchars($banner['title'] ?? 'D&Z'); ?>
+                                </p>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
-            
-            <!-- Slide 2 - Desconto -->
-            <div class="carousel-slide">
-                <div class="carousel-content">
-                    <h1 class="carousel-title">
-                        <span style="color: #ef4444;">50% OFF</span><br>
-                        Em Kits Selecionados
-                    </h1>
-                    <p class="carousel-subtitle">
-                        Aproveite nossa promoção especial! Kits completos com descontão de até 50% por tempo limitado.
-                    </p>
-                    <button class="carousel-btn" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);">Aproveitar Oferta</button>
-                </div>
-                <div class="carousel-visual">
-                    <div class="carousel-image">
-                        <div style="text-align: center; color: #ef4444;">
-                            <div style="font-size: 64px; margin-bottom: 12px;">🎁</div>
-                            <p style="font-weight: 600; margin: 0;">Super Oferta</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Slide 3 - Cabeleireiros -->
-            <div class="carousel-slide">
-                <div class="carousel-content">
-                    <h1 class="carousel-title">
-                        Para <span style="color: #8b5cf6;">Profissionais</span><br>
-                        Produtos Premium
-                    </h1>
-                    <p class="carousel-subtitle">
-                        Linha exclusiva para salões e profissionais da beleza. Qualidade que seus clientes merecem.
-                    </p>
-                    <button class="carousel-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);">Linha Profissional</button>
-                </div>
-                <div class="carousel-visual">
-                    <div class="carousel-image">
-                        <div style="text-align: center; color: #8b5cf6;">
-                            <div style="font-size: 64px; margin-bottom: 12px;">💄</div>
-                            <p style="font-weight: 600; margin: 0;">Pro Line</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <?php endforeach; ?>
         </div>
         
         <!-- Navegação -->
         <div class="carousel-navigation">
-            <div class="carousel-dot active" onclick="goToSlide(0)"></div>
-            <div class="carousel-dot" onclick="goToSlide(1)"></div>
-            <div class="carousel-dot" onclick="goToSlide(2)"></div>
+            <?php foreach ($banners as $index => $banner): ?>
+            <div class="carousel-dot <?php echo $index === 0 ? 'active' : ''; ?>" onclick="goToSlide(<?php echo $index; ?>)"></div>
+            <?php endforeach; ?>
         </div>
         
         <!-- Setas de navegação -->
@@ -3045,91 +3059,60 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             
             <!-- Título seção -->
             <div class="section-title fade-in-up">
-                <h2>Lançamentos</h2>
-                <p>Conheça as novidades exclusivas que acabaram de chegar na D&Z</p>
+                <h2><?php echo htmlspecialchars($homeSettings['launch_title'] ?? 'Lançamentos'); ?></h2>
+                <p><?php echo htmlspecialchars($homeSettings['launch_subtitle'] ?? 'Conheça as novidades exclusivas que acabaram de chegar na D&Z'); ?></p>
             </div>
             
             <!-- Carrossel de Produtos -->
             <div class="lancamentos-carousel-container">
                 <div class="lancamentos-grid" id="lancamentosCarousel">
                     
-                    <!-- Produto 1: Esmalte Gel D&Z Pro -->
-                    <div class="produto-card">
-                        <div class="produto-image novo">
-                            <div class="produto-placeholder">💅</div>
+                    <?php if (!empty($featuredProducts)): ?>
+                        <?php foreach ($featuredProducts as $product): ?>
+                        <!-- Produto: <?php echo htmlspecialchars($product['nome']); ?> -->
+                        <div class="produto-card">
+                            <div class="produto-image novo">
+                                <?php if (!empty($product['imagem_principal'])): ?>
+                                <img src="/assets/images/produtos/<?php echo htmlspecialchars($product['imagem_principal']); ?>" 
+                                     alt="<?php echo htmlspecialchars($product['nome']); ?>"
+                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+                                <?php else: ?>
+                                <div class="produto-placeholder">💅</div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="produto-content">
+                                <h3 class="produto-title"><?php echo htmlspecialchars($product['nome']); ?></h3>
+                                <p class="produto-description"><?php echo htmlspecialchars(substr($product['descricao'] ?? '', 0, 80)); ?><?php echo strlen($product['descricao'] ?? '') > 80 ? '...' : ''; ?></p>
+                                <div class="produto-price">
+                                    <?php if (isOnSale($product)): ?>
+                                        <span style="text-decoration: line-through; opacity: 0.6; font-size: 0.85em; margin-right: 8px;">
+                                            <?php echo formatPrice($product['preco']); ?>
+                                        </span>
+                                        <span style="color: var(--color-magenta); font-weight: 700;">
+                                            <?php echo formatPrice($product['preco_promocional']); ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <?php echo formatPrice($product['preco']); ?>
+                                    <?php endif; ?>
+                                </div>
+                                <button class="produto-btn" onclick="window.location.href='/cliente/produto.php?id=<?php echo $product['id']; ?>'">Ver Produto</button>
+                            </div>
                         </div>
-                        <div class="produto-content">
-                            <h3 class="produto-title">Esmalte Gel D&Z Pro</h3>
-                            <p class="produto-description">Nova fórmula ultra resistente com tecnologia de secagem rápida</p>
-                            <div class="produto-price">R$ 24,90</div>
-                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <!-- Fallback: Produto Exemplo -->
+                        <div class="produto-card">
+                            <div class="produto-image novo">
+                                <div class="produto-placeholder">💅</div>
+                            </div>
+                            <div class="produto-content">
+                                <h3 class="produto-title">Em Breve</h3>
+                                <p class="produto-description">Novos produtos serão adicionados em breve. Fique atento!</p>
+                                <div class="produto-price">R$ 0,00</div>
+                                <button class="produto-btn" disabled>Em Breve</button>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <!-- Produto 2: Magnetic Lash Collection -->
-                    <div class="produto-card">
-                        <div class="produto-image lancamento">
-                            <div class="produto-placeholder">👁️</div>
-                        </div>
-                        <div class="produto-content">
-                            <h3 class="produto-title">Magnetic Lash Collection</h3>
-                            <p class="produto-description">Cílios magnéticos inovadores, aplicação sem cola</p>
-                            <div class="produto-price">R$ 52,90</div>
-                            <button class="produto-btn">Adicionar ao Carrinho</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Produto 3: Primer Nail Boost -->
-                    <div class="produto-card">
-                        <div class="produto-image novo">
-                            <div class="produto-placeholder">✨</div>
-                        </div>
-                        <div class="produto-content">
-                            <h3 class="produto-title">Primer Nail Boost</h3>
-                            <p class="produto-description">Tecnologia de crescimento acelerado para unhas fortes</p>
-                            <div class="produto-price">R$ 39,90</div>
-                            <button class="produto-btn">Adicionar ao Carrinho</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Produto 4: Kit D&Z Glamour -->
-                    <div class="produto-card">
-                        <div class="produto-image exclusivo">
-                            <div class="produto-placeholder">🎁</div>
-                        </div>
-                        <div class="produto-content">
-                            <h3 class="produto-title">Kit D&Z Glamour</h3>
-                            <p class="produto-description">Edição limitada com produtos exclusivos para profissionais</p>
-                            <div class="produto-price">R$ 127,90</div>
-                            <button class="produto-btn">Adicionar ao Carrinho</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Produto 5: Cola Premium Pro -->
-                    <div class="produto-card">
-                        <div class="produto-image novo">
-                            <div class="produto-placeholder">🔗</div>
-                        </div>
-                        <div class="produto-content">
-                            <h3 class="produto-title">Cola Premium Pro</h3>
-                            <p class="produto-description">Fixação ultra forte para cílios, duração de 15+ horas</p>
-                            <div class="produto-price">R$ 31,90</div>
-                            <button class="produto-btn">Adicionar ao Carrinho</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Produto 6: Base Fortificante -->
-                    <div class="produto-card">
-                        <div class="produto-image lancamento">
-                            <div class="produto-placeholder">💪</div>
-                        </div>
-                        <div class="produto-content">
-                            <h3 class="produto-title">Base Fortificante</h3>
-                            <p class="produto-description">Fortalece e protege unhas fracas, com vitaminas</p>
-                            <div class="produto-price">R$ 28,90</div>
-                            <button class="produto-btn">Adicionar ao Carrinho</button>
-                        </div>
-                    </div>
+                    <?php endif; ?>
                 </div>
                 
                 <!-- Setas de navegação -->
@@ -4766,7 +4749,7 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         
         // ===== CARROSSEL BANNER =====
         let currentSlide = 0;
-        const totalSlides = 3;
+        const totalSlides = <?php echo count($banners); ?>;
         
         function goToSlide(slideIndex) {
             currentSlide = slideIndex;
