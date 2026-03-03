@@ -299,12 +299,15 @@ if ($action === 'update_home_settings') {
     );
     
     if ($hasBannerInterval) {
-        // Com banner_interval
+        // Com banner_interval e novos campos CMS
         $stmt = mysqli_prepare($conexao,
             "UPDATE home_settings SET 
              hero_title=?, hero_subtitle=?, hero_description=?, 
              hero_button_text=?, hero_button_link=?,
              launch_title=?, launch_subtitle=?,
+             launch_button_text=?, launch_button_link=?,
+             products_title=?, products_subtitle=?,
+             products_button_text=?, products_button_link=?,
              banner_interval=?,
              updated_at=NOW()
              WHERE id=1"
@@ -327,6 +330,12 @@ if ($action === 'update_home_settings') {
         $hero_button_link = $_POST['hero_button_link'] ?? '';
         $launch_title = $_POST['launch_title'] ?? '';
         $launch_subtitle = $_POST['launch_subtitle'] ?? '';
+        $launch_button_text = $_POST['launch_button_text'] ?? 'Ver Todos os Lançamentos';
+        $launch_button_link = $_POST['launch_button_link'] ?? '#catalogo';
+        $products_title = $_POST['products_title'] ?? 'Todos os Produtos';
+        $products_subtitle = $_POST['products_subtitle'] ?? '';
+        $products_button_text = $_POST['products_button_text'] ?? 'Ver Depoimentos';
+        $products_button_link = $_POST['products_button_link'] ?? '#depoimentos';
         $banner_interval = (int)($_POST['banner_interval'] ?? 6);
         
         file_put_contents(__DIR__ . '/cms_api_debug.log', 
@@ -334,10 +343,13 @@ if ($action === 'update_home_settings') {
             FILE_APPEND
         );
         
-        $bindResult = mysqli_stmt_bind_param($stmt, 'sssssssi',
+        $bindResult = mysqli_stmt_bind_param($stmt, 'sssssssssssssi',
             $hero_title, $hero_subtitle, $hero_description,
             $hero_button_text, $hero_button_link,
             $launch_title, $launch_subtitle,
+            $launch_button_text, $launch_button_link,
+            $products_title, $products_subtitle,
+            $products_button_text, $products_button_link,
             $banner_interval
         );
         
@@ -350,22 +362,100 @@ if ($action === 'update_home_settings') {
             echo json_encode(['success' => false, 'message' => 'Erro ao fazer bind: ' . $error]);
             exit();
         }
+        
+        // Salvar dados do footer também (se recebidos)
+        if (isset($_POST['footer_marca_titulo'])) {
+            $footer_stmt = mysqli_prepare($conexao,
+                "UPDATE cms_footer SET 
+                 marca_titulo=?, marca_subtitulo=?, marca_descricao=?,
+                 telefone=?, whatsapp=?, email=?,
+                 instagram=?, tiktok=?, facebook=?,
+                 copyright_texto=?,
+                 updated_at=NOW()
+                 WHERE id=1"
+            );
+            
+            mysqli_stmt_bind_param($footer_stmt, 'ssssssssss',
+                $_POST['footer_marca_titulo'],
+                $_POST['footer_marca_subtitulo'],
+                $_POST['footer_marca_descricao'],
+                $_POST['footer_telefone'],
+                $_POST['footer_whatsapp'],
+                $_POST['footer_email'],
+                $_POST['footer_instagram'],
+                $_POST['footer_tiktok'],
+                $_POST['footer_facebook'],
+                $_POST['footer_copyright']
+            );
+            
+            mysqli_stmt_execute($footer_stmt);
+            mysqli_stmt_close($footer_stmt);
+        }
     } else {
-        // Sem banner_interval (compatibilidade)
+        // Sem banner_interval (compatibilidade com banco antigo)
         $stmt = mysqli_prepare($conexao,
             "UPDATE home_settings SET 
              hero_title=?, hero_subtitle=?, hero_description=?, 
              hero_button_text=?, hero_button_link=?,
              launch_title=?, launch_subtitle=?,
+             launch_button_text=?, launch_button_link=?,
+             products_title=?, products_subtitle=?,
+             products_button_text=?, products_button_link=?,
              updated_at=NOW()
              WHERE id=1"
         );
         
-        mysqli_stmt_bind_param($stmt, 'sssssss',
-            $_POST['hero_title'], $_POST['hero_subtitle'], $_POST['hero_description'],
-            $_POST['hero_button_text'], $_POST['hero_button_link'],
-            $_POST['launch_title'], $_POST['launch_subtitle']
+        $hero_title = $_POST['hero_title'] ?? '';
+        $hero_subtitle = $_POST['hero_subtitle'] ?? '';
+        $hero_description = $_POST['hero_description'] ?? '';
+        $hero_button_text = $_POST['hero_button_text'] ?? '';
+        $hero_button_link = $_POST['hero_button_link'] ?? '';
+        $launch_title = $_POST['launch_title'] ?? '';
+        $launch_subtitle = $_POST['launch_subtitle'] ?? '';
+        $launch_button_text = $_POST['launch_button_text'] ?? 'Ver Todos os Lançamentos';
+        $launch_button_link = $_POST['launch_button_link'] ?? '#catalogo';
+        $products_title = $_POST['products_title'] ?? 'Todos os Produtos';
+        $products_subtitle = $_POST['products_subtitle'] ?? '';
+        $products_button_text = $_POST['products_button_text'] ?? 'Ver Depoimentos';
+        $products_button_link = $_POST['products_button_link'] ?? '#depoimentos';
+        
+        mysqli_stmt_bind_param($stmt, 'sssssssssssss',
+            $hero_title, $hero_subtitle, $hero_description,
+            $hero_button_text, $hero_button_link,
+            $launch_title, $launch_subtitle,
+            $launch_button_text, $launch_button_link,
+            $products_title, $products_subtitle,
+            $products_button_text, $products_button_link
         );
+        
+        // Salvar dados do footer também (se recebidos)
+        if (isset($_POST['footer_marca_titulo'])) {
+            $footer_stmt = mysqli_prepare($conexao,
+                "UPDATE cms_footer SET 
+                 marca_titulo=?, marca_subtitulo=?, marca_descricao=?,
+                 telefone=?, whatsapp=?, email=?,
+                 instagram=?, tiktok=?, facebook=?,
+                 copyright_texto=?,
+                 updated_at=NOW()
+                 WHERE id=1"
+            );
+            
+            mysqli_stmt_bind_param($footer_stmt, 'ssssssssss',
+                $_POST['footer_marca_titulo'],
+                $_POST['footer_marca_subtitulo'],
+                $_POST['footer_marca_descricao'],
+                $_POST['footer_telefone'],
+                $_POST['footer_whatsapp'],
+                $_POST['footer_email'],
+                $_POST['footer_instagram'],
+                $_POST['footer_tiktok'],
+                $_POST['footer_facebook'],
+                $_POST['footer_copyright']
+            );
+            
+            mysqli_stmt_execute($footer_stmt);
+            mysqli_stmt_close($footer_stmt);
+        }
     }
     
     if (mysqli_stmt_execute($stmt)) {
@@ -720,6 +810,140 @@ function upload_banner_image($file) {
             'debug' => $error_detail
         ];
     }
+}
+
+// ====================================================================
+// BENEFÍCIOS - AÇÕES
+// ====================================================================
+
+if ($action === 'update_benefits') {
+    // Log de debug
+    file_put_contents(__DIR__ . '/cms_api_debug.log', 
+        date('Y-m-d H:i:s') . " - UPDATE_BENEFITS iniciado\n", 
+        FILE_APPEND
+    );
+    
+    // Receber array de benefícios
+    $beneficios = $_POST['beneficios'] ?? [];
+    
+    file_put_contents(__DIR__ . '/cms_api_debug.log', 
+        date('Y-m-d H:i:s') . " - Benefícios recebidos: " . print_r($beneficios, true) . "\n", 
+        FILE_APPEND
+    );
+    
+    if (empty($beneficios)) {
+        file_put_contents(__DIR__ . '/cms_api_debug.log', 
+            date('Y-m-d H:i:s') . " - ERRO: Nenhum benefício recebido\n", 
+            FILE_APPEND
+        );
+        echo json_encode(['success' => false, 'message' => 'Nenhum benefício recebido', 'debug' => $_POST]);
+        exit();
+    }
+    
+    $errors = [];
+    $updated = 0;
+    
+    foreach ($beneficios as $id => $data) {
+        // Garantir que ID é inteiro
+        $id = (int)$id;
+        
+        $titulo = trim($data['titulo'] ?? '');
+        $subtitulo = trim($data['subtitulo'] ?? '');
+        $icone = trim($data['icone'] ?? '');
+        $cor = trim($data['cor'] ?? '#E6007E');
+        $ordem = (int)($data['ordem'] ?? 1);
+        $ativo = isset($data['ativo']) && $data['ativo'] == '1' ? 1 : 0;
+        
+        file_put_contents(__DIR__ . '/cms_api_debug.log', 
+            date('Y-m-d H:i:s') . " - Processando ID $id: titulo=$titulo, ativo=$ativo\n", 
+            FILE_APPEND
+        );
+        
+        if (empty($titulo) || empty($subtitulo) || empty($icone)) {
+            $errors[] = "Card ID $id: campos obrigatórios vazios";
+            continue;
+        }
+        
+        $stmt = mysqli_prepare($conexao, 
+            "UPDATE cms_home_beneficios 
+             SET titulo = ?, subtitulo = ?, icone = ?, cor = ?, ordem = ?, ativo = ?, updated_at = NOW()
+             WHERE id = ?"
+        );
+        
+        mysqli_stmt_bind_param($stmt, 'ssssiii', 
+            $titulo, $subtitulo, $icone, $cor, $ordem, $ativo, $id
+        );
+        
+        if (mysqli_stmt_execute($stmt)) {
+            $updated++;
+            file_put_contents(__DIR__ . '/cms_api_debug.log', 
+                date('Y-m-d H:i:s') . " - ✓ ID $id atualizado com sucesso\n", 
+                FILE_APPEND
+            );
+        } else {
+            $error_msg = mysqli_error($conexao);
+            $errors[] = "Card ID $id: " . $error_msg;
+            file_put_contents(__DIR__ . '/cms_api_debug.log', 
+                date('Y-m-d H:i:s') . " - ✗ Erro ao atualizar ID $id: $error_msg\n", 
+                FILE_APPEND
+            );
+        }
+        
+        mysqli_stmt_close($stmt);
+    }
+    
+    if (!empty($errors)) {
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Alguns cards não foram atualizados',
+            'errors' => $errors,
+            'updated' => $updated
+        ]);
+    } else {
+        echo json_encode([
+            'success' => true, 
+            'message' => "$updated card(s) atualizado(s) com sucesso!"
+        ]);
+    }
+    exit();
+}
+
+if ($action === 'add_benefit') {
+    $titulo = trim($_POST['novo_titulo'] ?? '');
+    $subtitulo = trim($_POST['novo_subtitulo'] ?? '');
+    $icone = trim($_POST['novo_icone'] ?? '');
+    $cor = trim($_POST['novo_cor'] ?? '#E6007E');
+    $ordem = (int)($_POST['novo_ordem'] ?? 1);
+    
+    if (empty($titulo) || empty($subtitulo) || empty($icone)) {
+        echo json_encode(['success' => false, 'message' => 'Título, subtítulo e ícone são obrigatórios']);
+        exit();
+    }
+    
+    $stmt = mysqli_prepare($conexao,
+        "INSERT INTO cms_home_beneficios (titulo, subtitulo, icone, cor, ordem, ativo) 
+         VALUES (?, ?, ?, ?, ?, 1)"
+    );
+    
+    mysqli_stmt_bind_param($stmt, 'ssssi', 
+        $titulo, $subtitulo, $icone, $cor, $ordem
+    );
+    
+    if (mysqli_stmt_execute($stmt)) {
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Novo card adicionado com sucesso!',
+            'id' => mysqli_insert_id($conexao)
+        ]);
+    } else {
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Erro ao adicionar card: ' . mysqli_error($conexao)
+        ]);
+    }
+    
+    mysqli_stmt_close($stmt);
+    exit();
 }
 
 // ====================================================================

@@ -22,6 +22,9 @@ $cms = new CMSProvider($conn);
 $homeSettings = $cms->getHomeSettings();
 $banners = $cms->getActiveBanners();
 $featuredProducts = $cms->getFeaturedProducts(6);
+$beneficios = $cms->getHomeBenefits();
+$footerData = $cms->getFooterData();
+$footerLinks = $cms->getFooterLinks();
 
 // Fallback se banners vazios
 if (empty($banners)) {
@@ -50,6 +53,9 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
     
     <!-- CSS da Loja -->
     <link rel="stylesheet" href="css/loja.css">
+    
+    <!-- Material Symbols (ícones) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     
     <!-- Meta tags para SEO -->
     <meta name="description" content="D&Z - E-commerce premium de beleza. Unhas profissionais, cílios e kits completos para elevar sua beleza ao próximo nível.">
@@ -3298,59 +3304,18 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         <div class="container-dz">
             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1200px; margin: 0 auto;" class="benefits-grid">
                 
-                <!-- Entrega Grátis -->
+                <?php foreach ($beneficios as $beneficio): ?>
                 <div class="benefit-badge fade-in-up">
                     <div class="benefit-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: #10b981;">
-                            <path d="M1 3h15l-1 9H4l-3 4v1a1 1 0 0 0 1 1h11M20 8v8" />
-                            <path d="M7 15h6m4 0h1" />
-                            <circle cx="7" cy="19" r="2" />
-                            <circle cx="17" cy="19" r="2" />
-                        </svg>
+                        <span class="material-symbols-sharp" style="font-size: 32px; color: <?php echo htmlspecialchars($beneficio['cor'] ?? '#e10098'); ?>;">
+                            <?php echo htmlspecialchars($beneficio['icone']); ?>
+                        </span>
                     </div>
-                    <h4 class="benefit-title">Entrega Grátis</h4>
-                    <p class="benefit-description">Acima de R$ 99 para todo o Brasil</p>
+                    <h4 class="benefit-title"><?php echo htmlspecialchars($beneficio['titulo']); ?></h4>
+                    <p class="benefit-description"><?php echo htmlspecialchars($beneficio['descricao']); ?></p>
                 </div>
-
-                <!-- Qualidade Premium -->
-                <div class="benefit-badge fade-in-up">
-                    <div class="benefit-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--color-magenta);">
-                            <path d="M9 12l2 2 4-4" />
-                            <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9Z" />
-                        </svg>
-                    </div>
-                    <h4 class="benefit-title">Qualidade Premium</h4>
-                    <p class="benefit-description">Produtos testados e aprovados</p>
-                </div>
-
-                <!-- Troca Fácil -->
-                <div class="benefit-badge fade-in-up">
-                    <div class="benefit-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: #3b82f6;">
-                            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-                            <path d="M21 3v5h-5" />
-                            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-                            <path d="M8 16H3v5" />
-                        </svg>
-                    </div>
-                    <h4 class="benefit-title">Troca Fácil</h4>
-                    <p class="benefit-description">7 dias para trocar ou devolver</p>
-                </div>
-
-                <!-- Suporte 24h -->
-                <div class="benefit-badge fade-in-up">
-                    <div class="benefit-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: #f59e0b;">
-                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10Z" />
-                            <path d="M8 10h.01" />
-                            <path d="M12 10h.01" />
-                            <path d="M16 10h.01" />
-                        </svg>
-                    </div>
-                    <h4 class="benefit-title">Suporte 24h</h4>
-                    <p class="benefit-description">Atendimento especializado sempre</p>
-                </div>
+                <?php endforeach; ?>
+                
             </div>
         </div>
     </section>
@@ -3432,7 +3397,9 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             
             <!-- Botão Ver Todos -->
             <div class="ver-todos-btn">
-                <button onclick="window.location.href='#catalogo'">Ver Todos os Lançamentos</button>
+                <button onclick="window.location.href='<?php echo htmlspecialchars($homeSettings['launch_button_link'] ?? '#catalogo'); ?>'">
+                    <?php echo htmlspecialchars($homeSettings['launch_button_text'] ?? 'Ver Todos os Lançamentos'); ?>
+                </button>
             </div>
         </div>
     </section>
@@ -3443,8 +3410,8 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             
             <!-- Título seção -->
             <div class="section-title fade-in-up">
-                <h2>Todos os Produtos</h2>
-                <p>Descubra nossa coleção completa de produtos profissionais D&Z</p>
+                <h2><?php echo htmlspecialchars($homeSettings['products_title'] ?? 'Todos os Produtos'); ?></h2>
+                <p><?php echo htmlspecialchars($homeSettings['products_subtitle'] ?? 'Descubra nossa coleção completa de produtos profissionais D&Z'); ?></p>
             </div>
             
             <!-- Carrossel de Produtos -->
@@ -3597,7 +3564,9 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             
             <!-- Botão Ver Mais -->
             <div class="ver-todos-btn">
-                <button onclick="window.location.href='#depoimentos'">Ver Depoimentos</button>
+                <button onclick="window.location.href='<?php echo htmlspecialchars($homeSettings['products_button_link'] ?? '#depoimentos'); ?>'">
+                    <?php echo htmlspecialchars($homeSettings['products_button_text'] ?? 'Ver Depoimentos'); ?>
+                </button>
             </div>
         </div>
     </section>
@@ -4354,31 +4323,47 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                 <div class="footer-top">
                     <div class="footer-brand">
                         <div class="brand-logo">
-                            <h3>D&Z</h3>
-                            <div class="brand-tagline">Beauty & Style</div>
+                            <h3><?php echo htmlspecialchars($footerData['marca_titulo'] ?? 'D&Z'); ?></h3>
+                            <div class="brand-tagline"><?php echo htmlspecialchars($footerData['marca_subtitulo'] ?? 'Beauty & Style'); ?></div>
                         </div>
                         
                         <p class="brand-description">
-                            Transformando a beleza das mulheres brasileiras com produtos premium e atendimento excepcional.
+                            <?php echo htmlspecialchars($footerData['marca_descricao'] ?? 'Transformando a beleza das mulheres brasileiras com produtos premium e atendimento excepcional.'); ?>
                         </p>
                         
                         <div class="footer-social-main">
                             <div class="social-links-grid">
-                                <a href="#" class="social-btn">
+                                <?php if (!empty($footerData['instagram'])): ?>
+                                <a href="<?php echo htmlspecialchars($footerData['instagram']); ?>" target="_blank" class="social-btn">
                                     <svg width="20" height="20" viewBox="0 0 24 24" class="social-icon">
                                         <path fill="#E4405F" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
                                     </svg>
                                 </a>
-                                <a href="#" class="social-btn">
+                                <?php endif; ?>
+                                
+                                <?php if (!empty($footerData['tiktok'])): ?>
+                                <a href="<?php echo htmlspecialchars($footerData['tiktok']); ?>" target="_blank" class="social-btn">
                                     <svg width="20" height="20" viewBox="0 0 24 24" class="social-icon">
                                         <path fill="#000" d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
                                     </svg>
                                 </a>
-                                <a href="#" class="social-btn">
+                                <?php endif; ?>
+                                
+                                <?php if (!empty($footerData['whatsapp'])): ?>
+                                <a href="https://wa.me/<?php echo htmlspecialchars($footerData['whatsapp']); ?>" target="_blank" class="social-btn">
                                     <svg width="20" height="20" viewBox="0 0 24 24" class="social-icon">
                                         <path fill="#25D366" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.465 3.488"/>
                                     </svg>
                                 </a>
+                                <?php endif; ?>
+                                
+                                <?php if (!empty($footerData['facebook'])): ?>
+                                <a href="<?php echo htmlspecialchars($footerData['facebook']); ?>" target="_blank" class="social-btn">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" class="social-icon">
+                                        <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                    </svg>
+                                </a>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -4387,39 +4372,44 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                         <div class="footer-column">
                             <h5>Produtos</h5>
                             <ul>
-                                <li><a href="#">Unhas Profissionais</a></li>
-                                <li><a href="#">Cílios Premium</a></li>
-                                <li><a href="#">Kits Completos</a></li>
-                                <li><a href="#">Novidades</a></li>
+                                <?php foreach ($footerLinks['produtos'] as $link): ?>
+                                <li><a href="<?php echo htmlspecialchars($link['url']); ?>"><?php echo htmlspecialchars($link['titulo']); ?></a></li>
+                                <?php endforeach; ?>
                             </ul>
                         </div>
                         
                         <div class="footer-column">
                             <h5>Atendimento</h5>
                             <ul>
-                                <li><a href="#">Central de Ajuda</a></li>
-                                <li><a href="#">Política de Troca</a></li>
-                                <li><a href="#">Garantia</a></li>
-                                <li><a href="#">Rastreamento</a></li>
-                                <li><a href="#">Suporte Premium</a></li>
+                                <?php foreach ($footerLinks['atendimento'] as $link): ?>
+                                <li><a href="<?php echo htmlspecialchars($link['url']); ?>"><?php echo htmlspecialchars($link['titulo']); ?></a></li>
+                                <?php endforeach; ?>
                             </ul>
                         </div>
                         
                         <div class="footer-column">
                             <h5>Contato</h5>
                             <div class="contact-info">
+                                <?php if (!empty($footerData['telefone'])): ?>
                                 <div class="contact-item">
                                     <span class="contact-icon">📞</span>
-                                    <span>(11) 9999-9999</span>
+                                    <span><?php echo htmlspecialchars($footerData['telefone']); ?></span>
                                 </div>
+                                <?php endif; ?>
+                                
+                                <?php if (!empty($footerData['whatsapp'])): ?>
                                 <div class="contact-item">
                                     <span class="contact-icon">💬</span>
                                     <span>WhatsApp 24h</span>
                                 </div>
+                                <?php endif; ?>
+                                
+                                <?php if (!empty($footerData['email'])): ?>
                                 <div class="contact-item">
                                     <span class="contact-icon">✉️</span>
-                                    <span>contato@dzecommerce.com</span>
+                                    <span><?php echo htmlspecialchars($footerData['email']); ?></span>
                                 </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -4521,7 +4511,7 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         
         <div class="footer-bottom">
             <div class="copyright">
-                © 2026 D&Z Beauty • Todos os direitos reservados
+                <?php echo htmlspecialchars($footerData['copyright_texto'] ?? '© 2024 D&Z Beauty • Todos os direitos reservados'); ?>
             </div>
         </div>
     </footer>

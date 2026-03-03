@@ -43,7 +43,11 @@ class CMSProvider {
         $query = "
             SELECT hero_title, hero_subtitle, hero_description, 
                    hero_button_text, hero_button_link,
-                   launch_title, launch_subtitle, banner_interval
+                   launch_title, launch_subtitle, 
+                   launch_button_text, launch_button_link,
+                   products_title, products_subtitle,
+                   products_button_text, products_button_link,
+                   banner_interval
             FROM home_settings 
             WHERE id = 1
             LIMIT 1
@@ -196,7 +200,183 @@ class CMSProvider {
             'hero_button_text' => 'Ver Produtos',
             'hero_button_link' => '#catalogo',
             'launch_title' => 'Lançamentos',
-            'launch_subtitle' => 'Conheça as novidades exclusivas que acabaram de chegar na D&Z'
+            'launch_subtitle' => 'Conheça as novidades exclusivas que acabaram de chegar na D&Z',
+            'launch_button_text' => 'Ver Todos os Lançamentos',
+            'launch_button_link' => '#catalogo',
+            'products_title' => 'Todos os Produtos',
+            'products_subtitle' => '',
+            'products_button_text' => 'Ver Depoimentos',
+            'products_button_link' => '#depoimentos',
+            'banner_interval' => 6
+        ];
+    }
+    
+    /**
+     * Buscar benefícios da home (cards de vantagens)
+     * 
+     * @return array Lista de benefícios ativos
+     */
+    public function getHomeBenefits() {
+        $query = "
+            SELECT icone, titulo, subtitulo AS descricao, cor
+            FROM cms_home_beneficios 
+            WHERE ativo = 1 
+            ORDER BY ordem ASC
+        ";
+        
+        $result = mysqli_query($this->conn, $query);
+        
+        if (!$result) {
+            error_log("Erro ao buscar benefícios: " . mysqli_error($this->conn));
+            return $this->getDefaultBenefits();
+        }
+        
+        $benefits = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        mysqli_free_result($result);
+        
+        // Se não houver dados, retornar fallback
+        if (empty($benefits)) {
+            return $this->getDefaultBenefits();
+        }
+        
+        return $benefits;
+    }
+    
+    /**
+     * Buscar dados do footer
+     * 
+     * @return array Dados do footer ou fallback
+     */
+    public function getFooterData() {
+        $query = "
+            SELECT marca_titulo, marca_subtitulo, marca_descricao,
+                   telefone, whatsapp, email,
+                   instagram, tiktok, facebook,
+                   copyright_texto
+            FROM cms_footer 
+            WHERE id = 1
+            LIMIT 1
+        ";
+        
+        $result = mysqli_query($this->conn, $query);
+        
+        if (!$result) {
+            error_log("Erro ao buscar footer: " . mysqli_error($this->conn));
+            return $this->getDefaultFooter();
+        }
+        
+        $footer = mysqli_fetch_assoc($result);
+        mysqli_free_result($result);
+        
+        // Se não houver dados, retornar fallback
+        if (!$footer) {
+            return $this->getDefaultFooter();
+        }
+        
+        return $footer;
+    }
+    
+    /**
+     * Buscar links do footer agrupados por coluna
+     * 
+     * @return array ['produtos' => [...], 'atendimento' => [...]]
+     */
+    public function getFooterLinks() {
+        $query = "
+            SELECT texto AS titulo, link AS url, coluna 
+            FROM cms_footer_links 
+            WHERE ativo = 1 
+            ORDER BY coluna, ordem ASC
+        ";
+        
+        $result = mysqli_query($this->conn, $query);
+        
+        if (!$result) {
+            error_log("Erro ao buscar footer links: " . mysqli_error($this->conn));
+            return $this->getDefaultFooterLinks();
+        }
+        
+        $all_links = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        mysqli_free_result($result);
+        
+        // Agrupar por coluna
+        $grouped = [
+            'produtos' => [],
+            'atendimento' => []
+        ];
+        
+        foreach ($all_links as $link) {
+            $col = $link['coluna'];
+            if (isset($grouped[$col])) {
+                $grouped[$col][] = [
+                    'titulo' => $link['titulo'],
+                    'url' => $link['url']
+                ];
+            }
+        }
+        
+        // Se estiverem vazios, usar fallback
+        if (empty($grouped['produtos']) && empty($grouped['atendimento'])) {
+            return $this->getDefaultFooterLinks();
+        }
+        
+        return $grouped;
+    }
+    
+    /**
+     * Benefícios padrão (fallback)
+     * 
+     * @return array
+     */
+    private function getDefaultBenefits() {
+        return [
+            ['icone' => 'local_shipping', 'titulo' => 'Entrega Grátis', 'descricao' => 'Acima de R$ 200'],
+            ['icone' => 'verified', 'titulo' => 'Qualidade Premium', 'descricao' => 'Produtos originais'],
+            ['icone' => 'sync', 'titulo' => 'Troca Fácil', 'descricao' => 'Em até 30 dias'],
+            ['icone' => 'support_agent', 'titulo' => 'Suporte 24h', 'descricao' => 'Sempre disponível']
+        ];
+    }
+    
+    /**
+     * Footer padrão (fallback)
+     * 
+     * @return array
+     */
+    private function getDefaultFooter() {
+        return [
+            'marca_titulo' => 'D&Z',
+            'marca_subtitulo' => 'Beauty & Style',
+            'marca_descricao' => 'Produtos premium de beleza com qualidade profissional.',
+            'telefone' => '(11) 98765-4321',
+            'whatsapp' => '5511987654321',
+            'email' => 'contato@dz.com.br',
+            'instagram' => 'https://instagram.com/dz_beauty',
+            'tiktok' => 'https://tiktok.com/@dz_beauty',
+            'facebook' => 'https://facebook.com/dzbeauty',
+            'copyright_texto' => '2024 D&Z Beauty & Style. Todos os direitos reservados.'
+        ];
+    }
+    
+    /**
+     * Links do footer padrão (fallback)
+     * 
+     * @return array
+     */
+    private function getDefaultFooterLinks() {
+        return [
+            'produtos' => [
+                ['titulo' => 'Maquiagem', 'url' => '#maquiagem'],
+                ['titulo' => 'Cuidados com a Pele', 'url' => '#skincare'],
+                ['titulo' => 'Cabelos', 'url' => '#cabelos'],
+                ['titulo' => 'Unhas', 'url' => '#unhas']
+            ],
+            'atendimento' => [
+                ['titulo' => 'Sobre Nós', 'url' => '#sobre'],
+                ['titulo' => 'Política de Entrega', 'url' => '#entrega'],
+                ['titulo' => 'Trocas e Devoluções', 'url' => '#trocas'],
+                ['titulo' => 'Perguntas Frequentes', 'url' => '#faq'],
+                ['titulo' => 'Trabalhe Conosco', 'url' => '#trabalhe']
+            ]
         ];
     }
 }
