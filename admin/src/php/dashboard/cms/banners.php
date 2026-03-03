@@ -424,6 +424,9 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0, 'ativos' => 0, 'ina
     </div>
 
     <script>
+        // Definir BASE_URL para uso no JavaScript
+        window.BASE_URL = '<?php echo BASE_URL; ?>';
+        
         // Garantir tema dark
         document.addEventListener('DOMContentLoaded', function() {
             const savedTheme = localStorage.getItem('darkTheme');
@@ -483,9 +486,17 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0, 'ativos' => 0, 'ina
             // Placeholder SVG inline (base64) - leve e sem dependência de arquivo
             const placeholderSVG = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjYwIiB2aWV3Qm94PSIwIDAgMTAwIDYwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjYwIiBmaWxsPSIjZjVmNWY1Ii8+CjxwYXRoIGQ9Ik01MCAyNUw2MCA0MEg0MEw1MCAyNVoiIGZpbGw9IiNjY2MiLz4KPGNpcmNsZSBjeD0iNTUiIGN5PSIyMCIgcj0iMyIgZmlsbD0iI2NjYyIvPgo8dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI4IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5TZW0gaW1hZ2VtPC90ZXh0Pgo8L3N2Zz4=';
             
-            tbody.innerHTML = banners.map(banner => `
+            // Debug: verificar dados recebidos
+            console.log('BASE_URL:', window.BASE_URL);
+            console.log('Banners recebidos:', banners);
+            
+            tbody.innerHTML = banners.map(banner => {
+                const imagePath = banner.image_path ? `${window.BASE_URL}${banner.image_path}` : placeholderSVG;
+                console.log('Banner ID:', banner.id, 'Image path:', imagePath);
+                
+                return `
                 <tr>
-                    <td><img src="${window.BASE_URL}${banner.image_path}" class="banner-img-preview" alt="${banner.title}" onerror="this.src='${placeholderSVG}'"></td>
+                    <td><img src="${imagePath}" class="banner-img-preview" alt="${banner.title}" onerror="this.src='${placeholderSVG}'"></td>
                     <td>
                         <strong>${banner.title}</strong><br>
                         <small style="color: var(--color-dark-variant);">${banner.subtitle || ''}</small>
@@ -514,7 +525,8 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0, 'ativos' => 0, 'ina
                         </button>
                     </td>
                 </tr>
-            `).join('');
+                `;
+            }).join('');
         }
 
         // Abrir modal para adicionar
