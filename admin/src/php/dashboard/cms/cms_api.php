@@ -495,10 +495,10 @@ if ($action === 'list_products') {
             WHERE status = 'ativo' AND estoque > 0";
     
     if (!empty($search)) {
-        $sql .= " AND nome LIKE ?";
+        $sql .= " AND (nome LIKE ? OR sku LIKE ?)";
         $stmt = mysqli_prepare($conexao, $sql . " ORDER BY nome ASC LIMIT 50");
         $search_param = "%$search%";
-        mysqli_stmt_bind_param($stmt, 's', $search_param);
+        mysqli_stmt_bind_param($stmt, 'ss', $search_param, $search_param);
         mysqli_stmt_execute($stmt);
         $result = mysqli_stmt_get_result($stmt);
     } else {

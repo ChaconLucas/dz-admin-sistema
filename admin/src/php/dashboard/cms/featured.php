@@ -404,7 +404,7 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0];
                     renderAvailableProducts();
                 }
             } catch (error) {
-                console.error('Erro:', error);
+                console.error('Erro ao carregar produtos:', error);
             }
         }
 
@@ -420,25 +420,32 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0];
                     renderSelectedProducts();
                 }
             } catch (error) {
-                console.error('Erro:', error);
+                console.error('Erro ao carregar produtos selecionados:', error);
             }
         }
 
         // Renderizar produtos disponíveis
         function renderAvailableProducts(searchTerm = '') {
             const container = document.getElementById('availableProducts');
-            const selectedIds = selectedProducts.map(p => p.produto_id);
+            // Converter para número para garantir comparação correta
+            const selectedIds = selectedProducts.map(p => parseInt(p.produto_id));
             
             // Placeholder SVG inline (base64) - leve e sem dependência de arquivo
             const placeholderSVG = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZjVmNWY1Ii8+CjxwYXRoIGQ9Ik00MCAzMEw1MCA0NUgzMEw0MCAzMFoiIGZpbGw9IiNjY2MiLz4KPGNpcmNsZSBjeD0iNDUiIGN5PSIyNSIgcj0iNCIgZmlsbD0iI2NjYyIvPgo8dGV4dCB4PSI0MCIgeT0iNjAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Qcm9kdXRvPC90ZXh0Pgo8L3N2Zz4=';
             
-            let filtered = allProducts.filter(p => !selectedIds.includes(p.id));
+            // Converter ID do produto também para número na comparação
+            let filtered = allProducts.filter(p => !selectedIds.includes(parseInt(p.id)));
             
             if (searchTerm) {
+                const search = searchTerm.toLowerCase();
                 filtered = filtered.filter(p => 
-                    p.nome.toLowerCase().includes(searchTerm.toLowerCase())
+                    p.nome.toLowerCase().includes(search) || 
+                    (p.sku && p.sku.toLowerCase().includes(search))
                 );
             }
+            
+            // Atualizar contador de produtos disponíveis
+            document.getElementById('totalAvailable').textContent = filtered.length;
             
             if (filtered.length === 0) {
                 container.innerHTML = '<div class="empty-state"><p>Nenhum produto disponível</p></div>';
@@ -508,7 +515,7 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0];
         async function addProduct(productId) {
             const formData = new FormData();
             formData.append('action', 'add_featured_product');
-            formData.append('produto_id', productId);
+            formData.append('product_id', productId);
             
             try {
                 const response = await fetch('cms_api.php', {
@@ -519,7 +526,8 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0];
                 
                 if (result.success) {
                     await loadSelectedProducts();
-                    renderAvailableProducts(document.getElementById('searchProducts').value);
+                    document.getElementById('searchProducts').value = ''; // Limpar busca
+                    renderAvailableProducts();
                 } else {
                     alert(result.message);
                 }
@@ -545,7 +553,8 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0];
                 
                 if (result.success) {
                     await loadSelectedProducts();
-                    renderAvailableProducts(document.getElementById('searchProducts').value);
+                    document.getElementById('searchProducts').value = ''; // Limpar busca
+                    renderAvailableProducts();
                 } else {
                     alert(result.message);
                 }
