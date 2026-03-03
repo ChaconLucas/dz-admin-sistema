@@ -267,6 +267,22 @@ aside .sidebar a.active .message-count {
   background: #28a745 !important;
 }
 
+/* Sobrescrever verde para items ativos do submenu - usar rosa */
+aside .sidebar .menu-item-container .submenu a.active {
+  background: rgba(255, 0, 212, 0.15) !important;
+  color: var(--color-primary) !important;
+  border-left: 3px solid var(--color-primary) !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  border-radius: 0 !important;
+}
+
+aside .sidebar .menu-item-container .submenu a.active span,
+aside .sidebar .menu-item-container .submenu a.active h3 {
+  color: var(--color-primary) !important;
+  font-weight: 600 !important;
+}
+
 aside .sidebar .message-count {
   background: var(--color-danger) !important;
   color: white !important;
@@ -379,6 +395,19 @@ aside .sidebar,
   color: var(--color-primary);
 }
 
+/* Item ativo no submenu */
+.menu-item-container .submenu a.active {
+  background: rgba(255, 0, 212, 0.15) !important;
+  color: var(--color-primary) !important;
+  border-left: 3px solid var(--color-primary) !important;
+}
+
+.menu-item-container .submenu a.active span,
+.menu-item-container .submenu a.active h3 {
+  color: var(--color-primary) !important;
+  font-weight: 600 !important;
+}
+
 /* Tema escuro - CORRIGIDO */
 body.dark-theme-variables .menu-item-container .submenu {
   background: #202528 !important; /* Fundo escuro específico */
@@ -411,14 +440,14 @@ body.dark-theme-variables .menu-item-container .submenu a:hover h3 {
 
 /* Item ativo no submenu - tema dark */
 body.dark-theme-variables .menu-item-container .submenu a.active {
-  background: rgba(40, 167, 69, 0.35) !important;
-  color: #28a745 !important;
-  border-left: 3px solid #28a745 !important;
+  background: rgba(255, 0, 212, 0.15) !important;
+  color: var(--color-primary) !important;
+  border-left: 3px solid var(--color-primary) !important;
 }
 
 body.dark-theme-variables .menu-item-container .submenu a.active span,
 body.dark-theme-variables .menu-item-container .submenu a.active h3 {
-  color: #28a745 !important;
+  color: var(--color-primary) !important;
   font-weight: 600 !important;
 }
 

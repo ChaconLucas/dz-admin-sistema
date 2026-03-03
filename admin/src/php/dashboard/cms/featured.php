@@ -41,6 +41,7 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0];
     <link rel="stylesheet" href="../../../css/dashboard-sections.css">
     <link rel="stylesheet" href="../../../css/dashboard-cards.css">
     <style>
+
         .dual-panel {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -182,7 +183,7 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0];
                 </a>
                 
                 <div class="menu-item-container">
-                  <a href="home.php" class="menu-item-with-submenu panel">
+                  <a href="home.php" class="menu-item-with-submenu">
                       <span class="material-symbols-sharp">web</span>
                       <h3>CMS</h3>
                   </a>
@@ -263,11 +264,6 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0];
         <!-- CONTEÚDO PRINCIPAL -->
         <main>
             <h1>CMS > Produtos em Destaque (Lançamentos)</h1>
-            
-            <div class="date">
-                <span class="material-symbols-sharp">today</span>
-                <p id="current-date"><?php echo date('d/m/Y'); ?></p>
-            </div>
 
             <div class="insights">
                 <div class="sales" style="cursor: default;">
@@ -361,14 +357,6 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0];
         </div>
     </div>
 
-    <!-- Configuração Global de Caminhos -->
-    <script>
-        window.BASE_URL = '<?php echo BASE_URL; ?>';
-        window.API_CONTADOR_URL = '<?php echo API_CONTADOR_URL; ?>';
-    </script>
-    
-    <script src="../../../js/dashboard.js"></script>
-    <script src="../../../js/contador-auto.js"></script>
     <script>
         let allProducts = [];
         let selectedProducts = [];
@@ -378,7 +366,27 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0];
             const savedTheme = localStorage.getItem('darkTheme');
             if (savedTheme === 'true') {
                 document.body.classList.add('dark-theme-variables');
+                // Atualizar ícones do toggler
+                const themeToggler = document.querySelector('.theme-toggler');
+                themeToggler.querySelector('span:nth-child(1)').classList.remove('active');
+                themeToggler.querySelector('span:nth-child(2)').classList.add('active');
             }
+            
+            // Theme toggler click handler
+            const themeToggler = document.querySelector('.theme-toggler');
+            themeToggler.addEventListener('click', () => {
+                document.body.classList.toggle('dark-theme-variables');
+                
+                themeToggler.querySelector('span:nth-child(1)').classList.toggle('active');
+                themeToggler.querySelector('span:nth-child(2)').classList.toggle('active');
+                
+                // Salvar preferência
+                if (document.body.classList.contains('dark-theme-variables')) {
+                    localStorage.setItem('darkTheme', 'true');
+                } else {
+                    localStorage.setItem('darkTheme', 'false');
+                }
+            });
             
             loadAllProducts();
             loadSelectedProducts();

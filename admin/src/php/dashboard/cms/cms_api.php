@@ -4,11 +4,24 @@
  * Banners, Home Settings, Featured Products
  */
 
+// Log de erros em arquivo
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/cms_api_errors.log');
+
+// Registrar início
+file_put_contents(__DIR__ . '/cms_api_debug.log', 
+    date('Y-m-d H:i:s') . " - API chamada\n", 
+    FILE_APPEND
+);
+
 session_start();
 
 // Verificar autenticação
 if (!isset($_SESSION['usuario_logado'])) {
     http_response_code(401);
+    header('Content-Type: application/json');
     echo json_encode(['success' => false, 'message' => 'Não autorizado']);
     exit();
 }
@@ -20,6 +33,11 @@ header('Content-Type: application/json');
 
 // Capturar ação
 $action = $_POST['action'] ?? $_GET['action'] ?? null;
+
+file_put_contents(__DIR__ . '/cms_api_debug.log', 
+    date('Y-m-d H:i:s') . " - Action: $action\n", 
+    FILE_APPEND
+);
 
 if (!$action) {
     echo json_encode(['success' => false, 'message' => 'Ação não especificada']);
@@ -44,24 +62,22 @@ if ($action === 'list_banners') {
 }
 
 if ($action === 'add_banner') {
-    // Validar campos obrigatórios
+    // Buscar campos (todos opcionais agora)
     $title = trim($_POST['title'] ?? '');
+    $subtitle = trim($_POST['subtitle'] ?? '');
+    $description = trim($_POST['description'] ?? '');
+    $button_text = trim($_POST['button_text'] ?? '');
+    $button_link = trim($_POST['button_link'] ?? '');
     
-    if (empty($title)) {
-        echo json_encode(['success' => false, 'message' => 'Título é obrigatório']);
-        exit();
-    }
-    
-    // Upload de imagem
-    if (!isset($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
-        echo json_encode(['success' => false, 'message' => 'Imagem é obrigatória']);
-        exit();
-    }
-    
-    $upload_result = upload_banner_image($_FILES['image']);
-    if (!$upload_result['success']) {
-        echo json_encode($upload_result);
-        exit();
+    // Upload de imagem (opcional)
+    $image_path = '';
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+        $upload_result = upload_banner_image($_FILES['image']);
+        if (!$upload_result['success']) {
+            echo json_encode($upload_result);
+            exit();
+        }
+        $image_path = $upload_result['path'];
     }
     
     // Obter próxima posição
@@ -74,12 +90,6 @@ if ($action === 'add_banner') {
         "INSERT INTO home_banners (title, subtitle, description, image_path, button_text, button_link, position) 
          VALUES (?, ?, ?, ?, ?, ?, ?)"
     );
-    
-    $subtitle = trim($_POST['subtitle'] ?? '');
-    $description = trim($_POST['description'] ?? '');
-    $button_text = trim($_POST['button_text'] ?? '');
-    $button_link = trim($_POST['button_link'] ?? '');
-    $image_path = $upload_result['path'];
     
     mysqli_stmt_bind_param($stmt, 'ssssssi', 
         $title, $subtitle, $description, $image_path, $button_text, $button_link, $next_position
@@ -99,8 +109,8 @@ if ($action === 'edit_banner') {
     $id = (int)($_POST['id'] ?? 0);
     $title = trim($_POST['title'] ?? '');
     
-    if ($id <= 0 || empty($title)) {
-        echo json_encode(['success' => false, 'message' => 'Dados inválidos']);
+    if ($id <= 0) {
+        echo json_encode(['success' => false, 'message' => 'ID inválido']);
         exit();
     }
     
@@ -274,25 +284,108 @@ if ($action === 'get_home_settings') {
 }
 
 if ($action === 'update_home_settings') {
-    $stmt = mysqli_prepare($conexao,
-        "UPDATE home_settings SET 
-         hero_title=?, hero_subtitle=?, hero_description=?, 
-         hero_button_text=?, hero_button_link=?,
-         launch_title=?, launch_subtitle=?,
-         updated_at=NOW()
-         WHERE id=1"
+    file_put_contents(__DIR__ . '/cms_api_debug.log', 
+        date('Y-m-d H:i:s') . " - Iniciando update_home_settings\n", 
+        FILE_APPEND
     );
     
-    mysqli_stmt_bind_param($stmt, 'sssssss',
-        $_POST['hero_title'], $_POST['hero_subtitle'], $_POST['hero_description'],
-        $_POST['hero_button_text'], $_POST['hero_button_link'],
-        $_POST['launch_title'], $_POST['launch_subtitle']
+    // Verificar se a coluna banner_interval existe
+    $checkColumn = mysqli_query($conexao, "SHOW COLUMNS FROM home_settings LIKE 'banner_interval'");
+    $hasBannerInterval = mysqli_num_rows($checkColumn) > 0;
+    
+    file_put_contents(__DIR__ . '/cms_api_debug.log', 
+        date('Y-m-d H:i:s') . " - Has banner_interval: " . ($hasBannerInterval ? 'YES' : 'NO') . "\n", 
+        FILE_APPEND
     );
+    
+    if ($hasBannerInterval) {
+        // Com banner_interval
+        $stmt = mysqli_prepare($conexao,
+            "UPDATE home_settings SET 
+             hero_title=?, hero_subtitle=?, hero_description=?, 
+             hero_button_text=?, hero_button_link=?,
+             launch_title=?, launch_subtitle=?,
+             banner_interval=?,
+             updated_at=NOW()
+             WHERE id=1"
+        );
+        
+        if (!$stmt) {
+            $error = mysqli_error($conexao);
+            file_put_contents(__DIR__ . '/cms_api_debug.log', 
+                date('Y-m-d H:i:s') . " - ERRO prepare: $error\n", 
+                FILE_APPEND
+            );
+            echo json_encode(['success' => false, 'message' => 'Erro ao preparar query: ' . $error]);
+            exit();
+        }
+        
+        $hero_title = $_POST['hero_title'] ?? '';
+        $hero_subtitle = $_POST['hero_subtitle'] ?? '';
+        $hero_description = $_POST['hero_description'] ?? '';
+        $hero_button_text = $_POST['hero_button_text'] ?? '';
+        $hero_button_link = $_POST['hero_button_link'] ?? '';
+        $launch_title = $_POST['launch_title'] ?? '';
+        $launch_subtitle = $_POST['launch_subtitle'] ?? '';
+        $banner_interval = (int)($_POST['banner_interval'] ?? 6);
+        
+        file_put_contents(__DIR__ . '/cms_api_debug.log', 
+            date('Y-m-d H:i:s') . " - Valores: interval=$banner_interval\n", 
+            FILE_APPEND
+        );
+        
+        $bindResult = mysqli_stmt_bind_param($stmt, 'sssssssi',
+            $hero_title, $hero_subtitle, $hero_description,
+            $hero_button_text, $hero_button_link,
+            $launch_title, $launch_subtitle,
+            $banner_interval
+        );
+        
+        if (!$bindResult) {
+            $error = mysqli_stmt_error($stmt);
+            file_put_contents(__DIR__ . '/cms_api_debug.log', 
+                date('Y-m-d H:i:s') . " - ERRO bind: $error\n", 
+                FILE_APPEND
+            );
+            echo json_encode(['success' => false, 'message' => 'Erro ao fazer bind: ' . $error]);
+            exit();
+        }
+    } else {
+        // Sem banner_interval (compatibilidade)
+        $stmt = mysqli_prepare($conexao,
+            "UPDATE home_settings SET 
+             hero_title=?, hero_subtitle=?, hero_description=?, 
+             hero_button_text=?, hero_button_link=?,
+             launch_title=?, launch_subtitle=?,
+             updated_at=NOW()
+             WHERE id=1"
+        );
+        
+        mysqli_stmt_bind_param($stmt, 'sssssss',
+            $_POST['hero_title'], $_POST['hero_subtitle'], $_POST['hero_description'],
+            $_POST['hero_button_text'], $_POST['hero_button_link'],
+            $_POST['launch_title'], $_POST['launch_subtitle']
+        );
+    }
     
     if (mysqli_stmt_execute($stmt)) {
-        echo json_encode(['success' => true, 'message' => 'Configurações salvas com sucesso!']);
+        file_put_contents(__DIR__ . '/cms_api_debug.log', 
+            date('Y-m-d H:i:s') . " - UPDATE executado com sucesso\n", 
+            FILE_APPEND
+        );
+        
+        $message = 'Configurações salvas com sucesso!';
+        if (!$hasBannerInterval) {
+            $message .= ' (Execute a migração do banco para ativar o intervalo do carrossel)';
+        }
+        echo json_encode(['success' => true, 'message' => $message]);
     } else {
-        echo json_encode(['success' => false, 'message' => 'Erro ao salvar']);
+        $error = mysqli_stmt_error($stmt);
+        file_put_contents(__DIR__ . '/cms_api_debug.log', 
+            date('Y-m-d H:i:s') . " - ERRO execute: $error\n", 
+            FILE_APPEND
+        );
+        echo json_encode(['success' => false, 'message' => 'Erro ao salvar: ' . $error]);
     }
     
     mysqli_stmt_close($stmt);

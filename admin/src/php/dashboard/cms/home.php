@@ -48,11 +48,24 @@ if (!$settings) {
     <link rel="stylesheet" href="../../../css/dashboard-sections.css">
     <link rel="stylesheet" href="../../../css/dashboard-cards.css">
     <style>
+        /* Espaçamento entre seções principais */
+        main h1 {
+            margin-bottom: 2rem;
+        }
+        
+        main .insights {
+            margin-bottom: 2.5rem;
+        }
+        
+        main form {
+            margin-bottom: 3rem;
+        }
+        
         .settings-card {
             background: var(--color-white);
             border-radius: var(--border-radius-2);
             padding: 2rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
         }
         .settings-card h3 {
             margin-bottom: 1.5rem;
@@ -62,7 +75,7 @@ if (!$settings) {
             gap: 0.5rem;
         }
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
         }
         .form-group label {
             display: block;
@@ -101,6 +114,7 @@ if (!$settings) {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
+            margin-top: 1rem;
         }
         .btn-save:hover {
             opacity: 0.9;
@@ -111,7 +125,7 @@ if (!$settings) {
             color: white;
             padding: 1rem;
             border-radius: var(--border-radius-1);
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             display: none;
         }
         .success-msg.show {
@@ -169,7 +183,7 @@ if (!$settings) {
                 </a>
                 
                 <div class="menu-item-container">
-                  <a href="home.php" class="menu-item-with-submenu panel active">
+                  <a href="home.php" class="menu-item-with-submenu">
                       <span class="material-symbols-sharp">web</span>
                       <h3>CMS</h3>
                   </a>
@@ -250,11 +264,6 @@ if (!$settings) {
         <!-- CONTEÚDO PRINCIPAL -->
         <main>
             <h1>CMS > Home (Textos e Configurações)</h1>
-            
-            <div class="date">
-                <span class="material-symbols-sharp">today</span>
-                <p id="current-date"><?php echo date('d/m/Y'); ?></p>
-            </div>
 
             <div class="insights">
                 <div class="sales" style="cursor: default;">
@@ -325,6 +334,12 @@ if (!$settings) {
                         <input type="text" name="hero_button_link" value="<?php echo htmlspecialchars($settings['hero_button_link'] ?? '/produtos'); ?>">
                         <small>URL para onde o botão redireciona</small>
                     </div>
+                    
+                    <div class="form-group">
+                        <label>Intervalo do Carrossel (segundos)</label>
+                        <input type="number" name="banner_interval" min="3" max="30" step="1" value="<?php echo htmlspecialchars($settings['banner_interval'] ?? '6'); ?>">
+                        <small>Tempo em segundos entre cada troca de banner (3-30 segundos)</small>
+                    </div>
                 </div>
 
                 <!-- SEÇÃO LANÇAMENTOS -->
@@ -379,21 +394,33 @@ if (!$settings) {
         </div>
     </div>
 
-    <!-- Configuração Global de Caminhos -->
-    <script>
-        window.BASE_URL = '<?php echo BASE_URL; ?>';
-        window.API_CONTADOR_URL = '<?php echo API_CONTADOR_URL; ?>';
-    </script>
-    
-    <script src="../../../js/dashboard.js"></script>
-    <script src="../../../js/contador-auto.js"></script>
     <script>
         // Garantir tema dark
         document.addEventListener('DOMContentLoaded', function() {
             const savedTheme = localStorage.getItem('darkTheme');
             if (savedTheme === 'true') {
                 document.body.classList.add('dark-theme-variables');
+                // Atualizar ícones do toggler
+                const themeToggler = document.querySelector('.theme-toggler');
+                themeToggler.querySelector('span:nth-child(1)').classList.remove('active');
+                themeToggler.querySelector('span:nth-child(2)').classList.add('active');
             }
+            
+            // Theme toggler click handler
+            const themeToggler = document.querySelector('.theme-toggler');
+            themeToggler.addEventListener('click', () => {
+                document.body.classList.toggle('dark-theme-variables');
+                
+                themeToggler.querySelector('span:nth-child(1)').classList.toggle('active');
+                themeToggler.querySelector('span:nth-child(2)').classList.toggle('active');
+                
+                // Salvar preferência
+                if (document.body.classList.contains('dark-theme-variables')) {
+                    localStorage.setItem('darkTheme', 'true');
+                } else {
+                    localStorage.setItem('darkTheme', 'false');
+                }
+            });
         });
 
         // Salvar configurações
@@ -408,7 +435,19 @@ if (!$settings) {
                     method: 'POST',
                     body: formData
                 });
-                const result = await response.json();
+                
+                const text = await response.text();
+                console.log('Resposta da API:', text);
+                
+                let result;
+                try {
+                    result = JSON.parse(text);
+                } catch (parseError) {
+                    console.error('Erro ao fazer parse do JSON:', parseError);
+                    console.error('Resposta recebida:', text);
+                    alert('Erro ao processar resposta do servidor. Verifique o console para detalhes.');
+                    return;
+                }
                 
                 if (result.success) {
                     const successMsg = document.getElementById('successMsg');

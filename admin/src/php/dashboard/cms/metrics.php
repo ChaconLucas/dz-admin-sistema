@@ -50,6 +50,23 @@ TODO - IMPLEMENTAR:
     <link rel="stylesheet" href="../../../css/dashboard.css">
     <link rel="stylesheet" href="../../../css/dashboard-sections.css">
     <link rel="stylesheet" href="../../../css/dashboard-cards.css">
+    <style>
+        /* Override mínimo: mudar cor do item CMS de verde para rosa + aplicar layout padrão */
+        aside .sidebar .menu-item-container a.menu-item-with-submenu.active {
+            background: rgba(255, 0, 212, 0.1) !important;
+            color: #ff00d4 !important;
+            margin-left: 1.5rem !important;
+            margin-right: 0.5rem !important;
+            border-left: 5px solid #ff00d4 !important;
+            border-radius: 0 8px 8px 0 !important;
+        }
+        
+        aside .sidebar .menu-item-container a.menu-item-with-submenu.active span,
+        aside .sidebar .menu-item-container a.menu-item-with-submenu.active h3 {
+            color: #ff00d4 !important;
+            font-weight: 600 !important;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -101,7 +118,7 @@ TODO - IMPLEMENTAR:
                 </a>
                 
                 <div class="menu-item-container">
-                  <a href="home.php" class="menu-item-with-submenu panel">
+                  <a href="home.php" class="menu-item-with-submenu">
                       <span class="material-symbols-sharp">web</span>
                       <h3>CMS</h3>
                   </a>
@@ -182,11 +199,6 @@ TODO - IMPLEMENTAR:
         <!-- CONTEÚDO PRINCIPAL -->
         <main>
             <h1>CMS > Métricas da Empresa</h1>
-            
-            <div class="date">
-                <span class="material-symbols-sharp">today</span>
-                <p id="current-date"><?php echo date('d/m/Y'); ?></p>
-            </div>
 
             <div class="insights">
                 <div class="sales" style="cursor: default;">
@@ -273,20 +285,32 @@ TODO - IMPLEMENTAR:
         </div>
     </div>
 
-    <!-- Configuração Global de Caminhos -->
-    <script>
-        window.BASE_URL = '<?php echo BASE_URL; ?>';
-        window.API_CONTADOR_URL = '<?php echo API_CONTADOR_URL; ?>';
-    </script>
-    
-    <script src="../../../js/dashboard.js"></script>
-    <script src="../../../js/contador-auto.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const savedTheme = localStorage.getItem('darkTheme');
             if (savedTheme === 'true') {
                 document.body.classList.add('dark-theme-variables');
+                // Atualizar ícones do toggler
+                const themeToggler = document.querySelector('.theme-toggler');
+                themeToggler.querySelector('span:nth-child(1)').classList.remove('active');
+                themeToggler.querySelector('span:nth-child(2)').classList.add('active');
             }
+            
+            // Theme toggler click handler
+            const themeToggler = document.querySelector('.theme-toggler');
+            themeToggler.addEventListener('click', () => {
+                document.body.classList.toggle('dark-theme-variables');
+                
+                themeToggler.querySelector('span:nth-child(1)').classList.toggle('active');
+                themeToggler.querySelector('span:nth-child(2)').classList.toggle('active');
+                
+                // Salvar preferência
+                if (document.body.classList.contains('dark-theme-variables')) {
+                    localStorage.setItem('darkTheme', 'true');
+                } else {
+                    localStorage.setItem('darkTheme', 'false');
+                }
+            });
         });
     </script>
 </body>

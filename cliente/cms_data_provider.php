@@ -43,7 +43,7 @@ class CMSProvider {
         $query = "
             SELECT hero_title, hero_subtitle, hero_description, 
                    hero_button_text, hero_button_link,
-                   launch_title, launch_subtitle
+                   launch_title, launch_subtitle, banner_interval
             FROM home_settings 
             WHERE id = 1
             LIMIT 1
@@ -227,6 +227,11 @@ function getBannerImageUrl($image_path) {
     // Sanitizar: remover barras duplicadas e path traversal
     $image_path = str_replace(['../', '.\\'], '', $image_path);
     $image_path = preg_replace('#/+#', '/', $image_path);
+    
+    // Se o caminho não incluir 'uploads/banners/', adicionar
+    if (strpos($image_path, 'uploads/banners/') === false) {
+        $image_path = 'uploads/banners/' . ltrim($image_path, '/');
+    }
     
     // Caminho relativo ao index.php (que está em cliente/)
     // index.php está em: admin-teste/cliente/

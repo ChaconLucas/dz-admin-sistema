@@ -45,6 +45,7 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0, 'ativos' => 0, 'ina
     <link rel="stylesheet" href="../../../css/dashboard-sections.css">
     <link rel="stylesheet" href="../../../css/dashboard-cards.css">
     <style>
+
         .banners-table {
             width: 100%;
             background: var(--color-white);
@@ -208,7 +209,7 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0, 'ativos' => 0, 'ina
                 </a>
                 
                 <div class="menu-item-container">
-                  <a href="home.php" class="menu-item-with-submenu panel">
+                  <a href="home.php" class="menu-item-with-submenu">
                       <span class="material-symbols-sharp">web</span>
                       <h3>CMS</h3>
                   </a>
@@ -289,11 +290,6 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0, 'ativos' => 0, 'ina
         <!-- CONTEÚDO PRINCIPAL -->
         <main>
             <h1>CMS > Banners do Carrossel</h1>
-            
-            <div class="date">
-                <span class="material-symbols-sharp">today</span>
-                <p id="current-date"><?php echo date('d/m/Y'); ?></p>
-            </div>
 
             <div class="insights">
                 <div class="sales" style="cursor: default;">
@@ -389,8 +385,8 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0, 'ativos' => 0, 'ina
                 <input type="hidden" name="banner_id" id="banner_id">
                 
                 <div class="form-group">
-                    <label>Título *</label>
-                    <input type="text" name="title" id="title" required>
+                    <label>Título</label>
+                    <input type="text" name="title" id="title">
                 </div>
                 
                 <div class="form-group">
@@ -404,7 +400,7 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0, 'ativos' => 0, 'ina
                 </div>
                 
                 <div class="form-group">
-                    <label>Imagem * (JPG, PNG, WEBP - Máx 2MB)</label>
+                    <label>Imagem (JPG, PNG, WEBP - Máx 2MB)</label>
                     <input type="file" name="image" id="image" accept="image/*">
                     <div id="currentImage" style="margin-top: 0.5rem;"></div>
                 </div>
@@ -427,21 +423,33 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0, 'ativos' => 0, 'ina
         </div>
     </div>
 
-    <!-- Configuração Global de Caminhos -->
-    <script>
-        window.BASE_URL = '<?php echo BASE_URL; ?>';
-        window.API_CONTADOR_URL = '<?php echo API_CONTADOR_URL; ?>';
-    </script>
-    
-    <script src="../../../js/dashboard.js"></script>
-    <script src="../../../js/contador-auto.js"></script>
     <script>
         // Garantir tema dark
         document.addEventListener('DOMContentLoaded', function() {
             const savedTheme = localStorage.getItem('darkTheme');
             if (savedTheme === 'true') {
                 document.body.classList.add('dark-theme-variables');
+                // Atualizar ícones do toggler
+                const themeToggler = document.querySelector('.theme-toggler');
+                themeToggler.querySelector('span:nth-child(1)').classList.remove('active');
+                themeToggler.querySelector('span:nth-child(2)').classList.add('active');
             }
+            
+            // Theme toggler click handler
+            const themeToggler = document.querySelector('.theme-toggler');
+            themeToggler.addEventListener('click', () => {
+                document.body.classList.toggle('dark-theme-variables');
+                
+                themeToggler.querySelector('span:nth-child(1)').classList.toggle('active');
+                themeToggler.querySelector('span:nth-child(2)').classList.toggle('active');
+                
+                // Salvar preferência
+                if (document.body.classList.contains('dark-theme-variables')) {
+                    localStorage.setItem('darkTheme', 'true');
+                } else {
+                    localStorage.setItem('darkTheme', 'false');
+                }
+            });
             
             loadBanners();
         });
@@ -515,7 +523,6 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0, 'ativos' => 0, 'ina
             document.getElementById('bannerForm').reset();
             document.getElementById('banner_id').value = '';
             document.getElementById('currentImage').innerHTML = '';
-            document.getElementById('image').required = true;
             document.getElementById('bannerModal').classList.add('show');
         }
 
@@ -534,7 +541,6 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0, 'ativos' => 0, 'ina
             document.getElementById('description').value = banner.description || '';
             document.getElementById('button_text').value = banner.button_text || '';
             document.getElementById('button_link').value = banner.button_link || '';
-            document.getElementById('image').required = false;
             document.getElementById('currentImage').innerHTML = `<img src="../../../../${banner.image_path}" style="width: 200px; border-radius: 8px;">`;
             document.getElementById('bannerModal').classList.add('show');
         }

@@ -533,15 +533,13 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         /* Banner Carrossel Moderno */
         .banner-carousel {
             position: relative;
-            height: 500px;
-            overflow: hidden;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+            width: 100%;
+            overflow: visible;
         }
         
         .carousel-container {
             position: relative;
             width: 100%;
-            height: 100%;
             display: flex;
             transition: transform 0.5s ease-in-out;
         }
@@ -619,70 +617,85 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             overflow: hidden;
         }
         
+        /* === NAVEGAÇÃO DO CARROSSEL (DOTS) === */
         .carousel-navigation {
             position: absolute;
-            bottom: 30px;
+            bottom: 35px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 12px;
+            gap: 14px;
             z-index: 10;
         }
         
         .carousel-dot {
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.4);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+        }
+        
+        .carousel-dot:hover {
+            background: rgba(255, 255, 255, 0.7);
+            transform: scale(1.15);
         }
         
         .carousel-dot.active {
             background: var(--color-magenta);
-            transform: scale(1.2);
+            transform: scale(1.35);
+            box-shadow: 0 0 0 3px rgba(230, 0, 126, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
         }
         
+        /* === SETAS DO CARROSSEL === */
         .carousel-arrows {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.3);
-            border: none;
-            width: 40px;
-            height: 40px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            z-index: 5;
-            opacity: 0.4;
-            color: rgba(0, 0, 0, 0.6);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+            color: #ffffff;
+            opacity: 0.7;
         }
         
         .carousel-arrows:hover {
-            background: rgba(255, 255, 255, 0.9);
-            color: var(--color-magenta);
-            transform: translateY(-50%) scale(1.05);
+            background: rgba(230, 0, 126, 0.9);
+            backdrop-filter: blur(15px);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-50%) scale(1.1);
             opacity: 1;
+            box-shadow: 0 6px 25px rgba(230, 0, 126, 0.4);
+        }
+        
+        .carousel-arrows:active {
+            transform: translateY(-50%) scale(1.05);
         }
         
         .carousel-prev {
-            left: 20px;
+            left: 30px;
         }
         
         .carousel-next {
-            right: 20px;
+            right: 30px;
         }
         
-        /* Responsivo Banner Carrossel */
+        /* === RESPONSIVIDADE NAVEGAÇÃO === */
         @media (max-width: 768px) {
-            .banner-carousel {
-                height: 400px;
-            }
             
             .carousel-slide {
                 padding: 30px 20px;
@@ -706,21 +719,31 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             }
             
             .carousel-arrows {
-                width: 35px;
-                height: 35px;
-                opacity: 0.3;
+                width: 42px;
+                height: 42px;
+                opacity: 0.6;
             }
             
             .carousel-arrows:hover {
-                opacity: 0.8;
+                opacity: 1;
             }
             
             .carousel-prev {
-                left: 10px;
+                left: 15px;
             }
             
             .carousel-next {
-                right: 10px;
+                right: 15px;
+            }
+            
+            .carousel-dot {
+                width: 10px;
+                height: 10px;
+            }
+            
+            .carousel-navigation {
+                bottom: 25px;
+                gap: 12px;
             }
         }
         
@@ -2793,6 +2816,259 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                 height: 380px;
             }
         }
+
+        /* =====================================================
+           CARROSSEL DE BANNERS HERO - D&Z PREMIUM
+           ===================================================== */
+
+        /* === SLIDE BASE === */
+        .dz-hero-slide {
+            position: relative;
+            width: 100%;
+            height: 65vh;
+            min-height: 450px;
+            max-height: none;
+            background-size: cover;
+            background-position: 60% center;
+            background-repeat: no-repeat;
+            border-radius: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        
+        .dz-hero-slide.clickable {
+            cursor: pointer;
+            transition: transform 0.4s ease;
+        }
+        
+        .dz-hero-slide.clickable:hover {
+            transform: scale(1.002);
+        }
+        
+        .dz-hero-slide.clickable:active {
+            transform: scale(0.999);
+        }
+
+        /* === OVERLAY GRADIENTE SUAVE === */
+        .dz-hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                rgba(0, 0, 0, 0.45) 0%,
+                rgba(0, 0, 0, 0.15) 40%,
+                rgba(0, 0, 0, 0) 70%
+            );
+            z-index: 1;
+        }
+
+        /* === CONTEÚDO DE TEXTO === */
+        .dz-hero-content {
+            position: relative;
+            z-index: 2;
+            padding: 5rem 6rem;
+            max-width: 680px;
+            color: #ffffff;
+        }
+
+        /* === TIPOGRAFIA PREMIUM === */
+        .dz-hero-title {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.05;
+            margin: 0 0 1.25rem 0;
+            letter-spacing: -0.03em;
+            animation: fadeInUp 0.8s ease-out;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .dz-hero-subtitle {
+            font-size: 1.65rem;
+            font-weight: 500;
+            margin: 0 0 1rem 0;
+            opacity: 0.98;
+            letter-spacing: 0.01em;
+            animation: fadeInUp 0.8s ease-out 0.1s both;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .dz-hero-desc {
+            font-size: 1.15rem;
+            font-weight: 400;
+            line-height: 1.7;
+            margin: 0 0 2.5rem 0;
+            opacity: 0.92;
+            max-width: 580px;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* === BOTÃO D&Z ROSA === */
+        .dz-hero-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 1.1rem 2.8rem;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            color: #ffffff;
+            background: linear-gradient(135deg, var(--color-magenta) 0%, var(--color-magenta-dark) 100%);
+            border: 2px solid transparent;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 24px rgba(230, 0, 126, 0.35);
+            text-decoration: none;
+            animation: fadeInUp 0.8s ease-out 0.3s both;
+        }
+
+        .dz-hero-btn:hover {
+            transform: translateY(-3px);
+            background: linear-gradient(135deg, #ff1a8c 0%, var(--color-magenta) 100%);
+            box-shadow: 0 10px 35px rgba(230, 0, 126, 0.5);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .dz-hero-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .dz-hero-btn-static {
+            pointer-events: none;
+            cursor: default;
+        }
+
+        /* === FALLBACK SEM IMAGEM === */
+        .dz-hero-slide.no-image {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #3d566e 100%);
+        }
+
+        /* === ANIMAÇÃO === */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* =====================================================
+           RESPONSIVIDADE HERO
+           ===================================================== */
+
+        /* === TABLET GRANDE (1024px) === */
+        @media (max-width: 1024px) {
+            .dz-hero-slide {
+                height: 60vh;
+                min-height: 420px;
+                background-position: 55% center;
+            }
+            
+            .dz-hero-content {
+                padding: 4rem 4rem;
+                max-width: 600px;
+            }
+            
+            .dz-hero-title {
+                font-size: 3.2rem;
+            }
+            
+            .dz-hero-subtitle {
+                font-size: 1.4rem;
+            }
+            
+            .dz-hero-desc {
+                font-size: 1.05rem;
+            }
+            
+            .dz-hero-btn {
+                padding: 1rem 2.4rem;
+            }
+        }
+
+        /* === TABLET/MOBILE (768px) === */
+        @media (max-width: 768px) {
+            .dz-hero-slide {
+                height: 50vh;
+                min-height: 360px;
+                background-position: center center;
+            }
+            
+            .dz-hero-overlay {
+                background: linear-gradient(
+                    to bottom,
+                    rgba(0, 0, 0, 0.35) 0%,
+                    rgba(0, 0, 0, 0.25) 50%,
+                    rgba(0, 0, 0, 0.15) 100%
+                );
+            }
+            
+            .dz-hero-content {
+                padding: 3rem 2.5rem;
+                max-width: 100%;
+                text-align: center;
+            }
+            
+            .dz-hero-title {
+                font-size: 2.5rem;
+                margin-bottom: 1rem;
+            }
+            
+            .dz-hero-subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .dz-hero-desc {
+                font-size: 1rem;
+                margin: 0 auto 2rem;
+                max-width: 90%;
+            }
+            
+            .dz-hero-btn {
+                padding: 0.95rem 2.2rem;
+                font-size: 1rem;
+            }
+        }
+
+        /* === MOBILE PEQUENO (480px) === */
+        @media (max-width: 480px) {
+            .dz-hero-slide {
+                height: 48vh;
+                min-height: 340px;
+            }
+            
+            .dz-hero-content {
+                padding: 2.5rem 1.8rem;
+            }
+            
+            .dz-hero-title {
+                font-size: 2rem;
+                line-height: 1.15;
+            }
+            
+            .dz-hero-subtitle {
+                font-size: 1.05rem;
+            }
+            
+            .dz-hero-desc {
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+            
+            .dz-hero-btn {
+                padding: 0.9rem 2rem;
+                font-size: 0.95rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -2917,57 +3193,83 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
     <section class="banner-carousel">
         <!-- Container do Carrossel -->
         <div class="carousel-container" id="carouselContainer">
-            <?php foreach ($banners as $index => $banner): ?>
+            <?php foreach ($banners as $index => $banner): 
+                // Preparar dados com segurança
+                $imageUrl = getBannerImageUrl($banner['image_path'] ?? '');
+                $title = htmlspecialchars($banner['title'] ?? '', ENT_QUOTES, 'UTF-8');
+                $subtitle = htmlspecialchars($banner['subtitle'] ?? '', ENT_QUOTES, 'UTF-8');
+                $description = htmlspecialchars($banner['description'] ?? '', ENT_QUOTES, 'UTF-8');
+                $buttonText = htmlspecialchars($banner['button_text'] ?? '', ENT_QUOTES, 'UTF-8');
+                $buttonLink = htmlspecialchars($banner['button_link'] ?? '', ENT_QUOTES, 'UTF-8');
+                
+                // Definir classe CSS para fallback
+                $slideClass = 'dz-hero-slide' . (empty($imageUrl) ? ' no-image' : '');
+                if (!empty($buttonLink)) {
+                    $slideClass .= ' clickable';
+                }
+                
+                // Preparar estilo inline para background
+                $bgStyle = !empty($imageUrl) 
+                    ? 'background-image: url(\'' . htmlspecialchars($imageUrl, ENT_QUOTES, 'UTF-8') . '\');' 
+                    : '';
+                
+                // Decidir se o slide inteiro será clicável
+                $hasLink = !empty($buttonLink) && $buttonLink !== '#';
+            ?>
             <!-- Slide <?php echo $index + 1; ?> -->
-            <div class="carousel-slide">
-                <div class="carousel-content">
-                    <h1 class="carousel-title">
-                        <?php echo htmlspecialchars($banner['title'] ?? 'D&Z'); ?>
+            <?php if ($hasLink): ?>
+            <a href="<?php echo $buttonLink; ?>" 
+               class="<?php echo $slideClass; ?> carousel-slide" 
+               style="<?php echo $bgStyle; ?> text-decoration: none; color: inherit; display: block;"
+               role="group" 
+               aria-roledescription="slide"
+               aria-label="<?php echo $title ?: 'Banner ' . ($index + 1); ?>">
+            <?php else: ?>
+            <div class="<?php echo $slideClass; ?> carousel-slide" 
+                 style="<?php echo $bgStyle; ?>"
+                 role="group" 
+                 aria-roledescription="slide"
+                 aria-label="<?php echo $title ?: 'Banner ' . ($index + 1); ?>">
+            <?php endif; ?>
+                
+                <!-- Overlay gradiente -->
+                <div class="dz-hero-overlay"></div>
+                
+                <!-- Conteúdo -->
+                <div class="dz-hero-content">
+                    <?php if (!empty($title)): ?>
+                    <h1 class="dz-hero-title">
+                        <?php echo $title; ?>
                     </h1>
-                    <?php if (!empty($banner['subtitle'])): ?>
-                    <p class="carousel-subtitle">
-                        <?php echo htmlspecialchars($banner['subtitle']); ?>
+                    <?php endif; ?>
+                    
+                    <?php if (!empty($subtitle)): ?>
+                    <p class="dz-hero-subtitle">
+                        <?php echo $subtitle; ?>
                     </p>
                     <?php endif; ?>
-                    <?php if (!empty($banner['description'])): ?>
-                    <p class="carousel-subtitle" style="margin-top: 8px; font-size: 0.95rem; opacity: 0.85;">
-                        <?php echo htmlspecialchars($banner['description']); ?>
+                    
+                    <?php if (!empty($description)): ?>
+                    <p class="dz-hero-desc">
+                        <?php echo $description; ?>
                     </p>
                     <?php endif; ?>
-                    <?php if (!empty($banner['button_text'])): ?>
-                    <button class="carousel-btn" onclick="window.location.href='<?php echo htmlspecialchars($banner['button_link'] ?? '#'); ?>'">
-                        <?php echo htmlspecialchars($banner['button_text']); ?>
-                    </button>
+                    
+                    <?php if (!empty($buttonText) && !$hasLink): ?>
+                    <span class="dz-hero-btn dz-hero-btn-static">
+                        <?php echo $buttonText; ?>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <path d="M5 12h14m-7-7l7 7-7 7"/>
+                        </svg>
+                    </span>
                     <?php endif; ?>
                 </div>
-                <div class="carousel-visual">
-                    <div class="carousel-image">
-                        <?php 
-                        $imageUrl = getBannerImageUrl($banner['image_path'] ?? '');
-                        if (!empty($imageUrl)): 
-                        ?>
-                            <img src="<?php echo htmlspecialchars($imageUrl); ?>" 
-                                 alt="<?php echo htmlspecialchars($banner['title'] ?? 'Banner'); ?>"
-                                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px;"
-                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
-                            <!-- Fallback se imagem não carregar -->
-                            <div style="text-align: center; color: var(--color-magenta); display: none;">
-                                <div style="font-size: 64px; margin-bottom: 12px;">💅</div>
-                                <p style="font-weight: 600; margin: 0;">
-                                    <?php echo htmlspecialchars($banner['title'] ?? 'D&Z'); ?>
-                                </p>
-                            </div>
-                        <?php else: ?>
-                            <div style="text-align: center; color: var(--color-magenta);">
-                                <div style="font-size: 64px; margin-bottom: 12px;">💅</div>
-                                <p style="font-weight: 600; margin: 0;">
-                                    <?php echo htmlspecialchars($banner['title'] ?? 'D&Z'); ?>
-                                </p>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
+            
+            <?php if ($hasLink): ?>
+            </a>
+            <?php else: ?>
             </div>
+            <?php endif; ?>
             <?php endforeach; ?>
         </div>
         
@@ -4773,10 +5075,11 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             goToSlide(currentSlide);
         }
         
-        // Auto slide a cada 6 segundos
+        // Auto slide - intervalo configurável pelo admin
+        const bannerInterval = <?php echo (int)($homeSettings['banner_interval'] ?? 6); ?> * 1000; // Converter segundos para milissegundos
         setInterval(() => {
             nextSlide();
-        }, 6000);
+        }, bannerInterval);
         
         // ===== CARROSSEL LANÇAMENTOS =====
         function scrollLancamentos(direction) {
