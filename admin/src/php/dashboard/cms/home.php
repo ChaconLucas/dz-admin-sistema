@@ -240,6 +240,10 @@ while ($row = mysqli_fetch_assoc($footer_links_result)) {
                       <span class="material-symbols-sharp">speed</span>
                       <h3>Métricas</h3>
                     </a>
+                    <a href="footer-links.php">
+                      <span class="material-symbols-sharp">link</span>
+                      <h3>Links do Footer</h3>
+                    </a>
                   </div>
                 </div>
                 
@@ -710,8 +714,15 @@ while ($row = mysqli_fetch_assoc($footer_links_result)) {
                         Links do Footer
                     </h3>
                     <p style="margin-bottom: 1.5rem; color: var(--color-dark-variant);">
-                        Links organizados em colunas. <strong>Nota:</strong> Para gerenciar (adicionar/remover/mudar ordem), acesse o banco diretamente ou crie interface CRUD dedicada.
+                        Links organizados em colunas. Para gerenciar (adicionar/remover/editar/reordenar), use o gerenciador completo.
                     </p>
+                    
+                    <div style="text-align: center; margin-bottom: 1.5rem;">
+                        <a href="footer-links.php" style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--color-primary); color: white; padding: 0.8rem 1.5rem; border-radius: var(--border-radius-1); text-decoration: none; font-weight: 600; transition: all 0.3s;">
+                            <span class="material-symbols-sharp">edit</span>
+                            Gerenciar Links do Footer
+                        </a>
+                    </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                         <div>

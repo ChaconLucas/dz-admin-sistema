@@ -11,10 +11,11 @@
 3. [Estrutura do Projeto](#-estrutura-do-projeto)
 4. [Instalação Rápida](#-instalação-rápida)
 5. [Módulo CMS](#-módulo-cms)
-6. [Sistema de Chat com IA](#-sistema-de-chat-com-ia)
-7. [Área do Cliente](#-área-do-cliente)
-8. [Configurações](#-configurações)
-9. [Segurança](#-segurança)
+6. [Gestão de Pedidos](#-gestão-de-pedidos)
+7. [Sistema de Chat com IA](#-sistema-de-chat-com-ia)
+8. [Área do Cliente](#-área-do-cliente)
+9. [Configurações](#-configurações)
+10. [Segurança](#-segurança)
 
 ---
 
@@ -115,9 +116,10 @@ admin-teste/
 
 1. Acesse phpMyAdmin: `http://localhost/phpmyadmin`
 2. Crie o banco: `teste_dz` (Cotejamento: `utf8mb4_unicode_ci`)
-3. Execute os scripts SQL:
+3. Execute os scripts SQL na ordem:
    - `admin/sql/criar_tabelas_dashboard.sql` (tabelas principais)
-   - `admin/src/php/dashboard/cms/setup_cms_tables.sql` (CMS) ⭐
+   - `admin/src/php/dashboard/cms/setup_cms_tables.sql` (CMS básico)
+   - `admin/src/php/dashboard/cms/migration_cms_expansao.sql` (CMS expandido - Footer e Benefícios) ⭐
 
 ### **Passo 3: Configuração**
 
@@ -192,15 +194,30 @@ Sistema de gerenciamento de conteúdo integrado ao painel admin para editar o si
 
 - Números estatísticos (anos mercado, clientes, produtos, etc)
 
+#### 7️⃣ **Links do Footer**
+
+- ✅ CRUD completo de links do footer
+- ✅ Organização em colunas (Produtos / Atendimento)
+- ✅ Ativar/Desativar links individualmente
+- ✅ Controlar ordem de exibição
+- ✅ Edição de texto e URL
+- ✅ Interface dedicada com modal
+- ✅ Integração automática no site público
+
+**Acesso:** `CMS → Links do Footer`
+
 ---
 
 ### **Tabelas do CMS:**
 
 ```sql
--- 3 tabelas principais
-home_settings         -- Textos da home (singleton)
-home_banners          -- Banners do carrossel
-home_featured_products -- Produtos em destaque
+-- Tabelas principais do CMS
+home_settings              -- Textos da home (singleton)
+home_banners               -- Banners do carrossel
+home_featured_products     -- Produtos em destaque
+cms_home_beneficios        -- Benefícios da home
+cms_footer                 -- Dados do footer (singleton)
+cms_footer_links           -- Links do footer (produtos/atendimento)
 ```
 
 ---
@@ -236,6 +253,85 @@ $featuredProducts = $cmsData['featured_products'];
     <?php endforeach; ?>
 </div>
 ```
+
+---
+
+## 📦 **Gestão de Pedidos**
+
+### **Visão Geral**
+
+Sistema completo de gerenciamento de pedidos com filtros avançados, integração com Gestão de Fluxo e processamento de reembolsos.
+
+### **Funcionalidades:**
+
+#### 1️⃣ **Filtros e Navegação**
+
+- ✅ Filtro por data (início e fim)
+- ✅ Abas de navegação:
+  - Todos os Pedidos
+  - Aguardando Pagamento
+  - Pagos
+  - Enviados
+  - Reembolsos
+- ✅ Busca por Nome, CPF ou Nº do Pedido
+
+#### 2️⃣ **Tabela Dinâmica**
+
+- ✅ Listagem de pedidos com dados do banco
+- ✅ Integração com Gestão de Fluxo (status e cores)
+- ✅ Colunas: ID, Data, Cliente, Valor Total, Status (badge colorido), Ações
+- ✅ Botão "Ver Detalhes" estilizado
+
+#### 3️⃣ **Modal de Detalhes**
+
+Ao clicar em "Ver Detalhes", exibe:
+
+- **Dados do Cliente:** Nome, E-mail, Telefone (WhatsApp)
+- **Endereço de Entrega:** Completo com CEP
+- **Informações do Pedido:** Data, valor, status, observações
+- **Itens do Pedido:** Lista detalhada (produtos, quantidades, valores)
+
+#### 4️⃣ **Gestão de Reembolso**
+
+- ✅ Aba específica para pedidos em reembolso
+- ✅ Botão "Processar Reembolso" para pedidos elegíveis
+- ✅ Atualização automática de status no banco
+
+### **Estrutura de Dados:**
+
+```sql
+-- Tabelas principais
+pedidos                     -- Dados dos pedidos
+clientes                    -- Informações dos clientes
+itens_pedido                -- Produtos do pedido
+status_fluxo                -- Status e configurações (cores)
+pedidos_historico_status    -- Histórico de mudanças
+```
+
+### **API Endpoints:**
+
+```javascript
+// POST orders.php
+action = buscar_pedidos; // Lista com filtros
+action = buscar_detalhes_pedido; // Detalhes completos
+action = processar_reembolso; // Processa reembolso
+```
+
+### **Atualização do Schema:**
+
+Execute uma vez: `admin/src/php/dashboard/update-orders-schema.php`
+
+### **Personalização:**
+
+- **Cores dos Status:** Gerenciadas pela Gestão de Fluxo
+- **Campos Adicionais:** Adicione na tabela `pedidos` e atualize as queries
+
+### **Segurança:**
+
+- ✅ Verificação de sessão
+- ✅ Prepared statements (SQL injection)
+- ✅ Validação de entrada
+- ✅ Logs de auditoria
 
 ---
 
@@ -512,7 +608,26 @@ Sistema proprietário desenvolvido para D&Z.
 
 ---
 
+## 📝 **Changelog**
+
+### **Versão 2.1 (Março 2026)**
+
+- ✅ Adicionado gerenciamento de Links do Footer (CMS)
+- ✅ Nova página CRUD para links do footer
+- ✅ API dedicada para operações do footer
+- ✅ Integração automática no site público
+- ✅ Documentação consolidada em README único
+
+### **Versão 2.0 (Fevereiro 2026)**
+
+- ✅ Sistema CMS completo
+- ✅ Gestão de Pedidos com reembolso
+- ✅ Chat com IA (Groq API)
+- ✅ Dashboard analytics
+
+---
+
 **Desenvolvido com ❤️ para D&Z - Produtos Profissionais de Beleza**
 
-**Versão:** 2.0 (CMS Integrado)  
-**Data:** Março 2026
+**Versão Atual:** 2.1  
+**Última Atualização:** 04 de Março de 2026
