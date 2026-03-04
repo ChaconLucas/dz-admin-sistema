@@ -363,6 +363,8 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0];
 
         // Garantir tema dark
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 Página carregada - Iniciando featured.php');
+            
             const savedTheme = localStorage.getItem('darkTheme');
             if (savedTheme === 'true') {
                 document.body.classList.add('dark-theme-variables');
@@ -388,15 +390,24 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0];
                 }
             });
             
-            loadAllProducts();
-            loadSelectedProducts();
+            // Carregar produtos na ordem correta
+            initProducts();
         });
+
+        // Inicializar produtos na ordem correta
+        async function initProducts() {
+            await loadSelectedProducts(); // Primeiro carrega os selecionados
+            await loadAllProducts(); // Depois carrega os disponíveis (que filtra pelos selecionados)
+        }
 
         // Carregar todos os produtos
         async function loadAllProducts() {
+            console.log('📦 Iniciando carregamento de todos os produtos...');
             try {
                 const response = await fetch('cms_api.php?action=list_products');
                 const result = await response.json();
+                
+                console.log('📦 Todos os produtos retornados pela API:', result);
                 
                 if (result.success) {
                     allProducts = result.data;
@@ -414,13 +425,18 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0];
                 const response = await fetch('cms_api.php?action=list_featured_products');
                 const result = await response.json();
                 
+                console.log('🔍 Produtos selecionados retornados pela API:', result);
+                
                 if (result.success) {
                     selectedProducts = result.data;
+                    console.log('✅ Total de produtos selecionados:', selectedProducts.length);
                     document.getElementById('totalSelected').textContent = selectedProducts.length;
                     renderSelectedProducts();
+                } else {
+                    console.error('❌ API retornou erro:', result.message);
                 }
             } catch (error) {
-                console.error('Erro ao carregar produtos selecionados:', error);
+                console.error('❌ Erro ao carregar produtos selecionados:', error);
             }
         }
 
@@ -452,9 +468,11 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0];
                 return;
             }
             
-            container.innerHTML = filtered.map(product => `
+            container.innerHTML = filtered.map(product => {
+                const imgSrc = product.imagem ? `../../../../assets/images/produtos/${product.imagem}` : placeholderSVG;
+                return `
                 <div class="product-item">
-                    <img src="../../../../assets/images/produtos/${product.imagem}" 
+                    <img src="${imgSrc}" 
                          alt="${product.nome}"
                          onerror="this.src='${placeholderSVG}'">
                     <div class="product-info">
@@ -467,12 +485,15 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0];
                         </button>
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         // Renderizar produtos selecionados
         function renderSelectedProducts() {
             const container = document.getElementById('selectedProducts');
+            
+            console.log('🎨 Renderizando produtos selecionados:', selectedProducts);
             
             // Placeholder SVG inline (base64) - leve e sem dependência de arquivo
             const placeholderSVG = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiBmaWxsPSIjZjVmNWY1Ii8+CjxwYXRoIGQ9Ik00MCAzMEw1MCA0NUgzMEw0MCAzMFoiIGZpbGw9IiNjY2MiLz4KPGNpcmNsZSBjeD0iNDUiIGN5PSIyNSIgcj0iNCIgZmlsbD0iI2NjYyIvPgo8dGV4dCB4PSI0MCIgeT0iNjAiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI5IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Qcm9kdXRvPC90ZXh0Pgo8L3N2Zz4=';
@@ -482,9 +503,11 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0];
                 return;
             }
             
-            container.innerHTML = selectedProducts.map((item, index) => `
+            container.innerHTML = selectedProducts.map((item, index) => {
+                const imgSrc = item.produto_imagem ? `../../../../assets/images/produtos/${item.produto_imagem}` : placeholderSVG;
+                return `
                 <div class="product-item">
-                    <img src="../../../../assets/images/produtos/${item.produto_imagem}" 
+                    <img src="${imgSrc}" 
                          alt="${item.produto_nome}"
                          onerror="this.src='${placeholderSVG}'">
                     <div class="product-info">
@@ -503,7 +526,8 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0];
                         </button>
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         // Busca
@@ -513,6 +537,8 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0];
 
         // Adicionar produto
         async function addProduct(productId) {
+            console.log('➕ Adicionando produto ID:', productId);
+            
             const formData = new FormData();
             formData.append('action', 'add_featured_product');
             formData.append('product_id', productId);
@@ -524,14 +550,17 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0];
                 });
                 const result = await response.json();
                 
+                console.log('➕ Resposta da API ao adicionar:', result);
+                
                 if (result.success) {
                     await loadSelectedProducts();
+                    await loadAllProducts(); // Recarregar produtos disponíveis
                     document.getElementById('searchProducts').value = ''; // Limpar busca
-                    renderAvailableProducts();
                 } else {
                     alert(result.message);
                 }
             } catch (error) {
+                console.error('❌ Erro ao adicionar produto:', error);
                 alert('Erro ao adicionar produto');
             }
         }
@@ -553,8 +582,8 @@ $stats = mysqli_fetch_assoc($stats_result) ?? ['total' => 0];
                 
                 if (result.success) {
                     await loadSelectedProducts();
+                    await loadAllProducts(); // Recarregar produtos disponíveis
                     document.getElementById('searchProducts').value = ''; // Limpar busca
-                    renderAvailableProducts();
                 } else {
                     alert(result.message);
                 }
