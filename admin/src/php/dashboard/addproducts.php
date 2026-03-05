@@ -309,6 +309,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $preco = floatval($_POST['preco']);
     $preco_promocional = !empty($_POST['preco_promocional']) ? floatval($_POST['preco_promocional']) : null;
     $categoria = trim($_POST['categoria']);
+    $categoria_menu_group = $_POST['categoria_menu_group'] ?? 'outros';
+    $categoria_parent_id = !empty($_POST['categoria_parent_id']) ? intval($_POST['categoria_parent_id']) : null;
     
     // Salvar categoria se não existir e obter ID
     $categoria_id = null;
@@ -321,10 +323,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $result_check = mysqli_stmt_get_result($stmt_check);
         
         if (mysqli_num_rows($result_check) == 0) {
-            // Categoria não existe, inserir nova
-            $insert_cat = "INSERT INTO categorias (nome, ativo, created_at) VALUES (?, 1, NOW())";
+            // Categoria não existe, inserir nova com menu_group e parent_id
+            $insert_cat = "INSERT INTO categorias (nome, menu_group, parent_id, ativo, created_at) VALUES (?, ?, ?, 1, NOW())";
             $stmt_cat = mysqli_prepare($conexao, $insert_cat);
-            mysqli_stmt_bind_param($stmt_cat, "s", $categoria);
+            mysqli_stmt_bind_param($stmt_cat, "ssi", $categoria, $categoria_menu_group, $categoria_parent_id);
             mysqli_stmt_execute($stmt_cat);
             $categoria_id = mysqli_insert_id($conexao);
         } else {
@@ -2273,8 +2275,37 @@ if (mysqli_num_rows($categorias_result) == 0) {
                                id="nova-categoria-input" 
                                class="form-input" 
                                placeholder="Digite o nome da nova categoria"
-                               maxlength="255">
-                        <div class="form-help">A categoria será criada automaticamente ao salvar</div>
+                               maxlength="255" 
+                               style="margin-bottom: 10px;">
+                        
+                        <div class="form-row" style="margin-bottom: 10px;">
+                          <div class="form-group" style="margin: 0;">
+                            <label class="form-label" style="font-size: 0.9rem; margin-bottom: 5px;">Menu da Navbar</label>
+                            <select id="nova-categoria-menu-group" class="form-input">
+                              <option value="unhas">🔨 UNHAS</option>
+                              <option value="cilios">👁️ CÍLIOS</option>
+                              <option value="eletronicos">⚡ ELETRÔNICOS</option>
+                              <option value="ferramentas">🛠️ FERRAMENTAS</option>
+                              <option value="marcas">⭐ MARCAS</option>
+                              <option value="outros" selected>📦 OUTROS</option>
+                            </select>
+                          </div>
+                          
+                          <div class="form-group" style="margin: 0;">
+                            <label class="form-label" style="font-size: 0.9rem; margin-bottom: 5px;">Categoria Pai (opcional)</label>
+                            <select id="nova-categoria-parent" class="form-input">
+                              <option value="">Nenhuma (categoria principal)</option>
+                              <?php 
+                              mysqli_data_seek($categorias_result, 0);
+                              while ($cat = mysqli_fetch_assoc($categorias_result)): 
+                              ?>
+                                <option value="<?php echo $cat['id']; ?>"><?php echo htmlspecialchars($cat['nome']); ?></option>
+                              <?php endwhile; ?>
+                            </select>
+                          </div>
+                        </div>
+                        
+                        <div class="form-help">A categoria será criada automaticamente ao salvar o produto</div>
                       </div>
                     </div>
 
@@ -2942,6 +2973,34 @@ function setupCategoriaControl() {
         }
         
         hiddenCategoria.value = novaCategoria;
+        
+        // Adicionar menu_group e parent_id ao formulário
+        const menuGroupInput = document.getElementById('nova-categoria-menu-group');
+        const parentIdInput = document.getElementById('nova-categoria-parent');
+        
+        if (menuGroupInput) {
+          let menuGroupHidden = document.getElementById('categoria_menu_group_hidden');
+          if (!menuGroupHidden) {
+            menuGroupHidden = document.createElement('input');
+            menuGroupHidden.type = 'hidden';
+            menuGroupHidden.name = 'categoria_menu_group';
+            menuGroupHidden.id = 'categoria_menu_group_hidden';
+            form.appendChild(menuGroupHidden);
+          }
+          menuGroupHidden.value = menuGroupInput.value;
+        }
+        
+        if (parentIdInput) {
+          let parentIdHidden = document.getElementById('categoria_parent_id_hidden');
+          if (!parentIdHidden) {
+            parentIdHidden = document.createElement('input');
+            parentIdHidden.type = 'hidden';
+            parentIdHidden.name = 'categoria_parent_id';
+            parentIdHidden.id = 'categoria_parent_id_hidden';
+            form.appendChild(parentIdHidden);
+          }
+          parentIdHidden.value = parentIdInput.value;
+        }
       } else if (!hiddenSelect.value) {
         e.preventDefault();
         alert('Por favor, selecione uma categoria');

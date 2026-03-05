@@ -181,22 +181,30 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             box-shadow: 0 6px 30px rgba(0, 0, 0, 0.12);
         }
         
-        .container-header {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 40px;
+        /* ===== LAYOUT NAVBAR - ALTA ESPECIFICIDADE ===== */
+        header.header-loja #navbar .container-header,
+        header.header-loja .container-header,
+        .header-loja .container-header {
+            max-width: 1400px !important;
+            margin: 0 auto !important;
+            padding: 0 4px !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            flex-wrap: nowrap !important;
         }
         
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: transform 0.3s ease;
+        header.header-loja .logo-container,
+        .header-loja .logo-container {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            cursor: pointer !important;
+            transition: transform 0.3s ease !important;
+            flex-shrink: 0 !important;
+            flex: 0 0 auto !important;
+            min-width: 0 !important;
+            margin-left: 0 !important;
         }
         
         .logo-container:hover {
@@ -256,25 +264,140 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             font-size: 2rem;
         }
         
-        .nav-loja ul {
-            display: flex;
-            align-items: center;
-            gap: 32px;
-            list-style: none;
-            margin: 0;
-            padding: 0;
+        header.header-loja nav.nav-loja,
+        .header-loja .nav-loja {
+            flex: 1 1 auto !important;
+            display: flex !important;
+            justify-content: center !important;
+            min-width: 0 !important;
+            max-width: none !important;
+            overflow: visible !important;
+            margin: 0 16px 0 0 !important;
+            flex-shrink: 0 !important;
+        }
+        
+        header.header-loja nav.nav-loja > ul,
+        .header-loja .nav-loja > ul {
+            display: flex !important;
+            align-items: center !important;
+            gap: 18px !important;
+            list-style: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            flex-wrap: nowrap !important;
+            white-space: nowrap !important;
+        }
+        
+        header.header-loja .nav-loja > ul > li,
+        .header-loja .nav-loja > ul > li {
+            flex-shrink: 0 !important;
+        }
+        
+        .nav-loja > ul > li {
+            position: relative;
         }
         
         .nav-loja a {
             color: #2d3748;
             text-decoration: none;
             font-weight: 600;
-            font-size: 0.95rem;
-            padding: 12px 16px;
+            font-size: 0.88rem;
+            padding: 10px 13px;
             border-radius: 25px;
             position: relative;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .dropdown-icon {
+            font-size: 0.7rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .has-dropdown:hover .dropdown-icon {
+            transform: rotate(180deg);
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            min-width: 220px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            padding: 12px 0;
+            margin-top: 8px;
+        }
+        
+        .has-dropdown:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-menu ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: block;
+        }
+        
+        .dropdown-menu li {
+            position: relative;
+        }
+        
+        .dropdown-menu a {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            color: #2d3748;
+            border-radius: 0;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .dropdown-menu a:hover {
+            background: rgba(230, 0, 126, 0.08);
+            color: var(--color-magenta);
+            transform: translateX(4px);
+        }
+        
+        .submenu-arrow {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .submenu {
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background: white;
+            min-width: 200px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(-10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1001;
+            padding: 12px 0;
+            margin-left: 4px;
+        }
+        
+        .has-submenu:hover .submenu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
         }
         
         .nav-loja a:hover {
@@ -283,38 +406,70 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             transform: translateY(-2px);
         }
         
-        .user-area {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
+        header.header-loja .nav-right,
+        .header-loja .nav-right {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            flex-shrink: 1 !important;
+            flex: 0 1 auto !important;
+            margin-right: 0 !important;
+        }
+        
+        header.header-loja .nav-right .user-area,
+        .header-loja .user-area {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            flex-shrink: 0 !important;
+            margin-right: 0 !important;
         }
 
-        .search-panel {
-            width: 0;
-            opacity: 0;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
+        header.header-loja .nav-right .search-panel,
+        .header-loja .search-panel {
+            width: 0 !important;
+            max-width: 0 !important;
+            opacity: 0 !important;
+            overflow: hidden !important;
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                        opacity 0.5s ease-in-out,
+                        max-width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            display: flex !important;
+            align-items: center !important;
+            flex: 0 0 auto !important;
+            will-change: width, opacity, max-width;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
         }
 
-        .search-panel.active {
-            width: 260px;
-            opacity: 1;
-            margin-left: 16px;
+        header.header-loja .nav-right .search-panel.active,
+        .header-loja .search-panel.active {
+            width: auto !important;
+            min-width: 160px !important;
+            max-width: 220px !important;
+            opacity: 1 !important;
+            flex: 1 1 auto !important;
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        opacity 0.5s ease-in-out,
+                        max-width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
         }
 
-        .search-panel input {
-            width: 260px;
-            padding: 10px 14px;
-            border-radius: 20px;
-            border: 1px solid rgba(230, 0, 126, 0.2);
-            background: white;
-            color: #1e293b;
-            font-size: 0.9rem;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-            outline: none;
+        header.header-loja .nav-right .search-panel input,
+        .header-loja .search-panel input {
+            width: 100% !important;
+            min-width: 160px !important;
+            max-width: 220px !important;
+            padding: 10px 14px !important;
+            border-radius: 20px !important;
+            border: 1px solid rgba(230, 0, 126, 0.2) !important;
+            background: white !important;
+            color: #1e293b !important;
+            font-size: 0.9rem !important;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08) !important;
+            outline: none !important;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease !important;
         }
 
         .search-panel input:focus {
@@ -334,7 +489,7 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             justify-content: center;
             cursor: pointer;
             font-size: 1.1rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
             overflow: hidden;
         }
@@ -347,14 +502,19 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             width: 100%;
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-            transition: left 0.5s ease;
+            transition: left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         
         .btn-icon:hover {
             background: var(--color-magenta);
             color: white;
-            transform: translateY(-2px);
+            transform: translateY(-2px) scale(1.05);
             box-shadow: 0 8px 20px rgba(230, 0, 126, 0.3);
+        }
+        
+        .btn-icon:active {
+            transform: translateY(0) scale(0.98);
+            transition: all 0.15s ease;
         }
         
         .btn-icon:hover::before {
@@ -2531,30 +2691,129 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         }
         
         /* Responsivo */
-        @media (max-width: 968px) {
-            .container-header {
-                padding: 0 20px;
-                gap: 24px;
+        @media (min-width: 1400px) {
+            header.header-loja .search-panel.active,
+            .header-loja .search-panel.active {
+                min-width: 200px !important;
+                max-width: 260px !important;
             }
             
-            .nav-loja ul {
-                gap: 20px;
+            header.header-loja .search-panel input,
+            .header-loja .search-panel input {
+                min-width: 200px !important;
+                max-width: 260px !important;
+            }
+        }
+        
+        @media (max-width: 1200px) {
+            header.header-loja .nav-loja,
+            .header-loja .nav-loja {
+                margin: 0 14px 0 0 !important;
+            }
+            
+            header.header-loja .search-panel.active,
+            .header-loja .search-panel.active {
+                min-width: 140px !important;
+                max-width: 180px !important;
+            }
+            
+            header.header-loja .search-panel input,
+            .header-loja .search-panel input {
+                min-width: 140px !important;
+                max-width: 180px !important;
+            }
+            
+            header.header-loja .nav-loja > ul,
+            .header-loja .nav-loja > ul {
+                gap: 16px !important;
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            header.header-loja .nav-loja,
+            .header-loja .nav-loja {
+                margin: 0 12px 0 0 !important;
+            }
+            
+            header.header-loja .search-panel.active,
+            .header-loja .search-panel.active {
+                min-width: 120px !important;
+                max-width: 150px !important;
+            }
+            
+            header.header-loja .search-panel input,
+            .header-loja .search-panel input {
+                min-width: 120px !important;
+                max-width: 150px !important;
+                font-size: 0.85rem !important;
+                padding: 8px 10px !important;
+            }
+            
+            header.header-loja .nav-loja > ul,
+            .header-loja .nav-loja > ul {
+                gap: 15px !important;
             }
             
             .nav-loja a {
-                font-size: 0.9rem;
-                padding: 10px 12px;
+                font-size: 0.85rem !important;
+                padding: 8px 11px !important;
+            }
+        }
+        
+        @media (max-width: 968px) {
+            header.header-loja .container-header,
+            header.header-loja #navbar .container-header,
+            .header-loja .container-header {
+                padding: 0 4px !important;
+                gap: 8px !important;
+            }
+            
+            header.header-loja .nav-loja,
+            .header-loja .nav-loja {
+                margin: 0 10px 0 0 !important;
+            }
+            
+            header.header-loja .nav-loja > ul,
+            .header-loja .nav-loja > ul {
+                gap: 13px !important;
+            }
+            
+            .nav-loja a {
+                font-size: 0.8rem !important;
+                padding: 8px 10px !important;
+            }
+            
+            header.header-loja .nav-right,
+            .header-loja .nav-right {
+                gap: 6px !important;
+            }
+            
+            header.header-loja .search-panel.active,
+            .header-loja .search-panel.active {
+                min-width: 100px !important;
+                max-width: 130px !important;
+            }
+            
+            header.header-loja .search-panel input,
+            .header-loja .search-panel input {
+                min-width: 100px !important;
+                max-width: 130px !important;
+                font-size: 0.8rem !important;
+                padding: 8px 10px !important;
             }
         }
         
         @media (max-width: 768px) {
             .header-loja {
-                padding: 8px 0;
+                padding: 8px 0 !important;
             }
             
-            .container-header {
-                padding: 0 16px;
-                gap: 16px;
+            header.header-loja .container-header,
+            header.header-loja #navbar .container-header,
+            .header-loja .container-header {
+                padding: 0 4px !important;
+                gap: 6px !important;
+                justify-content: space-between !important;
             }
             
             .logo-dz-oficial {
@@ -3151,29 +3410,94 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             <!-- Navegação -->
             <nav class="nav-loja">
                 <ul>
-                    <li><a href="#unhas">Unhas</a></li>
-                    <li><a href="#cilios">Cílios</a></li>
-                    <li><a href="#kits">Kits</a></li>
-                    <li><a href="#novidades">Novidades</a></li>
+                    <li><a href="produtos.php">TODOS</a></li>
+                    
+                    <li class="has-dropdown">
+                        <a href="produtos.php?menu=unhas">UNHAS <span class="dropdown-icon">▼</span></a>
+                        <div class="dropdown-menu">
+                            <ul>
+                                <li><a href="produtos.php?categoria=Esmaltes">Esmaltes</a></li>
+                                <li><a href="produtos.php?categoria=Géis">Géis</a></li>
+                                <li><a href="produtos.php?categoria=Preparadores">Preparadores</a></li>
+                                <li><a href="produtos.php?categoria=Molde">Molde</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    
+                    <li class="has-dropdown">
+                        <a href="produtos.php?menu=cilios">CÍLIOS <span class="dropdown-icon">▼</span></a>
+                        <div class="dropdown-menu">
+                            <ul>
+                                <li><a href="produtos.php?categoria=Cola">Cola</a></li>
+                                <li><a href="produtos.php?categoria=Removedor">Removedor</a></li>
+                                <li><a href="produtos.php?categoria=Fio a fio">Fio a fio</a></li>
+                                <li><a href="produtos.php?categoria=Postiço">Postiço</a></li>
+                                <li><a href="produtos.php?categoria=Tufo">Tufo</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    
+                    <li class="has-dropdown">
+                        <a href="produtos.php?menu=eletronicos">ELETRÔNICOS <span class="dropdown-icon">▼</span></a>
+                        <div class="dropdown-menu">
+                            <ul>
+                                <li><a href="produtos.php?categoria=Cabine">Cabine</a></li>
+                                <li><a href="produtos.php?categoria=Motor">Motor</a></li>
+                                <li><a href="produtos.php?categoria=Luminária">Luminária</a></li>
+                                <li><a href="produtos.php?categoria=Coletor">Coletor</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    
+                    <li class="has-dropdown">
+                        <a href="produtos.php?menu=ferramentas">FERRAMENTAS <span class="dropdown-icon">▼</span></a>
+                        <div class="dropdown-menu">
+                            <ul>
+                                <li><a href="produtos.php?categoria=Alicates">Alicates</a></li>
+                                <li><a href="produtos.php?categoria=Espátulas">Espátulas</a></li>
+                                <li><a href="produtos.php?categoria=Tesouras">Tesouras</a></li>
+                                <li><a href="produtos.php?categoria=Cortadores">Cortadores</a></li>
+                                <li><a href="produtos.php?categoria=Lixas">Lixas</a></li>
+                                <li><a href="produtos.php?categoria=Empurradores">Empurradores</a></li>
+                                <li><a href="produtos.php?categoria=Pincéis">Pincéis</a></li>
+                                <li><a href="produtos.php?categoria=Pinças">Pinças</a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    
+                    <li class="has-dropdown">
+                        <a href="produtos.php?menu=marcas">MARCAS <span class="dropdown-icon">▼</span></a>
+                        <div class="dropdown-menu">
+                            <ul>
+                                <li><a href="produtos.php?marca=D&Z">D&Z</a></li>
+                                <li><a href="produtos.php?marca=Sioux">Sioux</a></li>
+                                <li><a href="produtos.php?marca=Sunny's">Sunny's</a></li>
+                                <li><a href="produtos.php?marca=Crush">Crush</a></li>
+                                <li><a href="produtos.php?marca=XD">XD</a></li>
+                            </ul>
+                        </div>
+                    </li>
                 </ul>
             </nav>
             
-            <!-- Área do usuário -->
-            <div class="user-area">
-                <!-- Menu Mobile Toggle (apenas para mobile) -->
-                <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
-                    <div class="hamburger">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
-                </button>
-
+            <!-- Lado direito: Busca + Ícones -->
+            <div class="nav-right">
                 <div class="search-panel" id="searchPanel">
                     <input type="search" id="searchInput" placeholder="Buscar produtos" aria-label="Buscar produtos">
                 </div>
                 
-                <button class="btn-icon btn-search" id="searchToggle" title="Pesquisar" aria-expanded="false" aria-controls="searchPanel">
+                <!-- Área do usuário -->
+                <div class="user-area">
+                    <!-- Menu Mobile Toggle (apenas para mobile) -->
+                    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                        <div class="hamburger">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </button>
+                    
+                    <button class="btn-icon btn-search" id="searchToggle" title="Pesquisar" aria-expanded="false" aria-controls="searchPanel">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
                     </svg>
@@ -3207,7 +3531,11 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                     <span class="cart-count" id="cartBadge">0</span>
                 </button>
             </div>
+            <!-- Fim user-area -->
+            </div>
+            <!-- Fim nav-right -->
         </div>
+        <!-- Fim container-header -->
     </header>
     
     <!-- Mobile Menu Overlay -->
@@ -4640,11 +4968,21 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         if (searchToggle && searchPanel) {
             searchToggle.addEventListener('click', (e) => {
                 e.preventDefault();
-                const isOpen = searchPanel.classList.toggle('active');
-                searchToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-                if (isOpen && searchInput) {
-                    searchInput.focus();
-                }
+                
+                // Usar requestAnimationFrame para suavizar a animação
+                requestAnimationFrame(() => {
+                    const isOpen = searchPanel.classList.toggle('active');
+                    searchToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                    
+                    if (isOpen && searchInput) {
+                        // Delay para sincronizar com a animação
+                        setTimeout(() => {
+                            requestAnimationFrame(() => {
+                                searchInput.focus();
+                            });
+                        }, 350);
+                    }
+                });
             });
         }
 
