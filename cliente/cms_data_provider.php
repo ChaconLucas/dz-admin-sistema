@@ -167,6 +167,7 @@ class CMSProvider {
         $banners = $this->getActiveBanners();
         $settings = $this->getHomeSettings();
         $featured = $this->getFeaturedProducts(8);
+        $testimonials = $this->getTestimonials(3);
         
         // Fallback para banners vazios
         if (empty($banners)) {
@@ -183,7 +184,8 @@ class CMSProvider {
         return [
             'banners' => $banners,
             'settings' => $settings,
-            'featured_products' => $featured
+            'featured_products' => $featured,
+            'testimonials' => $testimonials
         ];
     }
     
@@ -447,6 +449,41 @@ class CMSProvider {
         } catch (Exception $e) {
             // Tabela ainda não existe - retornar array vazio para não quebrar o site
             error_log("Tabela cms_home_metrics não encontrada: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Buscar depoimentos ativos
+     * 
+     * @param int $limit Número máximo de depoimentos (padrão: 3)
+     * @return array Lista de depoimentos ativos
+     */
+    public function getTestimonials($limit = 3) {
+        try {
+            $limit = (int)$limit;
+            $query = "
+                SELECT nome, cargo_empresa, texto, rating, avatar_path
+                FROM cms_testimonials
+                WHERE ativo = 1
+                ORDER BY ordem ASC, id DESC
+                LIMIT {$limit}
+            ";
+            
+            $result = mysqli_query($this->conn, $query);
+            
+            if (!$result) {
+                error_log("Erro ao buscar depoimentos: " . mysqli_error($this->conn));
+                return [];
+            }
+            
+            $testimonials = mysqli_fetch_all($result, MYSQLI_ASSOC);
+            mysqli_free_result($result);
+            
+            return $testimonials;
+        } catch (Exception $e) {
+            // Tabela ainda não existe - retornar array vazio para não quebrar o site
+            error_log("Tabela cms_testimonials não encontrada: " . $e->getMessage());
             return [];
         }
     }

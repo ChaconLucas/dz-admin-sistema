@@ -1436,6 +1436,326 @@ if ($action === 'delete_metric') {
 }
 
 // ====================================================================
+// DEPOIMENTOS (TESTIMONIALS)
+// ====================================================================
+
+if ($action === 'list_testimonials') {
+    try {
+        // Verificar se a tabela existe
+        $table_check = mysqli_query($conexao, "SHOW TABLES LIKE 'cms_testimonials'");
+        if (mysqli_num_rows($table_check) == 0) {
+            echo json_encode([
+                'success' => true,
+                'items' => [],
+                'counts' => ['active' => 0, 'total' => 0],
+                'setup_needed' => true
+            ]);
+            exit();
+        }
+        
+        $result = mysqli_query($conexao, 
+            "SELECT * FROM cms_testimonials ORDER BY ordem ASC, id DESC"
+        );
+        
+        if (!$result) {
+            throw new Exception('Erro ao buscar depoimentos: ' . mysqli_error($conexao));
+        }
+        
+        $items =[];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $items[] = $row;
+        }
+        
+        // Contar ativos e total
+        $count_result = mysqli_query($conexao, 
+            "SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN ativo = 1 THEN 1 ELSE 0 END) as active
+            FROM cms_testimonials"
+        );
+        $counts = mysqli_fetch_assoc($count_result);
+        
+        echo json_encode([
+            'success' => true,
+            'items' => $items,
+            'counts' => [
+                'active' => (int)$counts['active'],
+                'total' => (int)$counts['total']
+            ]
+        ]);
+    } catch (Exception $e) {
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage(),
+            'setup_needed' => true
+        ]);
+    }
+    exit();
+}
+
+if ($action === 'add_testimonial') {
+    try {
+        $nome = trim($_POST['nome'] ?? '');
+        $cargo_empresa = trim($_POST['cargo_empresa'] ?? '');
+        $texto = trim($_POST['texto'] ?? '');
+        $rating = intval($_POST['rating'] ?? 5);
+        $ordem = intval($_POST['ordem'] ?? 0);
+        $ativo = isset($_POST['ativo']) ? 1 : 0;
+        
+        // Validações
+        if (empty($nome)) {
+            echo json_encode(['success' => false, 'message' => 'Nome é obrigatório']);
+            exit();
+        }
+        
+        if (mb_strlen($nome) > 120) {
+            echo json_encode(['success' => false, 'message' => 'Nome deve ter no máximo 120 caracteres']);
+            exit();
+        }
+        
+        if (empty($texto)) {
+            echo json_encode(['success' => false, 'message' => 'Texto do depoimento é obrigatório']);
+            exit();
+        }
+        
+        if (mb_strlen($texto) > 600) {
+            echo json_encode(['success' => false, 'message' => 'Texto deve ter no máximo 600 caracteres']);
+            exit();
+        }
+        
+        if ($rating < 1 || $rating > 5) {
+            echo json_encode(['success' => false, 'message' => 'Avaliação deve ser entre 1 e 5']);
+            exit();
+        }
+        
+        // Upload de avatar (opcional)
+        $avatar_path = null;
+        if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
+            $upload_dir = __DIR__ . '/../../../../../uploads/testimonials/';
+            if (!file_exists($upload_dir)) {
+                mkdir($upload_dir, 0755, true);
+            }
+            
+            $file_extension = strtolower(pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION));
+            $allowed_extensions = ['jpg', 'jpeg', 'png', 'webp'];
+            
+            if (!in_array($file_extension, $allowed_extensions)) {
+                echo json_encode(['success' => false, 'message' => 'Formato de imagem inválido. Use JPG, PNG ou WEBP']);
+                exit();
+            }
+            
+            $filename = uniqid('avatar_') . '.' . $file_extension;
+            $upload_path = $upload_dir . $filename;
+            
+            if (move_uploaded_file($_FILES['avatar']['tmp_name'], $upload_path)) {
+                $avatar_path = 'uploads/testimonials/' . $filename;
+            }
+        }
+        
+        $stmt = mysqli_prepare($conexao,
+            "INSERT INTO cms_testimonials (nome, cargo_empresa, texto, rating, avatar_path, ordem, ativo) 
+             VALUES (?, ?, ?, ?, ?, ?, ?)"
+        );
+        
+        if (!$stmt) {
+            throw new Exception('Tabela cms_testimonials não encontrada.');
+        }
+        
+        mysqli_stmt_bind_param($stmt, 'sssissi', 
+            $nome, $cargo_empresa, $texto, $rating, $avatar_path, $ordem, $ativo
+        );
+        
+        if (mysqli_stmt_execute($stmt)) {
+            echo json_encode(['success' => true, 'message' => 'Depoimento cadastrado com sucesso!']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Erro ao cadastrar: ' . mysqli_error($conexao)]);
+        }
+        
+        mysqli_stmt_close($stmt);
+    } catch (Exception $e) {
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage(),
+            'setup_needed' => true
+        ]);
+    }
+    exit();
+}
+
+if ($action === 'update_testimonial') {
+    try {
+        $id = intval($_POST['id'] ?? 0);
+        $nome = trim($_POST['nome'] ?? '');
+        $cargo_empresa = trim($_POST['cargo_empresa'] ?? '');
+        $texto = trim($_POST['texto'] ?? '');
+        $rating = intval($_POST['rating'] ?? 5);
+        $ordem = intval($_POST['ordem'] ?? 0);
+        $ativo = isset($_POST['ativo']) ? 1 : 0;
+        
+        if ($id <= 0) {
+            echo json_encode(['success' => false, 'message' => 'ID inválido']);
+            exit();
+        }
+        
+        // Validações
+        if (empty($nome) || mb_strlen($nome) > 120) {
+            echo json_encode(['success' => false, 'message' => 'Nome inválido (máx 120 caracteres)']);
+            exit();
+        }
+        
+        if (empty($texto) || mb_strlen($texto) > 600) {
+            echo json_encode(['success' => false, 'message' => 'Texto inválido (máx 600 caracteres)']);
+            exit();
+        }
+        
+        if ($rating < 1 || $rating > 5) {
+            echo json_encode(['success' => false, 'message' => 'Avaliação deve ser entre 1 e 5']);
+            exit();
+        }
+        
+        // Buscar avatar existente
+        $result = mysqli_query($conexao, "SELECT avatar_path FROM cms_testimonials WHERE id = $id");
+        $existing = mysqli_fetch_assoc($result);
+        $avatar_path = $existing['avatar_path'];
+        
+        // Upload de novo avatar (se enviado)
+        if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
+            $upload_dir = __DIR__ . '/../../../../../uploads/testimonials/';
+            if (!file_exists($upload_dir)) {
+                mkdir($upload_dir, 0755, true);
+            }
+            
+            $file_extension = strtolower(pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION));
+            $allowed_extensions = ['jpg', 'jpeg', 'png', 'webp'];
+            
+            if (in_array($file_extension, $allowed_extensions)) {
+                // Remover avatar antigo se existir
+                if ($avatar_path && file_exists(__DIR__ . '/../../../../../' . $avatar_path)) {
+                    unlink(__DIR__ . '/../../../../../' . $avatar_path);
+                }
+                
+                $filename = uniqid('avatar_') . '.' . $file_extension;
+                $upload_path = $upload_dir . $filename;
+                
+                if (move_uploaded_file($_FILES['avatar']['tmp_name'], $upload_path)) {
+                    $avatar_path = 'uploads/testimonials/' . $filename;
+                }
+            }
+        }
+        
+        $stmt = mysqli_prepare($conexao,
+            "UPDATE cms_testimonials 
+             SET nome = ?, cargo_empresa = ?, texto = ?, rating = ?, avatar_path = ?, ordem = ?, ativo = ?, updated_at = NOW()
+             WHERE id = ?"
+        );
+        
+        if (!$stmt) {
+            throw new Exception('Tabela cms_testimonials não encontrada.');
+        }
+        
+        mysqli_stmt_bind_param($stmt, 'sssisiii', 
+            $nome, $cargo_empresa, $texto, $rating, $avatar_path, $ordem, $ativo, $id
+        );
+        
+        if (mysqli_stmt_execute($stmt)) {
+            echo json_encode(['success' => true, 'message' => 'Depoimento atualizado com sucesso!']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Erro ao atualizar: ' . mysqli_error($conexao)]);
+        }
+        
+        mysqli_stmt_close($stmt);
+    } catch (Exception $e) {
+        echo json_encode([
+            'success' => false,
+            'message' => $e->getMessage(),
+            'setup_needed' => true
+        ]);
+    }
+    exit();
+}
+
+if ($action === 'toggle_testimonial') {
+    try {
+        $id = intval($_POST['id'] ?? 0);
+        
+        if ($id <= 0) {
+            echo json_encode(['success' => false, 'message' => 'ID inválido']);
+            exit();
+        }
+        
+        $stmt = mysqli_prepare($conexao,
+            "UPDATE cms_testimonials SET ativo = NOT ativo, updated_at = NOW() WHERE id = ?"
+        );
+        
+        if (!$stmt) {
+            throw new Exception('Tabela cms_testimonials não encontrada.');
+        }
+        
+        mysqli_stmt_bind_param($stmt, 'i', $id);
+        
+        if (mysqli_stmt_execute($stmt)) {
+            $result = mysqli_query($conexao, "SELECT ativo FROM cms_testimonials WHERE id = $id");
+            $row = mysqli_fetch_assoc($result);
+            
+            echo json_encode([
+                'success' => true,
+                'message' => 'Status atualizado com sucesso!',
+                'ativo' => (bool)$row['ativo']
+            ]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Erro ao atualizar status: ' . mysqli_error($conexao)]);
+        }
+        
+        mysqli_stmt_close($stmt);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    }
+    exit();
+}
+
+if ($action === 'delete_testimonial') {
+    try {
+        $id = intval($_POST['id'] ?? 0);
+        
+        if ($id <= 0) {
+            echo json_encode(['success' => false, 'message' => 'ID inválido']);
+            exit();
+        }
+        
+        // Buscar avatar para deletar arquivo
+        $result = mysqli_query($conexao, "SELECT avatar_path FROM cms_testimonials WHERE id = $id");
+        $row = mysqli_fetch_assoc($result);
+        
+        $stmt = mysqli_prepare($conexao, "DELETE FROM cms_testimonials WHERE id = ?");
+        
+        if (!$stmt) {
+            throw new Exception('Tabela cms_testimonials não encontrada.');
+        }
+        
+        mysqli_stmt_bind_param($stmt, 'i', $id);
+        
+        if (mysqli_stmt_execute($stmt)) {
+            // Remover arquivo de avatar se existir
+            if ($row && $row['avatar_path']) {
+                $file_path = __DIR__ . '/../../../../../' . $row['avatar_path'];
+                if (file_exists($file_path)) {
+                    unlink($file_path);
+                }
+            }
+            
+            echo json_encode(['success' => true, 'message' => 'Depoimento excluído com sucesso!']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Erro ao excluir: ' . mysqli_error($conexao)]);
+        }
+        
+        mysqli_stmt_close($stmt);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    }
+    exit();
+}
+
+// ====================================================================
 // AÇÃO INVÁLIDA
 // ====================================================================
 

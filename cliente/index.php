@@ -27,6 +27,7 @@ $footerData = $cms->getFooterData();
 $footerLinks = $cms->getFooterLinks();
 $promocoes = $cms->getActivePromotions(); // Buscar promoções ativas
 $metricas = $cms->getActiveMetrics(); // Buscar métricas ativas
+$testimonials = $cms->getTestimonials(3); // Buscar 3 depoimentos
 
 // Fallback se banners vazios
 if (empty($banners)) {
@@ -3575,6 +3576,7 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
     </section>
 
     <!-- ===== DEPOIMENTOS DE CLIENTES ===== -->
+    <?php if (!empty($testimonials)): ?>
     <section id="depoimentos" style="padding: 80px 0; background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #f3e8ff 100%);">
         <div class="container-dz">
             
@@ -3586,50 +3588,57 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
                 
-                <!-- Depoimento 1 -->
+                <?php 
+                // Variações de cores para avatares
+                $avatarColors = [
+                    'linear-gradient(135deg, var(--color-magenta), var(--color-magenta-dark))',
+                    'linear-gradient(135deg, #3b82f6, #1e40af)',
+                    'linear-gradient(135deg, #10b981, #059669)',
+                    'linear-gradient(135deg, #f59e0b, #d97706)',
+                    'linear-gradient(135deg, #8b5cf6, #6d28d9)'
+                ];
+                $colorIndex = 0;
+                
+                foreach ($testimonials as $depoimento): 
+                    $inicial = mb_strtoupper(mb_substr($depoimento['nome'], 0, 1));
+                    $rating = (int)$depoimento['rating'];
+                    $stars = str_repeat('⭐', max(1, min(5, $rating)));
+                    $avatarColor = $avatarColors[$colorIndex % count($avatarColors)];
+                    $colorIndex++;
+                ?>
+                
+                <!-- Depoimento -->
                 <div class="fade-in-up" style="background: rgba(255, 255, 255, 0.9); padding: 30px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.8);">
                     <div style="color: #fbbf24; margin-bottom: 15px; display: flex; gap: 2px;">
-                        <span>⭐⭐⭐⭐⭐</span>
+                        <span><?php echo $stars; ?></span>
                     </div>
-                    <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px; font-style: italic;">"Simplesmente apaixonada pelos produtos! A qualidade é incrível e o atendimento é excepcional. Minha pele nunca esteve tão bonita!"</p>
+                    <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px; font-style: italic;">
+                        "<?php echo htmlspecialchars($depoimento['texto']); ?>"
+                    </p>
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 45px; height: 45px; background: linear-gradient(135deg, var(--color-magenta), var(--color-magenta-dark)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.1rem;">M</div>
+                        <?php if (!empty($depoimento['avatar_path'])): ?>
+                            <img src="<?php echo htmlspecialchars($depoimento['avatar_path']); ?>" 
+                                 alt="<?php echo htmlspecialchars($depoimento['nome']); ?>"
+                                 style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-magenta);">
+                        <?php else: ?>
+                            <div style="width: 45px; height: 45px; background: <?php echo $avatarColor; ?>; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.1rem;">
+                                <?php echo $inicial; ?>
+                            </div>
+                        <?php endif; ?>
                         <div>
-                            <h4 style="font-size: 0.9rem; font-weight: 600; color: #1a1a1a; margin-bottom: 2px;">Maria Silva</h4>
-                            <p style="font-size: 0.8rem; color: #6b7280; margin: 0;">Cliente verificada</p>
+                            <h4 style="font-size: 0.9rem; font-weight: 600; color: #1a1a1a; margin-bottom: 2px;">
+                                <?php echo htmlspecialchars($depoimento['nome']); ?>
+                            </h4>
+                            <?php if (!empty($depoimento['cargo_empresa'])): ?>
+                            <p style="font-size: 0.8rem; color: #6b7280; margin: 0;">
+                                <?php echo htmlspecialchars($depoimento['cargo_empresa']); ?>
+                            </p>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Depoimento 2 -->
-                <div class="fade-in-up" style="background: rgba(255, 255, 255, 0.9); padding: 30px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.8);">
-                    <div style="color: #fbbf24; margin-bottom: 15px; display: flex; gap: 2px;">
-                        <span>⭐⭐⭐⭐⭐</span>
-                    </div>
-                    <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px; font-style: italic;">"O kit de unhas é perfeito! Resultado de salão em casa. Economizei muito e o resultado é profissional. Super recomendo!"</p>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 45px; height: 45px; background: linear-gradient(135deg, #3b82f6, #1e40af); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.1rem;">A</div>
-                        <div>
-                            <h4 style="font-size: 0.9rem; font-weight: 600; color: #1a1a1a; margin-bottom: 2px;">Ana Costa</h4>
-                            <p style="font-size: 0.8rem; color: #6b7280; margin: 0;">Cliente verificada</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Depoimento 3 -->
-                <div class="fade-in-up" style="background: rgba(255, 255, 255, 0.9); padding: 30px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.8);">
-                    <div style="color: #fbbf24; margin-bottom: 15px; display: flex; gap: 2px;">
-                        <span>⭐⭐⭐⭐⭐</span>
-                    </div>
-                    <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px; font-style: italic;">"Entrega rápida e produtos originais! Já fiz várias compras e sempre fico satisfeita. Virei cliente fiel da D&Z!"</p>
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 45px; height: 45px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.1rem;">C</div>
-                        <div>
-                            <h4 style="font-size: 0.9rem; font-weight: 600; color: #1a1a1a; margin-bottom: 2px;">Carla Mendes</h4>
-                            <p style="font-size: 0.8rem; color: #6b7280; margin: 0;">Cliente verificada</p>
-                        </div>
-                    </div>
-                </div>
+                <?php endforeach; ?>
             </div>
             
             <!-- Estatísticas -->
@@ -3649,6 +3658,7 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             <?php endif; ?>
         </div>
     </section>
+    <?php endif; ?>
 
     <!-- ===== BANNER PROMOCIONAL ===== -->
     <?php if (!empty($promocoes)): ?>
