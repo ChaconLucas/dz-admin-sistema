@@ -419,6 +419,37 @@ class CMSProvider {
         
         return $promotions;
     }
+    
+    /**
+     * Buscar métricas ativas (ex: "98% - Clientes satisfeitas")
+     * 
+     * @return array Lista de métricas ativas ordenadas por ordem
+     */
+    public function getActiveMetrics() {
+        try {
+            $query = "
+                SELECT valor, label, tipo, ordem
+                FROM cms_home_metrics
+                WHERE ativo = 1
+                ORDER BY ordem ASC, id ASC
+            ";
+            
+            $result = mysqli_query($this->conn, $query);
+            
+            if (!$result) {
+                error_log("Erro ao buscar métricas: " . mysqli_error($this->conn));
+                return [];
+            }
+            
+            $metrics = mysqli_fetch_all($result, MYSQLI_ASSOC);
+            
+            return $metrics;
+        } catch (Exception $e) {
+            // Tabela ainda não existe - retornar array vazio para não quebrar o site
+            error_log("Tabela cms_home_metrics não encontrada: " . $e->getMessage());
+            return [];
+        }
+    }
 }
 
 /**

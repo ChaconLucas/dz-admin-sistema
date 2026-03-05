@@ -1166,6 +1166,276 @@ if ($action === 'list_coupons_simple') {
 }
 
 // ====================================================================
+// MÉTRICAS DA EMPRESA - AÇÕES
+// ====================================================================
+
+if ($action === 'list_metrics') {
+    // Verificar se a tabela existe primeiro
+    $table_check = mysqli_query($conexao, "SHOW TABLES LIKE 'cms_home_metrics'");
+    
+    if (!$table_check || mysqli_num_rows($table_check) === 0) {
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Tabela cms_home_metrics não encontrada. Execute o setup_metrics.php primeiro.',
+            'setup_needed' => true
+        ]);
+        exit();
+    }
+    
+    try {
+        $sql = "SELECT * FROM cms_home_metrics ORDER BY ordem ASC, id ASC";
+        $result = mysqli_query($conexao, $sql);
+        
+        if (!$result) {
+            throw new Exception('Erro ao consultar métricas: ' . mysqli_error($conexao));
+        }
+        
+        $metrics = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $metrics[] = $row;
+        }
+        
+        // Contar métricas ativas e total
+        $count_active = 0;
+        $count_total = count($metrics);
+        foreach ($metrics as $m) {
+            if ($m['ativo']) $count_active++;
+        }
+        
+        echo json_encode([
+            'success' => true, 
+            'items' => $metrics,
+            'counts' => [
+                'active' => $count_active,
+                'total' => $count_total
+            ]
+        ]);
+    } catch (Exception $e) {
+        echo json_encode([
+            'success' => false, 
+            'message' => $e->getMessage(),
+            'setup_needed' => true
+        ]);
+    }
+    exit();
+}
+
+if ($action === 'add_metric') {
+    try {
+        $valor = trim($_POST['valor'] ?? '');
+        $label = trim($_POST['label'] ?? '');
+        $tipo = trim($_POST['tipo'] ?? 'texto');
+        $ordem = intval($_POST['ordem'] ?? 0);
+        $ativo = isset($_POST['ativo']) ? 1 : 0;
+        
+        // Validações
+        if (empty($valor)) {
+            echo json_encode(['success' => false, 'message' => 'Valor é obrigatório']);
+            exit();
+        }
+        
+        if (empty($label)) {
+            echo json_encode(['success' => false, 'message' => 'Label (descrição) é obrigatório']);
+            exit();
+        }
+        
+        if (strlen($valor) > 20) {
+            echo json_encode(['success' => false, 'message' => 'Valor deve ter no máximo 20 caracteres']);
+            exit();
+        }
+        
+        if (strlen($label) > 60) {
+            echo json_encode(['success' => false, 'message' => 'Label deve ter no máximo 60 caracteres']);
+            exit();
+        }
+        
+        if (!in_array($tipo, ['texto', 'numero', 'percentual'])) {
+            $tipo = 'texto';
+        }
+        
+        $stmt = mysqli_prepare($conexao,
+            "INSERT INTO cms_home_metrics (valor, label, tipo, ordem, ativo) 
+             VALUES (?, ?, ?, ?, ?)"
+        );
+        
+        if (!$stmt) {
+            throw new Exception('Tabela cms_home_metrics não encontrada. Execute o setup_metrics.php primeiro.');
+        }
+        
+        mysqli_stmt_bind_param($stmt, 'sssii', $valor, $label, $tipo, $ordem, $ativo);
+        
+        if (mysqli_stmt_execute($stmt)) {
+            echo json_encode([
+                'success' => true, 
+                'message' => 'Métrica criada com sucesso!',
+                'id' => mysqli_insert_id($conexao)
+            ]);
+        } else {
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Erro ao criar métrica: ' . mysqli_error($conexao)
+            ]);
+        }
+        
+        mysqli_stmt_close($stmt);
+    } catch (Exception $e) {
+        echo json_encode([
+            'success' => false, 
+            'message' => $e->getMessage(),
+            'setup_needed' => true
+        ]);
+    }
+    exit();
+}
+
+if ($action === 'update_metric') {
+    try {
+        $id = intval($_POST['id'] ?? 0);
+        $valor = trim($_POST['valor'] ?? '');
+        $label = trim($_POST['label'] ?? '');
+        $tipo = trim($_POST['tipo'] ?? 'texto');
+        $ordem = intval($_POST['ordem'] ?? 0);
+        $ativo = isset($_POST['ativo']) ? 1 : 0;
+        
+        if ($id <= 0) {
+            echo json_encode(['success' => false, 'message' => 'ID inválido']);
+            exit();
+        }
+        
+        // Validações
+        if (empty($valor)) {
+            echo json_encode(['success' => false, 'message' => 'Valor é obrigatório']);
+            exit();
+        }
+        
+        if (empty($label)) {
+            echo json_encode(['success' => false, 'message' => 'Label (descrição) é obrigatório']);
+            exit();
+        }
+        
+        if (strlen($valor) > 20) {
+            echo json_encode(['success' => false, 'message' => 'Valor deve ter no máximo 20 caracteres']);
+            exit();
+        }
+        
+        if (strlen($label) > 60) {
+            echo json_encode(['success' => false, 'message' => 'Label deve ter no máximo 60 caracteres']);
+            exit();
+        }
+        
+        if (!in_array($tipo, ['texto', 'numero', 'percentual'])) {
+            $tipo = 'texto';
+        }
+        
+        $stmt = mysqli_prepare($conexao,
+            "UPDATE cms_home_metrics 
+             SET valor = ?, label = ?, tipo = ?, ordem = ?, ativo = ?, updated_at = NOW()
+             WHERE id = ?"
+        );
+        
+        if (!$stmt) {
+            throw new Exception('Tabela cms_home_metrics não encontrada. Execute o setup_metrics.php primeiro.');
+        }
+        
+        mysqli_stmt_bind_param($stmt, 'sssiii', $valor, $label, $tipo, $ordem, $ativo, $id);
+        
+        if (mysqli_stmt_execute($stmt)) {
+            echo json_encode(['success' => true, 'message' => 'Métrica atualizada com sucesso!']);
+        } else {
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Erro ao atualizar métrica: ' . mysqli_error($conexao)
+            ]);
+        }
+        
+        mysqli_stmt_close($stmt);
+    } catch (Exception $e) {
+        echo json_encode([
+            'success' => false, 
+            'message' => $e->getMessage(),
+            'setup_needed' => true
+        ]);
+    }
+    exit();
+}
+
+if ($action === 'toggle_metric') {
+    try {
+        $id = intval($_POST['id'] ?? 0);
+        
+        if ($id <= 0) {
+            echo json_encode(['success' => false, 'message' => 'ID inválido']);
+            exit();
+        }
+        
+        $stmt = mysqli_prepare($conexao,
+            "UPDATE cms_home_metrics SET ativo = NOT ativo, updated_at = NOW() WHERE id = ?"
+        );
+        
+        if (!$stmt) {
+            throw new Exception('Tabela cms_home_metrics não encontrada.');
+        }
+        
+        mysqli_stmt_bind_param($stmt, 'i', $id);
+        
+        if (mysqli_stmt_execute($stmt)) {
+            // Buscar novo status
+            $result = mysqli_query($conexao, "SELECT ativo FROM cms_home_metrics WHERE id = $id");
+            $row = mysqli_fetch_assoc($result);
+            
+            echo json_encode([
+                'success' => true, 
+                'message' => 'Status atualizado com sucesso!',
+                'ativo' => (bool)$row['ativo']
+            ]);
+        } else {
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Erro ao atualizar status: ' . mysqli_error($conexao)
+            ]);
+        }
+        
+        mysqli_stmt_close($stmt);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    }
+    exit();
+}
+
+if ($action === 'delete_metric') {
+    try {
+        $id = intval($_POST['id'] ?? 0);
+        
+        if ($id <= 0) {
+            echo json_encode(['success' => false, 'message' => 'ID inválido']);
+            exit();
+        }
+        
+        $stmt = mysqli_prepare($conexao, "DELETE FROM cms_home_metrics WHERE id = ?");
+        
+        if (!$stmt) {
+            throw new Exception('Tabela cms_home_metrics não encontrada.');
+        }
+        
+        mysqli_stmt_bind_param($stmt, 'i', $id);
+        
+        if (mysqli_stmt_execute($stmt)) {
+            echo json_encode(['success' => true, 'message' => 'Métrica excluída com sucesso!']);
+        } else {
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Erro ao excluir métrica: ' . mysqli_error($conexao)
+            ]);
+        }
+        
+        mysqli_stmt_close($stmt);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    }
+    exit();
+}
+
+// ====================================================================
 // AÇÃO INVÁLIDA
 // ====================================================================
 

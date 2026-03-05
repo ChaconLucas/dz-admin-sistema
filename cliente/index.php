@@ -26,6 +26,7 @@ $beneficios = $cms->getHomeBenefits();
 $footerData = $cms->getFooterData();
 $footerLinks = $cms->getFooterLinks();
 $promocoes = $cms->getActivePromotions(); // Buscar promoções ativas
+$metricas = $cms->getActiveMetrics(); // Buscar métricas ativas
 
 // Fallback se banners vazios
 if (empty($banners)) {
@@ -3632,24 +3633,20 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             </div>
             
             <!-- Estatísticas -->
+            <?php if (!empty($metricas)): ?>
             <div style="margin-top: 60px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; text-align: center;">
+                <?php foreach ($metricas as $metrica): ?>
                 <div class="fade-in-up">
-                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--color-magenta); margin-bottom: 8px;">98%</div>
-                    <p style="color: #6b7280; font-weight: 600;">Clientes satisfeitas</p>
+                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--color-magenta); margin-bottom: 8px;">
+                        <?php echo htmlspecialchars($metrica['valor']); ?>
+                    </div>
+                    <p style="color: #6b7280; font-weight: 600;">
+                        <?php echo htmlspecialchars($metrica['label']); ?>
+                    </p>
                 </div>
-                <div class="fade-in-up">
-                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--color-magenta); margin-bottom: 8px;">50k+</div>
-                    <p style="color: #6b7280; font-weight: 600;">Produtos vendidos</p>
-                </div>
-                <div class="fade-in-up">
-                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--color-magenta); margin-bottom: 8px;">4.9</div>
-                    <p style="color: #6b7280; font-weight: 600;">Avaliação média</p>
-                </div>
-                <div class="fade-in-up">
-                    <div style="font-size: 2.5rem; font-weight: 800; color: var(--color-magenta); margin-bottom: 8px;">24h</div>
-                    <p style="color: #6b7280; font-weight: 600;">Entrega rápida</p>
-                </div>
+                <?php endforeach; ?>
             </div>
+            <?php endif; ?>
         </div>
     </section>
 
