@@ -848,6 +848,40 @@ $melhor_envio_services_message = garantirServicosMelhorEnvio();
           </a>
 
           <div class="menu-item-container">
+            <a href="cms/home.php" class="menu-item-with-submenu">
+              <span class="material-symbols-sharp">web</span>
+              <h3>CMS</h3>
+            </a>
+            
+            <div class="submenu">
+              <a href="cms/home.php">
+                <span class="material-symbols-sharp">home</span>
+                <h3>Home (Textos)</h3>
+              </a>
+              <a href="cms/banners.php">
+                <span class="material-symbols-sharp">view_carousel</span>
+                <h3>Banners</h3>
+              </a>
+              <a href="cms/featured.php">
+                <span class="material-symbols-sharp">star</span>
+                <h3>Lançamentos</h3>
+              </a>
+              <a href="cms/promos.php">
+                <span class="material-symbols-sharp">local_offer</span>
+                <h3>Promoções</h3>
+              </a>
+              <a href="cms/testimonials.php">
+                <span class="material-symbols-sharp">format_quote</span>
+                <h3>Depoimentos</h3>
+              </a>
+              <a href="cms/metrics.php">
+                <span class="material-symbols-sharp">speed</span>
+                <h3>Métricas</h3>
+              </a>
+            </div>
+          </div>
+
+          <div class="menu-item-container">
             <a href="geral.php" class="menu-item-with-submenu">
               <span class="material-symbols-sharp">Settings</span>
               <h3>Configurações</h3>

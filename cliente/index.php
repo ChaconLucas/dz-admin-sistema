@@ -889,6 +889,8 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             overflow: hidden;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: 1px solid #f1f5f9;
+            display: flex;
+            flex-direction: column;
         }
         
         .produto-card:hover {
@@ -937,11 +939,21 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         
         .produto-content {
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
         }
         
         .produto-title {
             font-size: 1.3rem;
             font-weight: 600;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-height: 2.6rem;
             color: #1e293b;
             margin-bottom: 8px;
             line-height: 1.3;
@@ -964,6 +976,10 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             font-weight: 700;
             color: var(--color-magenta);
             margin-bottom: 15px;
+            min-height: 2.25rem;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
         }
         
         .produto-btn {
@@ -977,6 +993,7 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 0.9rem;
+            margin-top: auto;
         }
         
         .produto-btn:hover {
@@ -1292,6 +1309,12 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             line-height: 1.3;
             letter-spacing: -0.01em;
             flex-grow: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         
         .produto-price {
@@ -1299,6 +1322,7 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             display: flex;
             align-items: baseline;
             gap: 8px;
+            min-height: 1.95rem;
         }
         
         .price-current {
@@ -1359,6 +1383,7 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             letter-spacing: 0.2px;
             position: relative;
             overflow: hidden;
+            margin-top: auto;
         }
         
         .btn-add-cart::before {

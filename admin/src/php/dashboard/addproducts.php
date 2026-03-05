@@ -6,7 +6,8 @@ if (!isset($_SESSION['usuario_logado'])) {
     exit();
 }
 
-// Incluir contador de mensagens e conexão
+// Incluir configurações base, contador de mensagens e conexão
+require_once '../../../config/base.php';
 require_once 'helper-contador.php';
 require_once '../../../PHP/conexao.php';
 
@@ -36,6 +37,76 @@ if (isset($_GET['action']) && $_GET['action'] == 'get_categories') {
     echo json_encode($categories);
     exit;
 }
+
+// Endpoint AJAX para editar categoria
+if (isset($_POST['action']) && $_POST['action'] == 'edit_categoria') {
+    header('Content-Type: application/json');
+    
+    $id = intval($_POST['id']);
+    $nome = trim($_POST['nome']);
+    
+    if (empty($nome)) {
+        echo json_encode(['success' => false, 'message' => 'Nome da categoria não pode estar vazio']);
+        exit;
+    }
+    
+    // Verificar se já existe outra categoria com o mesmo nome (case-insensitive)
+    $check = "SELECT id FROM categorias WHERE LOWER(nome) = LOWER(?) AND id != ?";
+    $stmt_check = mysqli_prepare($conexao, $check);
+    mysqli_stmt_bind_param($stmt_check, "si", $nome, $id);
+    mysqli_stmt_execute($stmt_check);
+    $result_check = mysqli_stmt_get_result($stmt_check);
+    
+    if (mysqli_num_rows($result_check) > 0) {
+        echo json_encode(['success' => false, 'message' => 'Já existe uma categoria com este nome']);
+        exit;
+    }
+    
+    // Atualizar categoria
+    $update = "UPDATE categorias SET nome = ?, updated_at = NOW() WHERE id = ?";
+    $stmt = mysqli_prepare($conexao, $update);
+    mysqli_stmt_bind_param($stmt, "si", $nome, $id);
+    
+    if (mysqli_stmt_execute($stmt)) {
+        echo json_encode(['success' => true, 'message' => 'Categoria atualizada com sucesso']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Erro ao atualizar categoria: ' . mysqli_error($conexao)]);
+    }
+    exit;
+}
+
+// Endpoint AJAX para excluir categoria
+if (isset($_POST['action']) && $_POST['action'] == 'delete_categoria') {
+    header('Content-Type: application/json');
+    
+    $id = intval($_POST['id']);
+    
+    // Verificar se há produtos usando esta categoria
+    $check_produtos = "SELECT COUNT(*) as total FROM produtos WHERE categoria_id = ?";
+    $stmt_check = mysqli_prepare($conexao, $check_produtos);
+    mysqli_stmt_bind_param($stmt_check, "i", $id);
+    mysqli_stmt_execute($stmt_check);
+    $result_check = mysqli_stmt_get_result($stmt_check);
+    $row = mysqli_fetch_assoc($result_check);
+    
+    if ($row['total'] > 0) {
+        echo json_encode(['success' => false, 'message' => "Não é possível excluir esta categoria. Existem {$row['total']} produto(s) vinculado(s) a ela."]);
+        exit;
+    }
+    
+    // Excluir categoria
+    $delete = "DELETE FROM categorias WHERE id = ?";
+    $stmt = mysqli_prepare($conexao, $delete);
+    mysqli_stmt_bind_param($stmt, "i", $id);
+    
+    if (mysqli_stmt_execute($stmt)) {
+        echo json_encode(['success' => true, 'message' => 'Categoria excluída com sucesso']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Erro ao excluir categoria: ' . mysqli_error($conexao)]);
+    }
+    exit;
+}
+
 // Verificar e criar tabela se necessário
 $check_table = "SHOW TABLES LIKE 'produtos'";
 $table_exists = mysqli_query($conexao, $check_table);
@@ -202,9 +273,33 @@ if (mysqli_num_rows($categories_table_exists) == 0) {
     CREATE TABLE categorias (
         id INT PRIMARY KEY AUTO_INCREMENT,
         nome VARCHAR(255) NOT NULL UNIQUE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        descricao TEXT NULL,
+        ativo TINYINT(1) DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )";
     mysqli_query($conexao, $create_categories_table);
+} else {
+    // Adicionar coluna ativo se não existir
+    $check_ativo = "SHOW COLUMNS FROM categorias LIKE 'ativo'";
+    $ativo_exists = mysqli_query($conexao, $check_ativo);
+    if (mysqli_num_rows($ativo_exists) == 0) {
+        mysqli_query($conexao, "ALTER TABLE categorias ADD COLUMN ativo TINYINT(1) DEFAULT 1");
+    }
+    
+    // Adicionar coluna descricao se não existir
+    $check_descricao = "SHOW COLUMNS FROM categorias LIKE 'descricao'";
+    $descricao_exists = mysqli_query($conexao, $check_descricao);
+    if (mysqli_num_rows($descricao_exists) == 0) {
+        mysqli_query($conexao, "ALTER TABLE categorias ADD COLUMN descricao TEXT NULL");
+    }
+    
+    // Adicionar coluna updated_at se não existir
+    $check_updated = "SHOW COLUMNS FROM categorias LIKE 'updated_at'";
+    $updated_exists = mysqli_query($conexao, $check_updated);
+    if (mysqli_num_rows($updated_exists) == 0) {
+        mysqli_query($conexao, "ALTER TABLE categorias ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+    }
 }
 
 // Processar formulário
@@ -218,7 +313,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Salvar categoria se não existir e obter ID
     $categoria_id = null;
     if (!empty($categoria)) {
-        $check_cat = "SELECT id FROM categorias WHERE nome = ?";
+        // Verificar se categoria existe (case-insensitive)
+        $check_cat = "SELECT id FROM categorias WHERE LOWER(nome) = LOWER(?)";
         $stmt_check = mysqli_prepare($conexao, $check_cat);
         mysqli_stmt_bind_param($stmt_check, "s", $categoria);
         mysqli_stmt_execute($stmt_check);
@@ -226,7 +322,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         if (mysqli_num_rows($result_check) == 0) {
             // Categoria não existe, inserir nova
-            $insert_cat = "INSERT INTO categorias (nome) VALUES (?)";
+            $insert_cat = "INSERT INTO categorias (nome, ativo, created_at) VALUES (?, 1, NOW())";
             $stmt_cat = mysqli_prepare($conexao, $insert_cat);
             mysqli_stmt_bind_param($stmt_cat, "s", $categoria);
             mysqli_stmt_execute($stmt_cat);
@@ -240,6 +336,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $subcategoria = trim($_POST['subcategoria'] ?? '');
     $marca = trim($_POST['marca'] ?? '');
     $sku = trim($_POST['sku']);
+    // Converter SKU vazio para NULL (evitar duplicatas de string vazia com UNIQUE constraint)
+    $sku = !empty($sku) ? $sku : null;
     $estoque = intval($_POST['estoque']);
     $peso = !empty($_POST['peso']) ? floatval($_POST['peso']) : null;
     $dimensoes = trim($_POST['dimensoes']);
@@ -595,15 +693,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Buscar categorias da nova tabela
-$categorias_sql = "SELECT nome as categoria FROM categorias ORDER BY nome";
+// Buscar categorias ativas da tabela
+$categorias_sql = "SELECT id, nome FROM categorias WHERE ativo = 1 ORDER BY nome";
 $categorias_result = mysqli_query($conexao, $categorias_sql);
 
 // Se não há categorias na tabela, criar algumas padrão
 if (mysqli_num_rows($categorias_result) == 0) {
     $default_categories = ['Eletrônicos', 'Roupas', 'Casa e Jardim', 'Livros', 'Esportes'];
     foreach ($default_categories as $cat) {
-        $insert_default = "INSERT IGNORE INTO categorias (nome) VALUES (?)";
+        $insert_default = "INSERT IGNORE INTO categorias (nome, ativo) VALUES (?, 1)";
         $stmt_default = mysqli_prepare($conexao, $insert_default);
         mysqli_stmt_bind_param($stmt_default, "s", $cat);
         mysqli_stmt_execute($stmt_default);
@@ -617,6 +715,7 @@ if (mysqli_num_rows($categorias_result) == 0) {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="<?php echo BASE_URL; ?>admin/favicon.ico">
     <link rel="stylesheet" href="../../css/dashboard.css">
 
      <link
@@ -732,6 +831,22 @@ if (mysqli_num_rows($categorias_result) == 0) {
         font-size: 0.85rem;
         color: var(--color-info-dark);
         margin-top: 0.25rem;
+      }
+      
+      .form-error-msg {
+        font-size: 0.85rem;
+        color: #f44336;
+        margin-top: 0.5rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+      
+      .form-input.error,
+      .form-textarea.error {
+        border-color: #f44336 !important;
+        background: rgba(244, 67, 54, 0.05) !important;
       }
       
       /* Upload de Imagens */
@@ -1621,6 +1736,260 @@ if (mysqli_num_rows($categorias_result) == 0) {
       .toast-close:hover {
         opacity: 1;
       }
+
+      /* Componente customizado de seleção de categoria */
+      .custom-categoria-select {
+        position: relative;
+        width: 100%;
+      }
+
+      .selected-categoria {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        background: var(--color-white);
+        border: 2px solid var(--color-info-light);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .selected-categoria:hover {
+        border-color: var(--color-primary);
+        background: rgba(126, 87, 194, 0.02);
+      }
+
+      .selected-categoria .selected-text {
+        font-size: 0.95rem;
+        color: var(--color-dark);
+      }
+
+      .selected-categoria .dropdown-icon {
+        font-size: 20px;
+        color: var(--color-dark-variant);
+        transition: transform 0.3s ease;
+      }
+
+      .selected-categoria.open .dropdown-icon {
+        transform: rotate(180deg);
+      }
+
+      .categoria-dropdown {
+        position: absolute;
+        top: calc(100% + 5px);
+        left: 0;
+        right: 0;
+        background: var(--color-white);
+        border: 2px solid var(--color-info-light);
+        border-radius: 8px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        max-height: 320px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+      }
+
+      .categoria-dropdown.show {
+        display: block;
+        animation: fadeInDown 0.3s ease;
+      }
+
+      @keyframes fadeInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .categoria-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .categoria-item:last-child {
+        border-bottom: none;
+      }
+
+      .categoria-item:hover {
+        background: rgba(126, 87, 194, 0.05);
+      }
+
+      .categoria-item.selected {
+        background: rgba(126, 87, 194, 0.1);
+        font-weight: 500;
+      }
+
+      .categoria-item .categoria-nome {
+        flex: 1;
+        font-size: 0.95rem;
+        color: var(--color-dark);
+      }
+
+      .categoria-item.categoria-nova {
+        color: var(--color-primary);
+        font-weight: 500;
+        border-top: 2px solid var(--color-info-light);
+        margin-top: 5px;
+      }
+
+      .categoria-item.categoria-nova:hover {
+        background: rgba(126, 87, 194, 0.1);
+      }
+
+      .categoria-actions {
+        display: flex;
+        gap: 5px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+
+      .categoria-item:hover .categoria-actions {
+        opacity: 1;
+      }
+
+      .btn-icon-small {
+        background: none;
+        border: none;
+        padding: 4px;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+      }
+
+      .btn-icon-small:hover {
+        background: rgba(126, 87, 194, 0.15);
+      }
+
+      .btn-icon-small.btn-delete:hover {
+        background: rgba(244, 67, 54, 0.15);
+      }
+
+      .btn-icon-small .material-symbols-sharp {
+        font-size: 18px;
+        color: var(--color-dark-variant);
+      }
+
+      .btn-icon-small.btn-delete .material-symbols-sharp {
+        color: #f44336;
+      }
+
+      /* Modal para editar/excluir categoria */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-overlay.show {
+        display: flex;
+        animation: fadeIn 0.2s ease;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      .modal-content {
+        background: var(--color-white);
+        border-radius: 12px;
+        padding: 2rem;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        animation: slideUp 0.3s ease;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .modal-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .modal-header h3 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--color-dark);
+        margin: 0;
+      }
+
+      .modal-body {
+        margin-bottom: 1.5rem;
+      }
+
+      .modal-footer {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+      }
+
+      .btn-modal {
+        padding: 0.7rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-modal-cancel {
+        background: #e0e0e0;
+        color: var(--color-dark);
+      }
+
+      .btn-modal-cancel:hover {
+        background: #d0d0d0;
+      }
+
+      .btn-modal-confirm {
+        background: var(--color-primary);
+        color: white;
+      }
+
+      .btn-modal-confirm:hover {
+        background: #6b4fb8;
+      }
+
+      .btn-modal-danger {
+        background: #f44336;
+        color: white;
+      }
+
+      .btn-modal-danger:hover {
+        background: #d32f2f;
+      }
     </style>
   </head>
   <body>
@@ -1671,39 +2040,78 @@ if (mysqli_num_rows($categorias_result) == 0) {
             <h3>Produtos</h3>
           </a>
 
+          <a href="cupons.php">
+            <span class="material-symbols-sharp">sell</span>
+            <h3>Cupons</h3>
+          </a>
+
           <a href="gestao-fluxo.php">
             <span class="material-symbols-sharp">account_tree</span>
             <h3>Gestão de Fluxo</h3>
           </a>
 
           <div class="menu-item-container">
-            <a href="settings.php" class="menu-item-with-submenu">
+            <a href="cms/home.php" class="menu-item-with-submenu">
+              <span class="material-symbols-sharp">web</span>
+              <h3>CMS</h3>
+            </a>
+            
+            <div class="submenu">
+              <a href="cms/home.php">
+                <span class="material-symbols-sharp">home</span>
+                <h3>Home (Textos)</h3>
+              </a>
+              <a href="cms/banners.php">
+                <span class="material-symbols-sharp">view_carousel</span>
+                <h3>Banners</h3>
+              </a>
+              <a href="cms/featured.php">
+                <span class="material-symbols-sharp">star</span>
+                <h3>Lançamentos</h3>
+              </a>
+              <a href="cms/promos.php">
+                <span class="material-symbols-sharp">local_offer</span>
+                <h3>Promoções</h3>
+              </a>
+              <a href="cms/testimonials.php">
+                <span class="material-symbols-sharp">format_quote</span>
+                <h3>Depoimentos</h3>
+              </a>
+              <a href="cms/metrics.php">
+                <span class="material-symbols-sharp">speed</span>
+                <h3>Métricas</h3>
+              </a>
+            </div>
+          </div>
+
+          <div class="menu-item-container">
+            <a href="geral.php" class="menu-item-with-submenu">
               <span class="material-symbols-sharp">Settings</span>
               <h3>Configurações</h3>
             </a>
             
             <div class="submenu">
-              <a href="#">
+              <a href="geral.php">
                 <span class="material-symbols-sharp">tune</span>
                 <h3>Geral</h3>
               </a>
-              <a href="#">
+              <a href="pagamentos.php">
                 <span class="material-symbols-sharp">payments</span>
                 <h3>Pagamentos</h3>
               </a>
-              <a href="#">
+              <a href="frete.php">
                 <span class="material-symbols-sharp">local_shipping</span>
                 <h3>Frete</h3>
               </a>
-              <a href="#">
+              <a href="automacao.php">
                 <span class="material-symbols-sharp">automation</span>
                 <h3>Automação</h3>
               </a>
-              <a href="#">
+              <a href="metricas.php">
                 <span class="material-symbols-sharp">analytics</span>
                 <h3>Métricas</h3>
               </a>
-              <a href="#">
+              <a href="settings.php">
                 <span class="material-symbols-sharp">group</span>
                 <h3>Usuários</h3>
               </a>
@@ -1808,14 +2216,66 @@ if (mysqli_num_rows($categorias_result) == 0) {
                         <span class="material-symbols-sharp">category</span>
                         Categoria <span class="required">*</span>
                       </label>
-                      <input type="text" name="categoria" class="form-input" 
-                             value="<?php echo htmlspecialchars(($produto['categoria'] ?? '')); ?>" 
-                             placeholder="Ex: Eletrônicos" list="categorias" required>
-                      <datalist id="categorias">
-                        <?php while ($cat = mysqli_fetch_assoc($categorias_result)): ?>
-                          <option value="<?php echo htmlspecialchars($cat['categoria']); ?>">
+                      
+                      <!-- Select oculto (mantido para compatibilidade) -->
+                      <select id="categoria-select" style="display: none;" required>
+                        <option value="">Selecione uma categoria</option>
+                        <?php 
+                        // Rewind result set para reutilizar
+                        mysqli_data_seek($categorias_result, 0);
+                        $categoria_atual = $produto['categoria_id'] ?? '';
+                        while ($cat = mysqli_fetch_assoc($categorias_result)): 
+                        ?>
+                          <option value="<?php echo $cat['id']; ?>" 
+                                  <?php echo ($categoria_atual == $cat['id']) ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($cat['nome']); ?>
+                          </option>
                         <?php endwhile; ?>
-                      </datalist>
+                        <option value="__nova__">+ Criar nova categoria</option>
+                      </select>
+                      
+                      <!-- Componente customizado de categoria -->
+                      <div class="custom-categoria-select" id="custom-categoria-select">
+                        <div class="selected-categoria" id="selected-categoria">
+                          <span class="selected-text">Selecione uma categoria</span>
+                          <span class="material-symbols-sharp dropdown-icon">expand_more</span>
+                        </div>
+                        <div class="categoria-dropdown" id="categoria-dropdown">
+                          <?php 
+                          mysqli_data_seek($categorias_result, 0);
+                          while ($cat = mysqli_fetch_assoc($categorias_result)): 
+                          ?>
+                            <div class="categoria-item" data-id="<?php echo $cat['id']; ?>" data-nome="<?php echo htmlspecialchars($cat['nome']); ?>">
+                              <span class="categoria-nome"><?php echo htmlspecialchars($cat['nome']); ?></span>
+                              <div class="categoria-actions">
+                                <button type="button" class="btn-icon-small" onclick="editarCategoria(<?php echo $cat['id']; ?>, '<?php echo htmlspecialchars($cat['nome'], ENT_QUOTES); ?>', event)" title="Editar">
+                                  <span class="material-symbols-sharp">edit</span>
+                                </button>
+                                <button type="button" class="btn-icon-small btn-delete" onclick="excluirCategoria(<?php echo $cat['id']; ?>, '<?php echo htmlspecialchars($cat['nome'], ENT_QUOTES); ?>', event)" title="Excluir">
+                                  <span class="material-symbols-sharp">delete</span>
+                                </button>
+                              </div>
+                            </div>
+                          <?php endwhile; ?>
+                          <div class="categoria-item categoria-nova" data-id="__nova__">
+                            <span class="material-symbols-sharp" style="font-size: 18px; margin-right: 5px;">add</span>
+                            <span class="categoria-nome">Criar nova categoria</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <!-- Campo oculto que enviará o valor final -->
+                      <input type="hidden" name="categoria" id="categoria-hidden">
+                      
+                      <!-- Input para nova categoria (inicialmente oculto) -->
+                      <div id="nova-categoria-container" style="display: none; margin-top: 10px;">
+                        <input type="text" 
+                               id="nova-categoria-input" 
+                               class="form-input" 
+                               placeholder="Digite o nome da nova categoria"
+                               maxlength="255">
+                        <div class="form-help">A categoria será criada automaticamente ao salvar</div>
+                      </div>
                     </div>
 
                     <div class="form-group">
@@ -2177,6 +2637,11 @@ if (mysqli_num_rows($categorias_result) == 0) {
 
 
     
+<script>
+// Definir BASE_URL para uso no JavaScript
+window.BASE_URL = '<?php echo BASE_URL; ?>';
+console.log('✅ BASE_URL configurado:', window.BASE_URL);
+</script>
 <script src="../../js/dashboard.js"></script>
 <script>
 // Upload de imagens simplificado
@@ -2341,25 +2806,356 @@ function setupValidation() {
   }
 }
 
+// Controle de Categoria (Componente Customizado)
+let currentCategoriaEditId = null;
+let currentCategoriaDeleteId = null;
+
+function setupCategoriaControl() {
+  const customSelect = document.getElementById('custom-categoria-select');
+  const selectedCategoria = document.getElementById('selected-categoria');
+  const dropdown = document.getElementById('categoria-dropdown');
+  const hiddenSelect = document.getElementById('categoria-select');
+  const hiddenCategoria = document.getElementById('categoria-hidden');
+  const novaContainer = document.getElementById('nova-categoria-container');
+  const novaInput = document.getElementById('nova-categoria-input');
+  
+  if (!customSelect || !selectedCategoria || !dropdown) return;
+  
+  // Toggle dropdown ao clicar no select
+  selectedCategoria.addEventListener('click', function(e) {
+    e.stopPropagation();
+    dropdown.classList.toggle('show');
+    selectedCategoria.classList.toggle('open');
+  });
+  
+  // Fechar dropdown ao clicar fora
+  document.addEventListener('click', function(e) {
+    if (!customSelect.contains(e.target)) {
+      dropdown.classList.remove('show');
+      selectedCategoria.classList.remove('open');
+    }
+  });
+  
+  // Selecionar categoria ao clicar no item
+  const categoriaItems = dropdown.querySelectorAll('.categoria-item');
+  categoriaItems.forEach(item => {
+    item.addEventListener('click', function(e) {
+      // Verificar se clicou em um botão de ação
+      if (e.target.closest('.btn-icon-small')) {
+        e.stopPropagation();
+        return;
+      }
+      
+      const categoriaId = this.getAttribute('data-id');
+      const categoriaNome = this.getAttribute('data-nome');
+      
+      if (categoriaId === '__nova__') {
+        // Criar nova categoria
+        selectedCategoria.querySelector('.selected-text').textContent = '+ Criar nova categoria';
+        hiddenSelect.value = '__nova__';
+        novaContainer.style.display = 'block';
+        novaInput.required = true;
+        novaInput.focus();
+        hiddenCategoria.value = '';
+        
+        // Remover seleção anterior
+        categoriaItems.forEach(i => i.classList.remove('selected'));
+        this.classList.add('selected');
+      } else {
+        // Selecionar categoria existente
+        selectedCategoria.querySelector('.selected-text').textContent = categoriaNome;
+        hiddenSelect.value = categoriaId;
+        hiddenCategoria.value = categoriaNome;
+        novaContainer.style.display = 'none';
+        novaInput.required = false;
+        novaInput.value = '';
+        
+        // Marcar como selecionado
+        categoriaItems.forEach(i => i.classList.remove('selected'));
+        this.classList.add('selected');
+      }
+      
+      // Fechar dropdown
+      dropdown.classList.remove('show');
+      selectedCategoria.classList.remove('open');
+    });
+  });
+  
+  // Ao digitar nova categoria, atualizar hidden field e validar duplicatas
+  if (novaInput) {
+    const validarCategoriaDuplicada = (valor) => {
+      return Array.from(categoriaItems).some(item => {
+        const itemNome = item.getAttribute('data-nome');
+        return itemNome && itemNome.toLowerCase() === valor.toLowerCase() && item.getAttribute('data-id') !== '__nova__';
+      });
+    };
+    
+    novaInput.addEventListener('input', function() {
+      if (hiddenSelect.value === '__nova__') {
+        const valorDigitado = this.value.trim();
+        hiddenCategoria.value = valorDigitado;
+        
+        if (valorDigitado.length > 0 && validarCategoriaDuplicada(valorDigitado)) {
+          this.style.borderColor = '#f44336';
+          this.style.background = 'rgba(244, 67, 54, 0.05)';
+          
+          let errorMsg = document.getElementById('categoria-error-msg');
+          if (!errorMsg) {
+            errorMsg = document.createElement('div');
+            errorMsg.id = 'categoria-error-msg';
+            errorMsg.className = 'form-error-msg';
+            this.parentElement.appendChild(errorMsg);
+          }
+          errorMsg.textContent = `⚠️ A categoria "${valorDigitado}" já existe!`;
+        } else {
+          this.style.borderColor = '';
+          this.style.background = '';
+          const errorMsg = document.getElementById('categoria-error-msg');
+          if (errorMsg) errorMsg.remove();
+        }
+      }
+    });
+  }
+  
+  // No envio do formulário, validar categoria
+  const form = document.getElementById('productForm');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      if (hiddenSelect.value === '__nova__') {
+        const novaCategoria = novaInput.value.trim();
+        if (!novaCategoria) {
+          e.preventDefault();
+          showToast('Por favor, digite o nome da nova categoria', 'warning');
+          novaInput.focus();
+          return false;
+        }
+        
+        // Verificar se já existe categoria com esse nome
+        const categoriaExiste = validarCategoriaDuplicada ? validarCategoriaDuplicada(novaCategoria) : false;
+        
+        if (categoriaExiste) {
+          e.preventDefault();
+          showToast(`A categoria "${novaCategoria}" já existe! Selecione-a da lista.`, 'error');
+          novaInput.focus();
+          novaInput.select();
+          return false;
+        }
+        
+        hiddenCategoria.value = novaCategoria;
+      } else if (!hiddenSelect.value) {
+        e.preventDefault();
+        alert('Por favor, selecione uma categoria');
+        selectedCategoria.click();
+        return false;
+      }
+    });
+  }
+  
+  // Inicializar valor se categoria já está selecionada (modo edição)
+  if (hiddenSelect.value && hiddenSelect.value !== '__nova__') {
+    const selectedOption = hiddenSelect.options[hiddenSelect.selectedIndex];
+    if (selectedOption) {
+      selectedCategoria.querySelector('.selected-text').textContent = selectedOption.text;
+      hiddenCategoria.value = selectedOption.text;
+      
+      // Marcar como selecionado na lista
+      categoriaItems.forEach(item => {
+        if (item.getAttribute('data-id') === hiddenSelect.value) {
+          item.classList.add('selected');
+        }
+      });
+    }
+  }
+}
+
+// Funções para editar categoria
+function editarCategoria(id, nome, event) {
+  if (event) event.stopPropagation();
+  currentCategoriaEditId = id;
+  document.getElementById('editCategoriaNome').value = nome;
+  document.getElementById('editCategoriaModal').classList.add('show');
+}
+
+function fecharModalEditCategoria() {
+  document.getElementById('editCategoriaModal').classList.remove('show');
+  currentCategoriaEditId = null;
+}
+
+async function salvarEdicaoCategoria() {
+  const novoNome = document.getElementById('editCategoriaNome').value.trim();
+  
+  if (!novoNome) {
+    showToast('Por favor, digite o nome da categoria', 'warning');
+    return;
+  }
+  
+  if (!currentCategoriaEditId) return;
+  
+  // ATUALIZAR UI IMEDIATAMENTE (UI otimista)
+  const item = document.querySelector(`.categoria-item[data-id="${currentCategoriaEditId}"]`);
+  const nomeBkp = item ? item.getAttribute('data-nome') : null; // Backup para restaurar se falhar
+  
+  if (item) {
+    item.setAttribute('data-nome', novoNome);
+    item.querySelector('.categoria-nome').textContent = novoNome;
+    
+    // Se está selecionada, atualizar também o texto exibido
+    if (item.classList.contains('selected')) {
+      document.getElementById('selected-categoria').querySelector('.selected-text').textContent = novoNome;
+      document.getElementById('categoria-hidden').value = novoNome;
+    }
+  }
+  
+  // Atualizar também no select oculto
+  const hiddenSelect = document.getElementById('categoria-select');
+  if (hiddenSelect) {
+    const option = hiddenSelect.querySelector(`option[value="${currentCategoriaEditId}"]`);
+    if (option) {
+      option.textContent = novoNome;
+    }
+  }
+  
+  // Fechar modal imediatamente
+  fecharModalEditCategoria();
+  
+  // Fazer requisição ao servidor em background
+  try {
+    const formData = new FormData();
+    formData.append('action', 'edit_categoria');
+    formData.append('id', currentCategoriaEditId);
+    formData.append('nome', novoNome);
+    
+    const response = await fetch(window.location.href, {
+      method: 'POST',
+      body: formData
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      showToast('Categoria atualizada com sucesso!', 'success');
+    } else {
+      showToast(result.message || 'Erro ao atualizar categoria', 'error');
+      
+      // Restaurar nome anterior se falhou
+      if (item && nomeBkp) {
+        item.setAttribute('data-nome', nomeBkp);
+        item.querySelector('.categoria-nome').textContent = nomeBkp;
+        if (item.classList.contains('selected')) {
+          document.getElementById('selected-categoria').querySelector('.selected-text').textContent = nomeBkp;
+          document.getElementById('categoria-hidden').value = nomeBkp;
+        }
+      }
+      
+      // Restaurar no select oculto
+      if (hiddenSelect) {
+        const option = hiddenSelect.querySelector(`option[value="${currentCategoriaEditId}"]`);
+        if (option) {
+          option.textContent = nomeBkp;
+        }
+      }
+    }
+  } catch (error) {
+    showToast('Erro ao comunicar com o servidor', 'error');
+    
+    // Restaurar nome anterior se falhou
+    if (item && nomeBkp) {
+      item.setAttribute('data-nome', nomeBkp);
+      item.querySelector('.categoria-nome').textContent = nomeBkp;
+      if (item.classList.contains('selected')) {
+        document.getElementById('selected-categoria').querySelector('.selected-text').textContent = nomeBkp;
+        document.getElementById('categoria-hidden').value = nomeBkp;
+      }
+    }
+    
+    // Restaurar no select oculto
+    if (hiddenSelect) {
+      const option = hiddenSelect.querySelector(`option[value="${currentCategoriaEditId}"]`);
+      if (option) {
+        option.textContent = nomeBkp;
+      }
+    }
+  }
+}
+
+// Funções para excluir categoria
+function excluirCategoria(id, nome, event) {
+  if (event) event.stopPropagation();
+  currentCategoriaDeleteId = id;
+  document.getElementById('deleteCategoriaNome').textContent = nome;
+  document.getElementById('deleteCategoriaModal').classList.add('show');
+}
+
+function fecharModalDeleteCategoria() {
+  document.getElementById('deleteCategoriaModal').classList.remove('show');
+  currentCategoriaDeleteId = null;
+}
+
+async function confirmarExclusaoCategoria() {
+  if (!currentCategoriaDeleteId) return;
+  
+  // REMOVER DO DOM IMEDIATAMENTE (UI otimista)
+  const item = document.querySelector(`.categoria-item[data-id="${currentCategoriaDeleteId}"]`);
+  
+  if (item) {
+    // Se estava selecionada, limpar seleção
+    if (item.classList.contains('selected')) {
+      document.getElementById('selected-categoria').querySelector('.selected-text').textContent = 'Selecione uma categoria';
+      document.getElementById('categoria-select').value = '';
+      document.getElementById('categoria-hidden').value = '';
+    }
+    
+    // Remover do DOM com animação IMEDIATAMENTE
+    item.style.opacity = '0';
+    item.style.transform = 'translateX(-20px)';
+    item.style.transition = 'all 0.3s ease';
+    
+    setTimeout(() => item.remove(), 300);
+  }
+  
+  // Remover também do select oculto
+  const hiddenSelect = document.getElementById('categoria-select');
+  const option = hiddenSelect?.querySelector(`option[value="${currentCategoriaDeleteId}"]`);
+  if (option) option.remove();
+  
+  // Fechar modal IMEDIATAMENTE
+  fecharModalDeleteCategoria();
+  
+  // Fazer requisição ao servidor em background
+  try {
+    const formData = new FormData();
+    formData.append('action', 'delete_categoria');
+    formData.append('id', currentCategoriaDeleteId);
+    
+    const response = await fetch(window.location.href, {
+      method: 'POST',
+      body: formData
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      showToast('Categoria excluída com sucesso!', 'success');
+    } else {
+      showToast(result.message || 'Erro ao excluir categoria', 'error');
+      setTimeout(() => location.reload(), 2000);
+    }
+  } catch (error) {
+    showToast('Erro ao comunicar com o servidor', 'error');
+    setTimeout(() => location.reload(), 2000);
+  }
+}
+
 // Inicializar funcionalidades ao carregar
 document.addEventListener('DOMContentLoaded', function() {
   setupAutocomplete();
   setupValidation();
+  setupCategoriaControl();
   
-  // Debug do formulário
   const form = document.getElementById('productForm');
   if (form) {
     form.addEventListener('submit', function(e) {
-      console.log('Form submetido');
-      
-      // Debug específico para imagem principal
-      const imagemPrincipal = document.getElementById('imagemPrincipal');
-      if (imagemPrincipal) {
-        console.log('Imagem principal sendo enviada:', imagemPrincipal.value);
-      }
-      
-      const variations = document.querySelectorAll('[name^="variations["]');
-      console.log('Variações encontradas:', variations.length);
+      // Validação automática do formulário
     });
   }
   
@@ -2821,27 +3617,8 @@ function saveAsDraft() {
   console.log('Auto-save: Produto salvo como rascunho');
 }
 
-// Autocomplete para categorias
-const categoriaInput = document.querySelector('input[name="categoria"]');
-if (categoriaInput) {
-    let autocompleteTimeout;
-    
-    categoriaInput.addEventListener('input', function() {
-        clearTimeout(autocompleteTimeout);
-        const searchTerm = this.value;
-        
-        if (searchTerm.length >= 2) {
-            autocompleteTimeout = setTimeout(() => {
-                fetch(`addproducts.php?action=get_categories&search=${encodeURIComponent(searchTerm)}`)
-                    .then(response => response.json())
-                    .then(categories => {
-                        updateDatalist('categorias', categories);
-                    })
-                    .catch(error => console.error('Erro ao buscar categorias:', error));
-            }, 300);
-        }
-    });
-}
+// Autocomplete removido - agora usa select com opção de criar nova categoria
+// A lógica está na função setupCategoriaControl()
 
 function updateDatalist(datalistId, options) {
     const datalist = document.getElementById(datalistId);
@@ -2910,6 +3687,11 @@ function hideToast(toast) {
             toast.parentNode.removeChild(toast);
         }
     }, 400);
+}
+
+// Alias para compatibilidade
+function showToast(message, type = 'info', duration = 4000) {
+    return createToast(message, type, duration);
 }
 
 // Replace all alert() calls with modern toasts
@@ -3060,7 +3842,7 @@ window.showInfo = function(message) {
 document.addEventListener('DOMContentLoaded', function() {
     // Elementos do formulário
     const nameField = document.querySelector('input[name="nome"]');
-    const categoryField = document.querySelector('input[name="categoria"]');
+    const categoryField = document.getElementById('categoria-hidden');
     const brandField = document.querySelector('input[name="marca"]');
     const aiAssistant = document.getElementById('aiAssistant');
     
@@ -3133,7 +3915,7 @@ window.addEventListener('load', function() {
 // Função de geração de descrição (configurar API)
 async function generateDescriptionDirect() {
     const name = document.querySelector('input[name="nome"]')?.value?.trim() || '';
-    const category = document.querySelector('input[name="categoria"]')?.value?.trim() || '';
+    const category = document.getElementById('categoria-hidden')?.value?.trim() || '';
     const brand = document.querySelector('input[name="marca"]')?.value?.trim() || '';
     const tone = document.getElementById('toneSelector')?.value || 'vendedor';
     
@@ -3174,5 +3956,44 @@ async function generateDescriptionDirect() {
 
 <!-- Toast Container -->
 <div id="toastContainer" class="toast-container"></div>
+
+<!-- Modal para Editar Categoria -->
+<div id="editCategoriaModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="material-symbols-sharp" style="color: var(--color-primary);">edit</span>
+      <h3>Editar Categoria</h3>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Nome da Categoria</label>
+        <input type="text" id="editCategoriaNome" class="form-input" maxlength="255">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-modal btn-modal-cancel" onclick="fecharModalEditCategoria()">Cancelar</button>
+      <button type="button" class="btn-modal btn-modal-confirm" onclick="salvarEdicaoCategoria()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para Excluir Categoria -->
+<div id="deleteCategoriaModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="material-symbols-sharp" style="color: #f44336;">warning</span>
+      <h3>Excluir Categoria</h3>
+    </div>
+    <div class="modal-body">
+      <p>Tem certeza que deseja excluir a categoria <strong id="deleteCategoriaNome"></strong>?</p>
+      <p style="color: #f44336; font-size: 0.9rem; margin-top: 10px;">Esta ação não pode ser desfeita.</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-modal btn-modal-cancel" onclick="fecharModalDeleteCategoria()">Cancelar</button>
+      <button type="button" class="btn-modal btn-modal-danger" onclick="confirmarExclusaoCategoria()">Excluir</button>
+    </div>
+  </div>
+</div>
+
  </body>
 </html>

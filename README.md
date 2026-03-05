@@ -11,6 +11,11 @@
 3. [Estrutura do Projeto](#-estrutura-do-projeto)
 4. [Instalação Rápida](#-instalação-rápida)
 5. [Módulo CMS](#-módulo-cms)
+   - [Sistema de Categorias](#sistema-de-categorias)
+   - [Depoimentos](#depoimentos-testimonials)
+   - [Promoções](#promoções-e-ofertas)
+   - [Métricas](#métricas-da-empresa)
+   - [Banners e Conteúdo](#banners-e-conteúdo)
 6. [Gestão de Pedidos](#-gestão-de-pedidos)
 7. [Sistema de Chat com IA](#-sistema-de-chat-com-ia)
 8. [Área do Cliente](#-área-do-cliente)
@@ -60,7 +65,9 @@ O **D&Z Admin** é um sistema completo de administração desenvolvido para e-co
 admin-teste/
 ├── 📂 admin/                      # Painel administrativo
 │   ├── config/
-│   │   └── base.php              # BASE_URL e caminhos globais
+│   │   ├── base.php              # BASE_URL e caminhos globais
+│   │   ├── config.php            # Credenciais banco
+│   │   └── email-config.php      # Configurações e-mail
 │   ├── src/
 │   │   ├── css/                  # Estilos do dashboard
 │   │   ├── js/                   # JavaScript
@@ -71,21 +78,33 @@ admin-teste/
 │   │       └── dashboard/        # Páginas admin
 │   │           ├── index.php     # Dashboard
 │   │           ├── products.php  # Produtos
+│   │           ├── addproducts.php # Adicionar/Editar produtos
 │   │           ├── orders.php    # Pedidos
+│   │           ├── customers.php # Clientes
 │   │           ├── menssage.php  # Chat
+│   │           ├── cupons.php    # Cupons de desconto
+│   │           ├── revendedores.php # Revendedores
+│   │           ├── gerenciar-vendedoras.php # Vendedores
+│   │           ├── gestao-fluxo.php # Gestão de fluxo
+│   │           ├── geral.php     # Configurações gerais
+│   │           ├── pagamentos.php # Config pagamentos
+│   │           ├── frete.php     # Config frete
+│   │           ├── automacao.php # Automação
+│   │           ├── metricas.php  # Métricas
 │   │           └── cms/          # Sistema CMS ⭐
-│   │               ├── home.php       # Textos da home
-│   │               ├── banners.php    # Banners carrossel
-│   │               ├── featured.php   # Produtos destaque
-│   │               ├── promos.php     # Promoções
-│   │               ├── testimonials.php # Depoimentos
-│   │               ├── metrics.php    # Métricas empresa
-│   │               ├── cms_api.php    # API do CMS
-│   │               └── setup_cms_tables.sql # SQL setup
+│   │               ├── home.php          # Textos da home
+│   │               ├── banners.php       # Banners carrossel
+│   │               ├── featured.php      # Produtos destaque
+│   │               ├── promos.php        # Promoções
+│   │               ├── testimonials.php  # Depoimentos
+│   │               ├── metrics.php       # Métricas empresa
+│   │               ├── cms_api.php       # API do CMS
+│   │               └── setup_*.php       # Scripts de setup
 │   └── PHP/                      # Core PHP
 │       ├── conexao.php           # Conexão MySQL
 │       ├── acoes.php             # CRUD usuários
-│       └── ...
+│       ├── login.php             # Sistema login
+│       └── logout.php            # Logout
 ├── 📂 cliente/                    # Site público (loja)
 │   ├── index.php                 # Home da loja
 │   ├── cms_data_provider.php     # Provider CMS ⭐
@@ -93,13 +112,13 @@ admin-teste/
 │   └── pages/                    # Páginas cliente
 │       ├── carrinho.php
 │       ├── login.php
-│       └── ...
+│       ├── minha-conta.php
+│       └── pedidos.php
 ├── 📂 uploads/                    # Uploads de arquivos
 │   ├── banners/                  # Imagens de banners
-│   └── produtos/                 # Imagens de produtos
-├── 📂 config/                     # Configurações globais
-│   └── config.php                # Credenciais banco
-└── favicon.ico                    # Ícone do site
+│   ├── produtos/                 # Imagens de produtos
+│   └── testimonials/             # Avatars de clientes
+└── composer.json                  # Dependências PHP
 ```
 
 ---
@@ -119,7 +138,6 @@ admin-teste/
 3. Execute os scripts SQL na ordem:
    - `admin/sql/criar_tabelas_dashboard.sql` (tabelas principais)
    - `admin/src/php/dashboard/cms/setup_cms_tables.sql` (CMS básico)
-   - `admin/src/php/dashboard/cms/migration_cms_expansao.sql` (CMS expandido - Footer e Benefícios) ⭐
 
 ### **Passo 3: Configuração**
 
@@ -140,7 +158,7 @@ define('GROQ_API_KEY', 'sua-chave-aqui');
 
 ```php
 <?php
-define('BASE_URL', '/admin-teste/');  // Ajustar se necessário
+define('BASE_URL', '/admin-teste/');
 define('API_SISTEMA_URL', BASE_URL . 'admin/src/php/sistema.php');
 ```
 
@@ -148,8 +166,6 @@ define('API_SISTEMA_URL', BASE_URL . 'admin/src/php/sistema.php');
 
 - **Admin:** `http://localhost/admin-teste/admin/PHP/login.php`
 - **Site Público:** `http://localhost/admin-teste/cliente/`
-
-**Credenciais padrão:** (criar no banco ou via cadastro)
 
 ---
 
@@ -159,7 +175,7 @@ define('API_SISTEMA_URL', BASE_URL . 'admin/src/php/sistema.php');
 
 Sistema de gerenciamento de conteúdo integrado ao painel admin para editar o site público sem alterar código.
 
-### **Funcionalidades:**
+### **Funcionalidades Principais:**
 
 #### 1️⃣ **Home - Textos Principais**
 
@@ -182,76 +198,273 @@ Sistema de gerenciamento de conteúdo integrado ao painel admin para editar o si
 - Ordenação personalizada
 - Limite: 4-8 produtos
 
-#### 4️⃣ **Promoções**
-
-- Blocos promocionais configuráveis
-
-#### 5️⃣ **Depoimentos**
-
-- CRUD de depoimentos de clientes
-
-#### 6️⃣ **Métricas da Empresa**
-
-- Números estatísticos (anos mercado, clientes, produtos, etc)
-
-#### 7️⃣ **Links do Footer**
+#### 4️⃣ **Links do Footer**
 
 - ✅ CRUD completo de links do footer
 - ✅ Organização em colunas (Produtos / Atendimento)
 - ✅ Ativar/Desativar links individualmente
 - ✅ Controlar ordem de exibição
 - ✅ Edição de texto e URL
-- ✅ Interface dedicada com modal
 - ✅ Integração automática no site público
 
-**Acesso:** `CMS → Links do Footer`
+---
+
+### **Sistema de Categorias**
+
+Sistema reutilizável para gerenciar categorias de produtos.
+
+#### **Tabela: `categorias`**
+
+```sql
+CREATE TABLE categorias (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(255) NOT NULL UNIQUE,
+    descricao TEXT NULL,
+    ativo TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+)
+```
+
+#### **Funcionalidades:**
+
+- ✅ Seleção de categorias existentes via dropdown
+- ✅ Criação de novas categorias automaticamente
+- ✅ Prevenção de duplicatas (case-insensitive)
+- ✅ Edição e exclusão de categorias
+- ✅ Persistência automática no banco
+
+#### **Uso no Formulário de Produtos:**
+
+1. Select mostra categorias ativas ordenadas alfabeticamente
+2. Última opção: **"+ Criar nova categoria"**
+3. Ao criar nova: campo de input aparece
+4. Backend verifica duplicatas (case-insensitive)
+5. Produto salvo com `categoria_id`
+
+#### **Prevenção de Duplicatas:**
+
+```php
+// Backend verifica: "Eletrônicos" = "ELETRÔNICOS" = "eletrônicos"
+SELECT id FROM categorias WHERE LOWER(nome) = LOWER(?)
+```
+
+**Arquivo Principal:** `admin/src/php/dashboard/addproducts.php`
+
+---
+
+### **Depoimentos (Testimonials)**
+
+Sistema de gerenciamento de depoimentos de clientes.
+
+#### **Tabela: `cms_testimonials`**
+
+```sql
+CREATE TABLE cms_testimonials (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(120) NOT NULL,
+    cargo_empresa VARCHAR(120) NULL,
+    texto VARCHAR(600) NOT NULL,
+    rating TINYINT NOT NULL DEFAULT 5,
+    avatar_path VARCHAR(255) NULL,
+    ordem INT DEFAULT 0,
+    ativo TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+```
+
+#### **Funcionalidades:**
+
+- ✅ CRUD completo de depoimentos
+- ✅ Upload de avatar (JPG, PNG, WEBP)
+- ✅ Avatar automático com inicial se sem foto
+- ✅ Avaliação de 1 a 5 estrelas
+- ✅ Ordenação personalizada
+- ✅ Ativar/Desativar depoimentos
+- ✅ Limite de 600 caracteres no texto
+
+#### **Setup Inicial:**
+
+```
+Acesse: admin/src/php/dashboard/cms/setup_testimonials.php
+```
+
+#### **Integração Cliente:**
+
+```php
+// cliente/cms_data_provider.php
+$testimonials = $cms->getTestimonials(3);
+
+// Renderiza 3 depoimentos ativos mais recentes
+```
+
+#### **Recursos Visuais:**
+
+- Cards com glassmorphism
+- 5 gradientes de cores para avatars
+- Estrelas dinâmicas conforme rating
+- Preview de avatar ao fazer upload
+
+**Arquivos:**
+
+- Admin: `admin/src/php/dashboard/cms/testimonials.php`
+- API: `cms_api.php` (endpoints: list, add, update, toggle, delete)
+
+---
+
+### **Promoções e Ofertas**
+
+Sistema de gerenciamento de blocos promocionais.
+
+#### **Tabela: `cms_home_promotions`**
+
+```sql
+CREATE TABLE cms_home_promotions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(255) NOT NULL,
+    subtitulo VARCHAR(255),
+    badge_text VARCHAR(50),        -- Ex: "15% OFF"
+    button_text VARCHAR(100),
+    button_link VARCHAR(255),
+    cupom_id INT,                  -- FK para cupons
+    data_inicio DATE,
+    data_fim DATE,
+    ordem INT DEFAULT 0,
+    ativo TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (cupom_id) REFERENCES cupons(id)
+);
+```
+
+#### **Funcionalidades:**
+
+- ✅ CRUD completo de promoções
+- ✅ Vinculação com cupons do sistema
+- ✅ Badge customizável (ex: "15% OFF")
+- ✅ Período de validade (data início/fim)
+- ✅ Ordenação e toggle de status
+- ✅ Seleção de cupons ativos
+
+#### **Setup Inicial:**
+
+```
+Acesse: admin/src/php/dashboard/cms/setup_promotions.php
+```
+
+#### **API Endpoints:**
+
+- `list_promotions` - Lista todas
+- `add_promotion` - Cria nova
+- `update_promotion` - Atualiza
+- `toggle_promotion` - Ativa/desativa
+- `delete_promotion` - Exclui
+- `list_coupons_simple` - Lista cupons para seleção
+
+**Arquivo Principal:** `admin/src/php/dashboard/cms/promos.php`
+
+---
+
+### **Métricas da Empresa**
+
+Sistema de métricas estatísticas exibidas na home.
+
+#### **Tabela: `cms_home_metrics`**
+
+```sql
+CREATE TABLE cms_home_metrics (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    valor VARCHAR(20) NOT NULL,    -- Ex: "98%", "50k+", "4.9"
+    label VARCHAR(60) NOT NULL,    -- Ex: "Clientes satisfeitas"
+    tipo ENUM('texto','numero','percentual') DEFAULT 'texto',
+    ordem INT DEFAULT 0,
+    ativo TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+```
+
+#### **Funcionalidades:**
+
+- ✅ CRUD completo de métricas
+- ✅ Tipos: texto, número, percentual
+- ✅ Ordenação personalizada
+- ✅ Ativar/Desativar
+- ✅ Limite: 3-5 métricas ativas recomendado
+
+#### **Dados Iniciais (Setup):**
+
+- 98% - Clientes satisfeitas
+- 50k+ - Produtos vendidos
+- 4.9 - Avaliação média
+- 24h - Entrega rápida
+
+#### **Setup Inicial:**
+
+```
+Acesse: admin/src/php/dashboard/cms/setup_metrics.php
+```
+
+#### **Integração Cliente:**
+
+```php
+$metricas = $cms->getActiveMetrics();
+// Renderiza métricas ativas ordenadas
+```
+
+**Arquivo Principal:** `admin/src/php/dashboard/cms/metrics.php`
 
 ---
 
 ### **Tabelas do CMS:**
 
 ```sql
--- Tabelas principais do CMS
+-- Tabelas principais
 home_settings              -- Textos da home (singleton)
 home_banners               -- Banners do carrossel
 home_featured_products     -- Produtos em destaque
 cms_home_beneficios        -- Benefícios da home
 cms_footer                 -- Dados do footer (singleton)
-cms_footer_links           -- Links do footer (produtos/atendimento)
+cms_footer_links           -- Links do footer
+cms_testimonials           -- Depoimentos de clientes
+cms_home_promotions        -- Promoções e ofertas
+cms_home_metrics           -- Métricas da empresa
+categorias                 -- Categorias de produtos
 ```
 
 ---
 
 ### **Integração Site Público:**
 
-**Arquivo:** `cliente/index.php`
+**Arquivo:** `cliente/cms_data_provider.php`
 
 ```php
 <?php
-// Incluir provider CMS
-require_once 'cms_data_provider.php';
-
-// Carregar dados do CMS
+// Provider centralizado para todos os dados do CMS
 $cms = new CMSProvider($conexao);
-$cmsData = $cms->getAllData();
 
-// Usar dados no HTML
-$banners = $cmsData['banners'];
-$settings = $cmsData['settings'];
-$featuredProducts = $cmsData['featured_products'];
-?>
+// Métodos disponíveis:
+$cmsData = $cms->getAllData();           // Todos os dados
+$banners = $cms->getBanners();           // Banners ativos
+$settings = $cms->getSettings();         // Textos da home
+$featured = $cms->getFeaturedProducts(); // Produtos destaque
+$testimonials = $cms->getTestimonials(); // Depoimentos
+$metrics = $cms->getActiveMetrics();     // Métricas
+$promotions = $cms->getPromotions();     // Promoções
+```
 
+**Uso no HTML:**
+
+```php
 <!-- Exemplo: Banners dinâmicos -->
-<div class="carousel">
-    <?php foreach ($banners as $banner): ?>
-        <div class="banner-slide">
-            <img src="<?= getBannerImageUrl($banner['image_path']) ?>"
-                 alt="<?= htmlspecialchars($banner['title']) ?>">
-            <h2><?= htmlspecialchars($banner['title']) ?></h2>
-            <p><?= htmlspecialchars($banner['subtitle']) ?></p>
-        </div>
-    <?php endforeach; ?>
-</div>
+<?php foreach ($banners as $banner): ?>
+    <div class="banner-slide">
+        <img src="<?= getBannerImageUrl($banner['image_path']) ?>"
+             alt="<?= htmlspecialchars($banner['title']) ?>">
+        <h2><?= htmlspecialchars($banner['title']) ?></h2>
+    </div>
+<?php endforeach; ?>
 ```
 
 ---
@@ -260,7 +473,7 @@ $featuredProducts = $cmsData['featured_products'];
 
 ### **Visão Geral**
 
-Sistema completo de gerenciamento de pedidos com filtros avançados, integração com Gestão de Fluxo e processamento de reembolsos.
+Sistema completo de gerenciamento de pedidos com filtros avançados e integração com Gestão de Fluxo.
 
 ### **Funcionalidades:**
 
@@ -279,59 +492,33 @@ Sistema completo de gerenciamento de pedidos com filtros avançados, integraçã
 
 - ✅ Listagem de pedidos com dados do banco
 - ✅ Integração com Gestão de Fluxo (status e cores)
-- ✅ Colunas: ID, Data, Cliente, Valor Total, Status (badge colorido), Ações
-- ✅ Botão "Ver Detalhes" estilizado
+- ✅ Colunas: ID, Data, Cliente, Valor Total, Status, Ações
+- ✅ Badges coloridos de status
 
 #### 3️⃣ **Modal de Detalhes**
 
-Ao clicar em "Ver Detalhes", exibe:
-
-- **Dados do Cliente:** Nome, E-mail, Telefone (WhatsApp)
-- **Endereço de Entrega:** Completo com CEP
-- **Informações do Pedido:** Data, valor, status, observações
-- **Itens do Pedido:** Lista detalhada (produtos, quantidades, valores)
+- Dados do Cliente (nome, e-mail, telefone)
+- Endereço de Entrega completo
+- Informações do Pedido (data, valor, status)
+- Itens do Pedido (produtos, quantidades, valores)
 
 #### 4️⃣ **Gestão de Reembolso**
 
 - ✅ Aba específica para pedidos em reembolso
-- ✅ Botão "Processar Reembolso" para pedidos elegíveis
-- ✅ Atualização automática de status no banco
+- ✅ Botão "Processar Reembolso"
+- ✅ Atualização automática de status
 
 ### **Estrutura de Dados:**
 
 ```sql
--- Tabelas principais
 pedidos                     -- Dados dos pedidos
 clientes                    -- Informações dos clientes
 itens_pedido                -- Produtos do pedido
-status_fluxo                -- Status e configurações (cores)
+status_fluxo                -- Status e configurações
 pedidos_historico_status    -- Histórico de mudanças
 ```
 
-### **API Endpoints:**
-
-```javascript
-// POST orders.php
-action = buscar_pedidos; // Lista com filtros
-action = buscar_detalhes_pedido; // Detalhes completos
-action = processar_reembolso; // Processa reembolso
-```
-
-### **Atualização do Schema:**
-
-Execute uma vez: `admin/src/php/dashboard/update-orders-schema.php`
-
-### **Personalização:**
-
-- **Cores dos Status:** Gerenciadas pela Gestão de Fluxo
-- **Campos Adicionais:** Adicione na tabela `pedidos` e atualize as queries
-
-### **Segurança:**
-
-- ✅ Verificação de sessão
-- ✅ Prepared statements (SQL injection)
-- ✅ Validação de entrada
-- ✅ Logs de auditoria
+**Arquivo Principal:** `admin/src/php/dashboard/orders.php`
 
 ---
 
@@ -367,7 +554,6 @@ POST /admin/src/php/sistema.php?api=1&endpoint=client&action=send_message
 
 // Admin (painel)
 GET /admin/src/php/sistema.php?api=1&endpoint=admin&action=get_stats
-GET /admin/src/php/sistema.php?api=1&endpoint=admin&action=get_conversations
 ```
 
 ---
@@ -404,35 +590,19 @@ cliente/
 
 ### **BASE_URL Global:**
 
-Todas as páginas admin usam caminhos absolutos definidos em `admin/config/base.php`:
-
 ```php
+// admin/config/base.php
 define('BASE_URL', '/admin-teste/');
 define('UPLOADS_URL', BASE_URL . 'uploads/');
 define('BANNERS_URL', UPLOADS_URL . 'banners/');
 ```
 
-**JavaScript:**
-
-```html
-<script>
-  window.BASE_URL = "<?php echo BASE_URL; ?>";
-  window.API_SISTEMA_URL = "<?php echo API_SISTEMA_URL; ?>";
-</script>
-```
-
 ### **Upload de Imagens:**
 
-**Configuração:** `admin/src/php/dashboard/cms/cms_api.php`
-
-```php
-// Pasta de upload (criada automaticamente)
-$upload_dir = dirname(__DIR__, 5) . '/uploads/banners/';
-
-// Permissões: 0755
-// Tamanho máx: 2MB
-// Formatos: JPG, PNG, WEBP
-```
+- **Pasta:** Criada automaticamente em `uploads/`
+- **Permissões:** 0755
+- **Tamanho máx:** 2MB
+- **Formatos:** JPG, PNG, WEBP
 
 ---
 
@@ -440,34 +610,21 @@ $upload_dir = dirname(__DIR__, 5) . '/uploads/banners/';
 
 ### **Implementado:**
 
-✅ **Prepared Statements** - Prevenção SQL Injection
-✅ **XSS Protection** - `htmlspecialchars()` em outputs
-✅ **Session Management** - Controle de sessões seguro
-✅ **CSRF Protection** - Tokens em formulários críticos
-✅ **File Upload Validation** - Verificação de tipo MIME
-✅ **Path Sanitization** - Prevenção directory traversal
+✅ **Prepared Statements** - Prevenção SQL Injection  
+✅ **XSS Protection** - `htmlspecialchars()` em outputs  
+✅ **Session Management** - Controle de sessões seguro  
+✅ **CSRF Protection** - Tokens em formulários críticos  
+✅ **File Upload Validation** - Verificação de tipo MIME  
+✅ **Path Sanitization** - Prevenção directory traversal  
 ✅ **Password Hashing** - `password_hash()` bcrypt
 
 ### **Recomendações Produção:**
 
-⚠️ **IMPORTANTE - Antes de publicar:**
-
 1. Alterar credenciais do banco
 2. Ativar HTTPS (certificado SSL)
-3. Configurar `.htaccess` robusto:
-
-```apache
-# Bloquear acesso a arquivos sensíveis
-<FilesMatch "^(config\.php|conexao\.php)$">
-    Require all denied
-</FilesMatch>
-
-# Proteção contra listagem de diretórios
-Options -Indexes
-```
-
+3. Configurar `.htaccess` robusto
 4. Remover arquivos de teste/debug
-5. Ativar display_errors = Off no php.ini
+5. Ativar `display_errors = Off`
 6. Implementar rate limiting nas APIs
 7. Configurar backup automático do banco
 
@@ -475,17 +632,10 @@ Options -Indexes
 
 ## 📊 **Sistema de Logs**
 
-Todas as ações administrativas são registradas automaticamente:
+Todas as ações administrativas são registradas:
 
-**Tabela:** `admin_logs`
-
-**Campos:**
-
-- ID, admin_id, admin_nome
-- acao (descrição da ação)
-- ip_address
-- timestamp
-
+**Tabela:** `admin_logs`  
+**Campos:** ID, admin_id, admin_nome, acao, ip_address, timestamp  
 **Visualização:** `admin/src/php/dashboard/all-logs.php`
 
 ---
@@ -498,9 +648,7 @@ Todas as ações administrativas são registradas automaticamente:
 
 ```php
 // admin/config/base.php
-define('BASE_URL', '/');  // Se na raiz do domínio
-// OU
-define('BASE_URL', '/subpasta/');  // Se em subpasta
+define('BASE_URL', '/');  // Se na raiz
 ```
 
 2. **Atualizar conexão:**
@@ -519,104 +667,62 @@ define('DB_NAME', 'banco-producao');
 chmod 755 uploads/
 chmod 755 uploads/banners/
 chmod 755 uploads/produtos/
+chmod 755 uploads/testimonials/
 ```
-
-4. **Testar:**
-
-- ✅ Login admin
-- ✅ Upload de imagens (CMS)
-- ✅ Chat funcionando
-- ✅ Site público carregando dados CMS
-
----
-
-## 📝 **Notas Técnicas**
-
-### **Encoding:**
-
-- Banco: `utf8mb4_unicode_ci`
-- Arquivos PHP: UTF-8 (sem BOM)
-- Headers: `Content-Type: text/html; charset=UTF-8`
-
-### **Compatibilidade:**
-
-- PHP 7.4+
-- MySQL 5.7+ (recomendado 8.0+)
-- Navegadores modernos (Chrome, Firefox, Safari, Edge)
-
-### **Performance:**
-
-- Imagens otimizadas (WebP recomendado)
-- Cache de dados CMS implementado
-- Queries otimizadas com índices
 
 ---
 
 ## 🆘 **Troubleshooting**
 
-### **Problema: Imagens não aparecem**
+### **Imagens não aparecem**
 
 ```bash
 # Verificar permissões
 ls -la uploads/banners/
-
 # Corrigir
 chmod 755 uploads/banners/
 ```
 
-### **Problema: Erro 404 nas APIs**
+### **Erro 404 nas APIs**
 
 ```php
-// Verificar BASE_URL em admin/config/base.php
+// Verificar BASE_URL
 echo BASE_URL;  // Deve corresponder ao caminho real
 ```
 
-### **Problema: Chat IA não responde**
+### **Chat IA não responde**
 
 ```php
 // Verificar API key
-var_dump(defined('GROQ_API_KEY'));  // Deve retornar true
+var_dump(defined('GROQ_API_KEY'));
 ```
 
-### **Problema: Encoding errado (caracteres estranhos)**
+### **Encoding errado**
 
 ```sql
--- Verificar tabelas
+-- Verificar collation
 SHOW TABLE STATUS WHERE Name='home_settings';
--- Collation deve ser utf8mb4_unicode_ci
-
--- Corrigir se necessário
-ALTER TABLE home_settings CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- Deve ser utf8mb4_unicode_ci
 ```
-
----
-
-## 📞 **Suporte**
-
-Para dúvidas ou problemas:
-
-1. Verificar logs do Apache/PHP (`error.log`)
-2. Console do navegador (F12)
-3. Verificar permissões de arquivos/pastas
-4. Consultar este README
-
----
-
-## 📄 **Licença**
-
-Sistema proprietário desenvolvido para D&Z.
 
 ---
 
 ## 📝 **Changelog**
 
+### **Versão 2.2 (Março 2026)**
+
+- ✅ README consolidado único
+- ✅ Sistema de categorias reutilizável
+- ✅ Depoimentos com avatars dinâmicos
+- ✅ Promoções vinculadas a cupons
+- ✅ Métricas da empresa
+- ✅ Menu CMS padronizado em todas as páginas
+
 ### **Versão 2.1 (Março 2026)**
 
-- ✅ Adicionado gerenciamento de Links do Footer (CMS)
-- ✅ Nova página CRUD para links do footer
-- ✅ API dedicada para operações do footer
-- ✅ Integração automática no site público
-- ✅ Documentação consolidada em README único
+- ✅ Gerenciamento de Links do Footer
+- ✅ Nova página CRUD para footer
+- ✅ Integração automática no site
 
 ### **Versão 2.0 (Fevereiro 2026)**
 
@@ -629,5 +735,5 @@ Sistema proprietário desenvolvido para D&Z.
 
 **Desenvolvido com ❤️ para D&Z - Produtos Profissionais de Beleza**
 
-**Versão Atual:** 2.1  
-**Última Atualização:** 04 de Março de 2026
+**Versão Atual:** 2.2  
+**Última Atualização:** 05 de Março de 2026
