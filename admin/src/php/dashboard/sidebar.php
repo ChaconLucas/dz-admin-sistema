@@ -75,10 +75,6 @@
               <span class="material-symbols-sharp">speed</span>
               <h3>Métricas</h3>
             </a>
-            <a href="footer-links.php">
-              <span class="material-symbols-sharp">link</span>
-              <h3>Links do Footer</h3>
-            </a>
           </div>
         </div>
         
