@@ -25,6 +25,22 @@ function buscarSubcategorias($conexao, $parent_id) {
     return $subcategorias;
 }
 
+/**
+ * Busca categorias principais por grupo de menu
+ */
+function buscarCategoriasPorMenu($conexao, $menu_group) {
+    $sql = "SELECT id, nome FROM categorias WHERE ativo = 1 AND menu_group = ? AND parent_id IS NULL ORDER BY nome ASC";
+    $stmt = mysqli_prepare($conexao, $sql);
+    mysqli_stmt_bind_param($stmt, "s", $menu_group);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $categorias = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $categorias[] = $row;
+    }
+    return $categorias;
+}
+
 // Parâmetros de filtro
 $categoria_id = isset($_GET['categoria_id']) ? intval($_GET['categoria_id']) : null;
 $menu_group = isset($_GET['menu']) ? $_GET['menu'] : null;
