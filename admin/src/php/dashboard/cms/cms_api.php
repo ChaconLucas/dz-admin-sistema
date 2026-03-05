@@ -947,6 +947,225 @@ if ($action === 'add_benefit') {
 }
 
 // ====================================================================
+// PROMOÇÕES - AÇÕES
+// ====================================================================
+
+if ($action === 'list_promotions') {
+    try {
+        $sql = "SELECT p.*, c.codigo as cupom_codigo 
+                FROM cms_home_promotions p 
+                LEFT JOIN cupons c ON p.cupom_id = c.id 
+                ORDER BY p.ordem ASC, p.id DESC";
+        $result = mysqli_query($conexao, $sql);
+        
+        if (!$result) {
+            // Tabela provavelmente não existe
+            throw new Exception('Tabela cms_home_promotions não encontrada. Execute o setup_promotions.php primeiro.');
+        }
+        
+        $promotions = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $promotions[] = $row;
+        }
+        
+        echo json_encode(['success' => true, 'data' => $promotions]);
+    } catch (Exception $e) {
+        echo json_encode([
+            'success' => false, 
+            'message' => $e->getMessage(),
+            'setup_needed' => true
+        ]);
+    }
+    exit();
+}
+
+if ($action === 'add_promotion') {
+    try {
+        $titulo = trim($_POST['titulo'] ?? '');
+        $subtitulo = trim($_POST['subtitulo'] ?? '');
+        $badge_text = trim($_POST['badge_text'] ?? '');
+        $button_text = trim($_POST['button_text'] ?? 'Aproveitar Oferta');
+        $button_link = trim($_POST['button_link'] ?? '#');
+        $cupom_id = !empty($_POST['cupom_id']) ? intval($_POST['cupom_id']) : null;
+        $data_inicio = $_POST['data_inicio'] ?? date('Y-m-d');
+        $data_fim = $_POST['data_fim'] ?? date('Y-m-d', strtotime('+30 days'));
+        $ordem = intval($_POST['ordem'] ?? 0);
+        $ativo = isset($_POST['ativo']) ? 1 : 0;
+        
+        if (empty($titulo)) {
+            echo json_encode(['success' => false, 'message' => 'Título é obrigatório']);
+            exit();
+        }
+        
+        $stmt = mysqli_prepare($conexao,
+            "INSERT INTO cms_home_promotions 
+             (titulo, subtitulo, badge_text, button_text, button_link, cupom_id, data_inicio, data_fim, ordem, ativo) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        );
+        
+        if (!$stmt) {
+            throw new Exception('Tabela cms_home_promotions não encontrada. Execute o setup_promotions.php primeiro.');
+        }
+        
+        mysqli_stmt_bind_param($stmt, 'sssssissii', 
+            $titulo, $subtitulo, $badge_text, $button_text, $button_link, 
+            $cupom_id, $data_inicio, $data_fim, $ordem, $ativo
+        );
+        
+        if (mysqli_stmt_execute($stmt)) {
+            echo json_encode([
+                'success' => true, 
+                'message' => 'Promoção criada com sucesso!',
+                'id' => mysqli_insert_id($conexao)
+            ]);
+        } else {
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Erro ao criar promoção: ' . mysqli_error($conexao)
+            ]);
+        }
+        
+        mysqli_stmt_close($stmt);
+    } catch (Exception $e) {
+        echo json_encode([
+            'success' => false, 
+            'message' => $e->getMessage(),
+            'setup_needed' => true
+        ]);
+    }
+    exit();
+}
+
+if ($action === 'update_promotion') {
+    $id = intval($_POST['id'] ?? 0);
+    $titulo = trim($_POST['titulo'] ?? '');
+    $subtitulo = trim($_POST['subtitulo'] ?? '');
+    $badge_text = trim($_POST['badge_text'] ?? '');
+    $button_text = trim($_POST['button_text'] ?? 'Aproveitar Oferta');
+    $button_link = trim($_POST['button_link'] ?? '#');
+    $cupom_id = !empty($_POST['cupom_id']) ? intval($_POST['cupom_id']) : null;
+    $data_inicio = $_POST['data_inicio'] ?? date('Y-m-d');
+    $data_fim = $_POST['data_fim'] ?? date('Y-m-d', strtotime('+30 days'));
+    $ordem = intval($_POST['ordem'] ?? 0);
+    $ativo = isset($_POST['ativo']) ? 1 : 0;
+    
+    if ($id <= 0) {
+        echo json_encode(['success' => false, 'message' => 'ID inválido']);
+        exit();
+    }
+    
+    if (empty($titulo)) {
+        echo json_encode(['success' => false, 'message' => 'Título é obrigatório']);
+        exit();
+    }
+    
+    $stmt = mysqli_prepare($conexao,
+        "UPDATE cms_home_promotions 
+         SET titulo = ?, subtitulo = ?, badge_text = ?, button_text = ?, 
+             button_link = ?, cupom_id = ?, data_inicio = ?, data_fim = ?, 
+             ordem = ?, ativo = ?, updated_at = NOW()
+         WHERE id = ?"
+    );
+    
+    mysqli_stmt_bind_param($stmt, 'sssssissiii', 
+        $titulo, $subtitulo, $badge_text, $button_text, $button_link, 
+        $cupom_id, $data_inicio, $data_fim, $ordem, $ativo, $id
+    );
+    
+    if (mysqli_stmt_execute($stmt)) {
+        echo json_encode(['success' => true, 'message' => 'Promoção atualizada com sucesso!']);
+    } else {
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Erro ao atualizar promoção: ' . mysqli_error($conexao)
+        ]);
+    }
+    
+    mysqli_stmt_close($stmt);
+    exit();
+}
+
+if ($action === 'toggle_promotion') {
+    $id = intval($_POST['id'] ?? 0);
+    
+    if ($id <= 0) {
+        echo json_encode(['success' => false, 'message' => 'ID inválido']);
+        exit();
+    }
+    
+    $stmt = mysqli_prepare($conexao,
+        "UPDATE cms_home_promotions SET ativo = NOT ativo, updated_at = NOW() WHERE id = ?"
+    );
+    
+    mysqli_stmt_bind_param($stmt, 'i', $id);
+    
+    if (mysqli_stmt_execute($stmt)) {
+        // Buscar novo status
+        $result = mysqli_query($conexao, "SELECT ativo FROM cms_home_promotions WHERE id = $id");
+        $row = mysqli_fetch_assoc($result);
+        
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Status atualizado com sucesso!',
+            'ativo' => (bool)$row['ativo']
+        ]);
+    } else {
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Erro ao atualizar status: ' . mysqli_error($conexao)
+        ]);
+    }
+    
+    mysqli_stmt_close($stmt);
+    exit();
+}
+
+if ($action === 'delete_promotion') {
+    $id = intval($_POST['id'] ?? 0);
+    
+    if ($id <= 0) {
+        echo json_encode(['success' => false, 'message' => 'ID inválido']);
+        exit();
+    }
+    
+    $stmt = mysqli_prepare($conexao, "DELETE FROM cms_home_promotions WHERE id = ?");
+    mysqli_stmt_bind_param($stmt, 'i', $id);
+    
+    if (mysqli_stmt_execute($stmt)) {
+        echo json_encode(['success' => true, 'message' => 'Promoção excluída com sucesso!']);
+    } else {
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Erro ao excluir promoção: ' . mysqli_error($conexao)
+        ]);
+    }
+    
+    mysqli_stmt_close($stmt);
+    exit();
+}
+
+if ($action === 'list_coupons_simple') {
+    try {
+        $sql = "SELECT id, codigo FROM cupons WHERE ativo = 1 ORDER BY codigo ASC";
+        $result = mysqli_query($conexao, $sql);
+        
+        if (!$result) {
+            throw new Exception('Erro ao buscar cupons');
+        }
+        
+        $coupons = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $coupons[] = $row;
+        }
+        
+        echo json_encode(['success' => true, 'data' => $coupons]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    }
+    exit();
+}
+
+// ====================================================================
 // AÇÃO INVÁLIDA
 // ====================================================================
 

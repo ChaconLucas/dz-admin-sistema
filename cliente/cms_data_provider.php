@@ -379,6 +379,46 @@ class CMSProvider {
             ]
         ];
     }
+    
+    /**
+     * Buscar promoções ativas (para banner promocional)
+     * 
+     * @return array Lista de promoções ativas dentro do período
+     */
+    public function getActivePromotions() {
+        $hoje = date('Y-m-d');
+        
+        $query = "
+            SELECT p.*, c.codigo as cupom_codigo
+            FROM cms_home_promotions p
+            LEFT JOIN cupons c ON p.cupom_id = c.id
+            WHERE p.ativo = 1
+            AND p.data_inicio <= ?
+            AND p.data_fim >= ?
+            ORDER BY p.ordem ASC, p.id DESC
+        ";
+        
+        $stmt = mysqli_prepare($this->conn, $query);
+        
+        if (!$stmt) {
+            error_log("Erro ao buscar promoções: " . mysqli_error($this->conn));
+            return [];
+        }
+        
+        mysqli_stmt_bind_param($stmt, 'ss', $hoje, $hoje);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        
+        if (!$result) {
+            mysqli_stmt_close($stmt);
+            return [];
+        }
+        
+        $promotions = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        mysqli_stmt_close($stmt);
+        
+        return $promotions;
+    }
 }
 
 /**

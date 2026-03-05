@@ -25,6 +25,7 @@ $featuredProducts = $cms->getFeaturedProducts(6);
 $beneficios = $cms->getHomeBenefits();
 $footerData = $cms->getFooterData();
 $footerLinks = $cms->getFooterLinks();
+$promocoes = $cms->getActivePromotions(); // Buscar promoções ativas
 
 // Fallback se banners vazios
 if (empty($banners)) {
@@ -3653,31 +3654,39 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
     </section>
 
     <!-- ===== BANNER PROMOCIONAL ===== -->
+    <?php if (!empty($promocoes)): ?>
+        <?php foreach ($promocoes as $promo): ?>
     <section class="promo-banner-modern">
         <div class="container-dz">
             <div class="promo-card fade-in-up">
                 
                 <!-- Badge de desconto -->
+                <?php if (!empty($promo['badge_text'])): ?>
                 <div class="discount-badge">
-                    <span>15% OFF</span>
+                    <span><?php echo htmlspecialchars($promo['badge_text']); ?></span>
                 </div>
+                <?php endif; ?>
                 
                 <!-- Conteúdo principal -->
                 <div class="promo-content">
                     <div class="promo-title">
-                        <span class="welcome-text">Seja bem-vinda!</span>
-                        <h2>Primeira compra com <span class="discount-highlight">15% OFF</span></h2>
+                        <?php if (!empty($promo['subtitulo'])): ?>
+                        <span class="welcome-text"><?php echo htmlspecialchars($promo['subtitulo']); ?></span>
+                        <?php endif; ?>
+                        <h2><?php echo htmlspecialchars($promo['titulo']); ?></h2>
                     </div>
                     
                     <!-- Cupom destacado -->
+                    <?php if (!empty($promo['cupom_codigo'])): ?>
                     <div class="coupon-container">
                         <div class="coupon-label">Use o cupom:</div>
-                        <div class="coupon-code" id="couponCode" onclick="copyCoupon()">
-                            <span>BEM-VINDA15</span>
+                        <div class="coupon-code" id="couponCode" onclick="copyCoupon('<?php echo htmlspecialchars($promo['cupom_codigo']); ?>')">
+                            <span><?php echo htmlspecialchars($promo['cupom_codigo']); ?></span>
                             <div class="copy-icon">📋</div>
                         </div>
                         <div class="copy-feedback" id="copyFeedback">Código copiado!</div>
                     </div>
+                    <?php endif; ?>
                     
 
                     
@@ -3695,8 +3704,8 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                     </div>
                     
                     <!-- Call to Action -->
-                    <button class="promo-cta-button" onclick="window.location.href='#lancamentos'">
-                        <span class="button-text">Quero meu 15% OFF</span>
+                    <button class="promo-cta-button" onclick="window.location.href='<?php echo htmlspecialchars($promo['button_link']); ?>'">
+                        <span class="button-text"><?php echo htmlspecialchars($promo['button_text']); ?></span>
                         <div class="button-icon">→</div>
                     </button>
                 </div>
@@ -3705,6 +3714,8 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             </div>
         </div>
     </section>
+        <?php endforeach; ?>
+    <?php endif; ?>
     
     <style>
         .promo-banner-modern {
@@ -3941,8 +3952,8 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
     
     <script>
         // Função para copiar cupom
-        function copyCoupon() {
-            const couponText = 'BEM-VINDA15';
+        function copyCoupon(couponCode) {
+            const couponText = couponCode || 'DESCONTO';
             
             // Tentar usar a API moderna de clipboard
             if (navigator.clipboard) {
