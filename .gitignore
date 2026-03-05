@@ -1,0 +1,28 @@
+# Uploads de usuários (manter apenas .gitkeep para estrutura)
+uploads/banners/*
+!uploads/banners/.gitkeep
+
+uploads/testimonials/*
+!uploads/testimonials/.gitkeep
+
+# Composer
+vendor/
+
+# Configurações locais
+admin/config/config.php
+admin/config/email-config.php
+
+# Logs e cache
+*.log
+*.cache
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Sistema
+.DS_Store
+Thumbs.db

@@ -415,7 +415,7 @@ TODO - IMPLEMENTAR:
                         A tabela cms_testimonials ainda não foi criada no banco de dados.<br>
                         Execute o script de setup para criar a estrutura necessária.
                     </p>
-                    <a href="setup_testimonials.php" class="btn" style="padding: 1rem 2rem; background: var(--color-primary); color: white; text-decoration: none; border-radius: var(--border-radius-1); display: inline-block;">
+                    <a href="setup_testimonials_debug.php" class="btn" style="padding: 1rem 2rem; background: var(--color-primary); color: white; text-decoration: none; border-radius: var(--border-radius-1); display: inline-block;">
                         <span class="material-symbols-sharp" style="vertical-align: middle;">construction</span>
                         Executar Setup
                     </a>

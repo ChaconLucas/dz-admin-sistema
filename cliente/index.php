@@ -3589,48 +3589,37 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
                 
                 <?php 
-                // Variações de cores para avatares
-                $avatarColors = [
-                    'linear-gradient(135deg, var(--color-magenta), var(--color-magenta-dark))',
-                    'linear-gradient(135deg, #3b82f6, #1e40af)',
-                    'linear-gradient(135deg, #10b981, #059669)',
-                    'linear-gradient(135deg, #f59e0b, #d97706)',
-                    'linear-gradient(135deg, #8b5cf6, #6d28d9)'
-                ];
-                $colorIndex = 0;
-                
                 foreach ($testimonials as $depoimento): 
+                    // Pegar apenas primeira letra do nome
                     $inicial = mb_strtoupper(mb_substr($depoimento['nome'], 0, 1));
                     $rating = (int)$depoimento['rating'];
                     $stars = str_repeat('⭐', max(1, min(5, $rating)));
-                    $avatarColor = $avatarColors[$colorIndex % count($avatarColors)];
-                    $colorIndex++;
                 ?>
                 
                 <!-- Depoimento -->
-                <div class="fade-in-up" style="background: rgba(255, 255, 255, 0.9); padding: 30px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.8);">
-                    <div style="color: #fbbf24; margin-bottom: 15px; display: flex; gap: 2px;">
+                <div class="fade-in-up" style="background: rgba(255, 255, 255, 0.9); padding: 30px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.8); display: flex; flex-direction: column; min-height: 280px;">
+                    <div style="color: #fbbf24; margin-bottom: 15px; display: flex; gap: 2px; height: 24px;">
                         <span><?php echo $stars; ?></span>
                     </div>
-                    <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px; font-style: italic;">
+                    <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px; font-style: italic; flex: 1;">
                         "<?php echo htmlspecialchars($depoimento['texto']); ?>"
                     </p>
-                    <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-top: auto;">
                         <?php if (!empty($depoimento['avatar_path'])): ?>
-                            <img src="<?php echo htmlspecialchars($depoimento['avatar_path']); ?>" 
+                            <img src="../<?php echo htmlspecialchars($depoimento['avatar_path']); ?>" 
                                  alt="<?php echo htmlspecialchars($depoimento['nome']); ?>"
-                                 style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-magenta);">
+                                 style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--color-magenta); flex-shrink: 0; display: block;">
                         <?php else: ?>
-                            <div style="width: 45px; height: 45px; background: <?php echo $avatarColor; ?>; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.1rem;">
+                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--color-magenta), var(--color-magenta-dark)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.2rem; flex-shrink: 0;">
                                 <?php echo $inicial; ?>
                             </div>
                         <?php endif; ?>
-                        <div>
-                            <h4 style="font-size: 0.9rem; font-weight: 600; color: #1a1a1a; margin-bottom: 2px;">
+                        <div style="display: flex; flex-direction: column; justify-content: center;">
+                            <h4 style="font-size: 0.95rem; font-weight: 600; color: #1a1a1a; margin: 0; line-height: 1.3;">
                                 <?php echo htmlspecialchars($depoimento['nome']); ?>
                             </h4>
                             <?php if (!empty($depoimento['cargo_empresa'])): ?>
-                            <p style="font-size: 0.8rem; color: #6b7280; margin: 0;">
+                            <p style="font-size: 0.8rem; color: #6b7280; margin: 3px 0 0 0; line-height: 1.3;">
                                 <?php echo htmlspecialchars($depoimento['cargo_empresa']); ?>
                             </p>
                             <?php endif; ?>
