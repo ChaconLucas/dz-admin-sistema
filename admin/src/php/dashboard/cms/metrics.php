@@ -51,7 +51,7 @@ TODO - IMPLEMENTAR:
     <link rel="stylesheet" href="../../../css/dashboard-sections.css">
     <link rel="stylesheet" href="../../../css/dashboard-cards.css">
     <style>
-        /* Override mínimo: mudar cor do item CMS de verde para rosa + aplicar layout padrão */
+        /* Override mínimo: mudar cor do item CMS para rosa */
         aside .sidebar .menu-item-container a.menu-item-with-submenu.active {
             background: rgba(255, 0, 212, 0.1) !important;
             color: #ff00d4 !important;
@@ -67,24 +67,34 @@ TODO - IMPLEMENTAR:
             font-weight: 600 !important;
         }
         
+        /* FIX CRÍTICO: Resetar posicionamento do item ativo no submenu */
+        aside .sidebar .menu-item-container .submenu a {
+            position: static !important;
+            top: auto !important;
+            bottom: auto !important;
+            left: auto !important;
+            right: auto !important;
+            transform: none !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+        }
+        
         /* Estilo para item ativo dentro do submenu */
-        aside .sidebar .submenu a.active {
+        aside .sidebar .menu-item-container .submenu a.active {
             background: rgba(255, 0, 212, 0.1) !important;
             color: #ff00d4 !important;
-            margin-left: 0 !important;
-            padding-left: 1.5rem !important;
             border-left: 4px solid #ff00d4 !important;
             border-radius: 0 6px 6px 0 !important;
         }
         
-        aside .sidebar .submenu a.active span,
-        aside .sidebar .submenu a.active h3 {
+        aside .sidebar .menu-item-container .submenu a.active span,
+        aside .sidebar .menu-item-container .submenu a.active h3 {
             color: #ff00d4 !important;
             font-weight: 600 !important;
         }
     </style>
 </head>
-<body>
+<body class="page-metrics">
     <div class="container">
         <!-- SIDEBAR -->
         <aside>
