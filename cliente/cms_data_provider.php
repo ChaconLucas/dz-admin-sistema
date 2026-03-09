@@ -159,6 +159,63 @@ class CMSProvider {
     }
     
     /**
+     * Buscar todos os produtos ativos (para catálogo completo)
+     * 
+     * @param int $limit Limite de produtos (padrão: 12)
+     * @return array Lista de produtos ativos
+     */
+    public function getAllProducts($limit = 12) {
+        $query = "
+            SELECT 
+                p.id,
+                p.nome,
+                p.descricao,
+                p.preco,
+                p.preco_promocional,
+                p.imagem_principal,
+                p.slug,
+                p.estoque
+            FROM produtos p
+            WHERE p.status = 'ativo'
+            ORDER BY p.created_at DESC, p.id DESC
+            LIMIT ?
+        ";
+        
+        $stmt = mysqli_prepare($this->conn, $query);
+        
+        if (!$stmt) {
+            error_log("Erro ao preparar query de todos produtos: " . mysqli_error($this->conn));
+            return [];
+        }
+        
+        // Bind do parâmetro limit (tipo i = integer)
+        mysqli_stmt_bind_param($stmt, 'i', $limit);
+        
+        // Executar
+        if (!mysqli_stmt_execute($stmt)) {
+            error_log("Erro ao executar query de todos produtos: " . mysqli_stmt_error($stmt));
+            mysqli_stmt_close($stmt);
+            return [];
+        }
+        
+        // Obter resultado
+        $result = mysqli_stmt_get_result($stmt);
+        
+        if (!$result) {
+            error_log("Erro ao obter resultado de todos produtos: " . mysqli_error($this->conn));
+            mysqli_stmt_close($stmt);
+            return [];
+        }
+        
+        $products = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        
+        mysqli_free_result($result);
+        mysqli_stmt_close($stmt);
+        
+        return $products;
+    }
+    
+    /**
      * Buscar todos os dados com fallback
      * 
      * @return array Array com banners, settings e featured_products

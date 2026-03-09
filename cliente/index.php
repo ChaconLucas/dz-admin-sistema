@@ -22,6 +22,7 @@ $cms = new CMSProvider($conn);
 $homeSettings = $cms->getHomeSettings();
 $banners = $cms->getActiveBanners();
 $featuredProducts = $cms->getFeaturedProducts(6);
+$allProducts = $cms->getAllProducts(12); // Buscar todos os produtos para o catálogo
 $beneficios = $cms->getHomeBenefits();
 $footerData = $cms->getFooterData();
 $footerLinks = $cms->getFooterLinks();
@@ -3920,205 +3921,60 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             <div class="lancamentos-carousel-container">
                 <div class="lancamentos-grid" id="todosCarousel">
                     
-                    <!-- Produto 1: Kit Unhas Profissional -->
-                    <div class="produto-card">
-                        <div class="produto-image">
-                            <div class="produto-placeholder">💅</div>
-                        </div>
-                        <div class="produto-content">
-                            <h3 class="produto-title">Kit Unhas Profissional</h3>
-                            <p class="produto-description">Kit completo com esmaltes gel, lixa e acessórios premium</p>
-                            <div class="produto-price">R$ 89,90</div>
-                            <div class="produto-actions">
-                                <button class="btn-add-cart" onclick="addToCart(101, 'Kit Unhas Profissional', event)">
-                                    🛒 Adicionar
-                                </button>
-                                <button class="btn-buy-now" onclick="buyNow(101, event)">
-                                    Comprar
-                                </button>
+                    <?php if (!empty($allProducts)): ?>
+                        <?php foreach ($allProducts as $product): ?>
+                        <!-- Produto: <?php echo htmlspecialchars($product['nome']); ?> -->
+                        <div class="produto-card">
+                            <div class="produto-image">
+                                <?php if (!empty($product['imagem_principal'])): ?>
+                                <img src="../admin/assets/images/produtos/<?php echo htmlspecialchars($product['imagem_principal']); ?>" 
+                                     alt="<?php echo htmlspecialchars($product['nome']); ?>"
+                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;"
+                                     onerror="this.parentElement.innerHTML='<div class=\'produto-placeholder\'>💅</div>';">
+                                <?php else: ?>
+                                <div class="produto-placeholder">💅</div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="produto-content">
+                                <h3 class="produto-title"><?php echo htmlspecialchars($product['nome']); ?></h3>
+                                <p class="produto-description"><?php echo htmlspecialchars(substr($product['descricao'] ?? '', 0, 80)); ?><?php echo strlen($product['descricao'] ?? '') > 80 ? '...' : ''; ?></p>
+                                <div class="produto-price">
+                                    <?php if (isOnSale($product)): ?>
+                                        <span style="text-decoration: line-through; opacity: 0.6; font-size: 0.85em; margin-right: 8px;">
+                                            <?php echo formatPrice($product['preco']); ?>
+                                        </span>
+                                        <span style="color: var(--color-magenta); font-weight: 700;">
+                                            <?php echo formatPrice($product['preco_promocional']); ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <?php echo formatPrice($product['preco']); ?>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="produto-actions">
+                                    <button class="btn-add-cart" onclick="addToCart(<?php echo $product['id']; ?>, '<?php echo htmlspecialchars($product['nome'], ENT_QUOTES); ?>', event)">
+                                        🛒 Adicionar
+                                    </button>
+                                    <button class="btn-buy-now" onclick="buyNow(<?php echo $product['id']; ?>, event)">
+                                        Comprar
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- Produto 2: Cílios Premium Volume -->
-                    <div class="produto-card">
-                        <div class="produto-image">
-                            <div class="produto-placeholder">✨</div>
-                        </div>
-                        <div class="produto-content">
-                            <h3 class="produto-title">Cílios Premium Volume</h3>
-                            <p class="produto-description">Cílios postiços ultra naturais para volume perfeito</p>
-                            <div class="produto-price">R$ 45,90</div>
-                            <div class="produto-actions">
-                                <button class="btn-add-cart" onclick="addToCart(102, 'Cílios Premium Volume', event)">
-                                    🛒 Adicionar
-                                </button>
-                                <button class="btn-buy-now" onclick="buyNow(102, event)">
-                                    Comprar
-                                </button>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <!-- Fallback: Nenhum produto -->
+                        <div class="produto-card">
+                            <div class="produto-image">
+                                <div class="produto-placeholder">💅</div>
+                            </div>
+                            <div class="produto-content">
+                                <h3 class="produto-title">Em Breve</h3>
+                                <p class="produto-description">Novos produtos serão adicionados em breve. Fique atento!</p>
+                                <div class="produto-price">R$ 0,00</div>
+                                <button class="produto-btn" disabled>Em Breve</button>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- Produto 3: Base Fortalecedora -->
-                    <div class="produto-card">
-                        <div class="produto-image">
-                            <div class="produto-placeholder">💪</div>
-                        </div>
-                        <div class="produto-content">
-                            <h3 class="produto-title">Base Fortalecedora</h3>
-                            <p class="produto-description">Fortalece e protege unhas fracas com vitaminas</p>
-                            <div class="produto-price">R$ 32,90</div>
-                            <div class="produto-actions">
-                                <button class="btn-add-cart" onclick="addToCart(103, 'Base Fortalecedora', event)">
-                                    🛒 Adicionar
-                                </button>
-                                <button class="btn-buy-now" onclick="buyNow(103, event)">
-                                    Comprar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Produto 4: Kit Alongamento Cílios -->
-                    <div class="produto-card">
-                        <div class="produto-image">
-                            <div class="produto-placeholder">👁️</div>
-                        </div>
-                        <div class="produto-content">
-                            <h3 class="produto-title">Kit Alongamento Cílios</h3>
-                            <p class="produto-description">Kit profissional completo para alongamento de cílios</p>
-                            <div class="produto-price">R$ 78,90</div>
-                            <div class="produto-actions">
-                                <button class="btn-add-cart" onclick="addToCart(104, 'Kit Alongamento Cílios', event)">
-                                    🛒 Adicionar
-                                </button>
-                                <button class="btn-buy-now" onclick="buyNow(104, event)">
-                                    Comprar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Produto 5: Removedor Profissional -->
-                    <div class="produto-card">
-                        <div class="produto-image">
-                            <div class="produto-placeholder">🧽</div>
-                        </div>
-                        <div class="produto-content">
-                            <h3 class="produto-title">Removedor Profissional</h3>
-                            <p class="produto-description">Remove esmalte gel sem danificar as unhas naturais</p>
-                            <div class="produto-price">R$ 25,90</div>
-                            <div class="produto-actions">
-                                <button class="btn-add-cart" onclick="addToCart(105, 'Removedor Profissional', event)">
-                                    🛒 Adicionar
-                                </button>
-                                <button class="btn-buy-now" onclick="buyNow(105, event)">
-                                    Comprar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Produto 6: Primer Adesivo -->
-                    <div class="produto-card">
-                        <div class="produto-image">
-                            <div class="produto-placeholder">🔬</div>
-                        </div>
-                        <div class="produto-content">
-                            <h3 class="produto-title">Primer Adesivo</h3>
-                            <p class="produto-description">Prepara a unha para máxima aderência do esmalte gel</p>
-                            <div class="produto-price">R$ 29,90</div>
-                            <div class="produto-actions">
-                                <button class="btn-add-cart" onclick="addToCart(106, 'Primer Adesivo', event)">
-                                    🛒 Adicionar
-                                </button>
-                                <button class="btn-buy-now" onclick="buyNow(106, event)">
-                                    Comprar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Produto 7: Óleo Hidratante -->
-                    <div class="produto-card">
-                        <div class="produto-image">
-                            <div class="produto-placeholder">💧</div>
-                        </div>
-                        <div class="produto-content">
-                            <h3 class="produto-title">Óleo Hidratante</h3>
-                            <p class="produto-description">Hidrata cutículas e pele ao redor das unhas</p>
-                            <div class="produto-price">R$ 22,90</div>
-                            <div class="produto-actions">
-                                <button class="btn-add-cart" onclick="addToCart(107, 'Óleo Hidratante', event)">
-                                    🛒 Adicionar
-                                </button>
-                                <button class="btn-buy-now" onclick="buyNow(107, event)">
-                                    Comprar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Produto 8: Kit Manutenção -->
-                    <div class="produto-card">
-                        <div class="produto-image">
-                            <div class="produto-placeholder">🛠️</div>
-                        </div>
-                        <div class="produto-content">
-                            <h3 class="produto-title">Kit Manutenção</h3>
-                            <p class="produto-description">Ferramentas essenciais para manutenção profissional</p>
-                            <div class="produto-price">R$ 67,90</div>
-                            <div class="produto-actions">
-                                <button class="btn-add-cart" onclick="addToCart(108, 'Kit Manutenção', event)">
-                                    🛒 Adicionar
-                                </button>
-                                <button class="btn-buy-now" onclick="buyNow(108, event)">
-                                    Comprar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Produto 9: Top Coat Brilho -->
-                    <div class="produto-card">
-                        <div class="produto-image">
-                            <div class="produto-placeholder">✨</div>
-                        </div>
-                        <div class="produto-content">
-                            <h3 class="produto-title">Top Coat Brilho</h3>
-                            <p class="produto-description">Finalização com brilho intenso e duração prolongada</p>
-                            <div class="produto-price">R$ 27,90</div>
-                            <div class="produto-actions">
-                                <button class="btn-add-cart" onclick="addToCart(109, 'Top Coat Brilho', event)">
-                                    🛒 Adicionar
-                                </button>
-                                <button class="btn-buy-now" onclick="buyNow(109, event)">
-                                    Comprar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Produto 10: Cabine UV/LED -->
-                    <div class="produto-card">
-                        <div class="produto-image">
-                            <div class="produto-placeholder">💡</div>
-                        </div>
-                        <div class="produto-content">
-                            <h3 class="produto-title">Cabine UV/LED</h3>
-                            <p class="produto-description">Secagem profissional rápida e eficiente</p>
-                            <div class="produto-price">R$ 159,90</div>
-                            <div class="produto-actions">
-                                <button class="btn-add-cart" onclick="addToCart(110, 'Cabine UV/LED', event)">
-                                    🛒 Adicionar
-                                </button>
-                                <button class="btn-buy-now" onclick="buyNow(110, event)">
-                                    Comprar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <?php endif; ?>
                 </div>
                 
                 <!-- Setas de navegação -->
