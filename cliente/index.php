@@ -423,6 +423,8 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             gap: 10px !important;
             flex-shrink: 0 !important;
             margin-right: 0 !important;
+            position: relative;
+            z-index: 5; /* Garantir que toda a área está na frente */
         }
 
         header.header-loja .nav-right .search-panel,
@@ -492,6 +494,8 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
             overflow: hidden;
+            z-index: 10; /* Maior que btn-cart */
+            pointer-events: auto;
         }
         
         .btn-icon::before {
@@ -533,7 +537,13 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 6px 20px rgba(230, 0, 126, 0.25);
             position: relative;
-            overflow: hidden;
+            overflow: visible;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            z-index: 1; /* Menor que outros botões */
+            pointer-events: auto;
         }
         
         .btn-cart::before {
@@ -545,11 +555,31 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
             transition: left 0.5s ease;
+            border-radius: 25px;
+            z-index: 0;
+        }
+
+        .btn-cart > *:not(.cart-count) {
+            position: relative;
+            z-index: 1;
+            pointer-events: none; /* Não interceptar cliques */
+        }
+
+        .btn-cart .cart-count {
+            position: absolute !important;
+            top: -6px !important;
+            right: -6px !important;
+            z-index: 10;
+            pointer-events: none;
         }
         
         .btn-cart:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(230, 0, 126, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(230, 0, 126, 0.3);
+        }
+        
+        .btn-cart:active {
+            transform: translateY(0);
         }
         
         .btn-cart:hover::before {
@@ -558,22 +588,31 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         
         .cart-count {
             background: white;
-            color: var(--color-magenta);
+            color: #E6007E;
             border-radius: 50%;
             width: 20px;
             height: 20px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 700;
-            display: inline-flex;
+            font-variant-numeric: tabular-nums;
+            display: flex;
             align-items: center;
             justify-content: center;
-            margin-left: 8px;
-            animation: bounce 0.5s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+            line-height: 1;
+            padding: 0;
+            text-align: center;
         }
         
         @keyframes bounce {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.2); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 2px 8px rgba(230, 0, 126, 0.4); }
+            50% { box-shadow: 0 4px 16px rgba(230, 0, 126, 0.8); }
         }
         
         /* Botões de Autenticação */
@@ -627,6 +666,9 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             cursor: pointer;
             font-size: 1.1rem;
             transition: all 0.3s;
+            position: relative;
+            z-index: 10; /* Maior que btn-cart */
+            pointer-events: auto;
         }
         
         .user-dropdown-btn:hover {
@@ -1161,6 +1203,54 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             transform: translateY(-1px);
         }
         
+        /* Botões de ação do produto */
+        .produto-actions {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+            margin-top: auto;
+        }
+        
+        .btn-add-cart {
+            flex: 1;
+            background: white;
+            color: var(--color-magenta);
+            border: 2px solid var(--color-magenta);
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        
+        .btn-add-cart:hover {
+            background: var(--color-rose-light);
+            transform: translateY(-1px);
+        }
+        
+        .btn-buy-now {
+            flex: 1;
+            background: linear-gradient(135deg, var(--color-magenta) 0%, var(--color-magenta-dark) 100%);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+        
+        .btn-buy-now:hover {
+            background: linear-gradient(135deg, var(--color-magenta-dark) 0%, #a0005a 100%);
+            transform: translateY(-1px);
+        }
+        
         .carousel-nav-arrows {
             position: absolute;
             top: 50%;
@@ -1302,6 +1392,17 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             .produto-btn {
                 padding: 10px 0;
                 font-size: 0.85rem;
+            }
+            
+            .produto-actions {
+                flex-direction: column;
+                gap: 6px;
+            }
+            
+            .btn-add-cart,
+            .btn-buy-now {
+                padding: 8px 12px;
+                font-size: 0.8rem;
             }
             
             .ver-todos-btn button {
@@ -2849,6 +2950,9 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                 border-radius: 22px;
                 cursor: pointer;
                 transition: all 0.3s ease;
+                position: relative;
+                z-index: 10; /* Maior que btn-cart */
+                pointer-events: auto;
             }
             
             .mobile-menu-toggle:hover {
@@ -2867,6 +2971,9 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                 border-radius: 22px;
                 cursor: pointer;
                 transition: all 0.3s ease;
+                position: relative;
+                z-index: 10; /* Maior que btn-cart */
+                pointer-events: auto;
             }
             
             .mobile-menu-toggle:hover {
@@ -3027,6 +3134,14 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             .btn-cart {
                 padding: 10px 16px;
                 font-size: 0.85rem;
+            }
+
+            .btn-cart span:not(.cart-count) {
+                display: none;
+            }
+
+            .btn-cart {
+                padding: 10px 14px;
             }
             
             body {
@@ -3251,6 +3366,28 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             to {
                 opacity: 1;
                 transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100px);
             }
         }
 
@@ -3489,7 +3626,7 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                 <!-- Área do usuário -->
                 <div class="user-area">
                     <!-- Menu Mobile Toggle (apenas para mobile) -->
-                    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+                    <button class="mobile-menu-toggle" onclick="toggleMobileMenu(event)">
                         <div class="hamburger">
                             <span></span>
                             <span></span>
@@ -3510,7 +3647,7 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                 <?php else: ?>
                     <!-- Dropdown do usuário logado -->
                     <div class="user-dropdown">
-                        <button class="user-dropdown-btn" onclick="toggleUserDropdown()">
+                        <button class="user-dropdown-btn" onclick="toggleUserDropdown(event)">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                             </svg>
@@ -3525,9 +3662,10 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                 <?php endif; ?>
                 
                 <button class="btn-cart" id="cartButton" title="Carrinho">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 6px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
                     </svg>
+                    <span>Carrinho</span>
                     <span class="cart-count" id="cartBadge">0</span>
                 </button>
             </div>
@@ -3539,7 +3677,7 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
     </header>
     
     <!-- Mobile Menu Overlay -->
-    <div class="mobile-menu-overlay" onclick="closeMobileMenu()"></div>
+    <div class="mobile-menu-overlay" onclick="closeMobileMenu(event)"></div>
     
     <!-- Mobile Menu -->
     <nav class="mobile-menu">
@@ -3719,7 +3857,14 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                                         <?php echo formatPrice($product['preco']); ?>
                                     <?php endif; ?>
                                 </div>
-                                <button class="produto-btn" onclick="window.location.href='/cliente/produto.php?id=<?php echo $product['id']; ?>'">Ver Produto</button>
+                                <div class="produto-actions">
+                                    <button class="btn-add-cart" onclick="addToCart(<?php echo $product['id']; ?>, '<?php echo htmlspecialchars($product['nome'], ENT_QUOTES); ?>', event)">
+                                        🛒 Adicionar
+                                    </button>
+                                    <button class="btn-buy-now" onclick="buyNow(<?php echo $product['id']; ?>, event)">
+                                        Comprar
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <?php endforeach; ?>
@@ -3784,7 +3929,14 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                             <h3 class="produto-title">Kit Unhas Profissional</h3>
                             <p class="produto-description">Kit completo com esmaltes gel, lixa e acessórios premium</p>
                             <div class="produto-price">R$ 89,90</div>
-                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                            <div class="produto-actions">
+                                <button class="btn-add-cart" onclick="addToCart(101, 'Kit Unhas Profissional', event)">
+                                    🛒 Adicionar
+                                </button>
+                                <button class="btn-buy-now" onclick="buyNow(101, event)">
+                                    Comprar
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
@@ -3797,7 +3949,14 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                             <h3 class="produto-title">Cílios Premium Volume</h3>
                             <p class="produto-description">Cílios postiços ultra naturais para volume perfeito</p>
                             <div class="produto-price">R$ 45,90</div>
-                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                            <div class="produto-actions">
+                                <button class="btn-add-cart" onclick="addToCart(102, 'Cílios Premium Volume', event)">
+                                    🛒 Adicionar
+                                </button>
+                                <button class="btn-buy-now" onclick="buyNow(102, event)">
+                                    Comprar
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
@@ -3810,7 +3969,14 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                             <h3 class="produto-title">Base Fortalecedora</h3>
                             <p class="produto-description">Fortalece e protege unhas fracas com vitaminas</p>
                             <div class="produto-price">R$ 32,90</div>
-                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                            <div class="produto-actions">
+                                <button class="btn-add-cart" onclick="addToCart(103, 'Base Fortalecedora', event)">
+                                    🛒 Adicionar
+                                </button>
+                                <button class="btn-buy-now" onclick="buyNow(103, event)">
+                                    Comprar
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
@@ -3823,7 +3989,14 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                             <h3 class="produto-title">Kit Alongamento Cílios</h3>
                             <p class="produto-description">Kit profissional completo para alongamento de cílios</p>
                             <div class="produto-price">R$ 78,90</div>
-                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                            <div class="produto-actions">
+                                <button class="btn-add-cart" onclick="addToCart(104, 'Kit Alongamento Cílios', event)">
+                                    🛒 Adicionar
+                                </button>
+                                <button class="btn-buy-now" onclick="buyNow(104, event)">
+                                    Comprar
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
@@ -3836,7 +4009,14 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                             <h3 class="produto-title">Removedor Profissional</h3>
                             <p class="produto-description">Remove esmalte gel sem danificar as unhas naturais</p>
                             <div class="produto-price">R$ 25,90</div>
-                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                            <div class="produto-actions">
+                                <button class="btn-add-cart" onclick="addToCart(105, 'Removedor Profissional', event)">
+                                    🛒 Adicionar
+                                </button>
+                                <button class="btn-buy-now" onclick="buyNow(105, event)">
+                                    Comprar
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
@@ -3849,7 +4029,14 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                             <h3 class="produto-title">Primer Adesivo</h3>
                             <p class="produto-description">Prepara a unha para máxima aderência do esmalte gel</p>
                             <div class="produto-price">R$ 29,90</div>
-                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                            <div class="produto-actions">
+                                <button class="btn-add-cart" onclick="addToCart(106, 'Primer Adesivo', event)">
+                                    🛒 Adicionar
+                                </button>
+                                <button class="btn-buy-now" onclick="buyNow(106, event)">
+                                    Comprar
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
@@ -3862,7 +4049,14 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                             <h3 class="produto-title">Óleo Hidratante</h3>
                             <p class="produto-description">Hidrata cutículas e pele ao redor das unhas</p>
                             <div class="produto-price">R$ 22,90</div>
-                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                            <div class="produto-actions">
+                                <button class="btn-add-cart" onclick="addToCart(107, 'Óleo Hidratante', event)">
+                                    🛒 Adicionar
+                                </button>
+                                <button class="btn-buy-now" onclick="buyNow(107, event)">
+                                    Comprar
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
@@ -3875,7 +4069,14 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                             <h3 class="produto-title">Kit Manutenção</h3>
                             <p class="produto-description">Ferramentas essenciais para manutenção profissional</p>
                             <div class="produto-price">R$ 67,90</div>
-                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                            <div class="produto-actions">
+                                <button class="btn-add-cart" onclick="addToCart(108, 'Kit Manutenção', event)">
+                                    🛒 Adicionar
+                                </button>
+                                <button class="btn-buy-now" onclick="buyNow(108, event)">
+                                    Comprar
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
@@ -3888,7 +4089,14 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                             <h3 class="produto-title">Top Coat Brilho</h3>
                             <p class="produto-description">Finalização com brilho intenso e duração prolongada</p>
                             <div class="produto-price">R$ 27,90</div>
-                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                            <div class="produto-actions">
+                                <button class="btn-add-cart" onclick="addToCart(109, 'Top Coat Brilho', event)">
+                                    🛒 Adicionar
+                                </button>
+                                <button class="btn-buy-now" onclick="buyNow(109, event)">
+                                    Comprar
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
@@ -3901,7 +4109,14 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                             <h3 class="produto-title">Cabine UV/LED</h3>
                             <p class="produto-description">Secagem profissional rápida e eficiente</p>
                             <div class="produto-price">R$ 159,90</div>
-                            <button class="produto-btn">Adicionar ao Carrinho</button>
+                            <div class="produto-actions">
+                                <button class="btn-add-cart" onclick="addToCart(110, 'Cabine UV/LED', event)">
+                                    🛒 Adicionar
+                                </button>
+                                <button class="btn-buy-now" onclick="buyNow(110, event)">
+                                    Comprar
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -4893,29 +5108,32 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             });
         }, observerOptions);
 
-        // Menu Mobile
-        function toggleMobileMenu() {
-            const hamburger = document.querySelector('.hamburger');
-            const overlay = document.querySelector('.mobile-menu-overlay');
-            const menu = document.querySelector('.mobile-menu');
-            
-            hamburger.classList.toggle('open');
-            overlay.classList.toggle('active');
-            menu.classList.toggle('active');
-        }
+        // Menu Mobile - removida duplicata, versão mantida abaixo
         
-        function closeMobileMenu() {
+        function closeMobileMenu(event) {
+            if (event) {
+                event.stopPropagation();
+            }
+            
             const hamburger = document.querySelector('.hamburger');
             const overlay = document.querySelector('.mobile-menu-overlay');
             const menu = document.querySelector('.mobile-menu');
             
-            hamburger.classList.remove('open');
-            overlay.classList.remove('active');
-            menu.classList.remove('active');
+            if (hamburger) hamburger.classList.remove('open');
+            if (overlay) overlay.classList.remove('active');
+            if (menu) menu.classList.remove('active');
+            
+            // Restaurar scroll do body
+            document.body.style.overflow = '';
         }
         
         /* ===== MENU MOBILE PREMIUM =====*/
-        function toggleMobileMenu() {
+        function toggleMobileMenu(event) {
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+            
             const hamburger = document.querySelector('.hamburger');
             const overlay = document.querySelector('.mobile-menu-overlay');
             const menu = document.querySelector('.mobile-menu');
@@ -4968,6 +5186,11 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         if (searchToggle && searchPanel) {
             searchToggle.addEventListener('click', (e) => {
                 e.preventDefault();
+                e.stopPropagation(); // Impedir propagação do evento
+                
+                console.log('🔍 Botão de pesquisa clicado');
+                console.log('   - Target:', e.target);
+                console.log('   - ID:', e.currentTarget.id);
                 
                 // Usar requestAnimationFrame para suavizar a animação
                 requestAnimationFrame(() => {
@@ -5116,42 +5339,8 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         });
 
         // ===== CARRINHO (FUNCIONALIDADE BÁSICA) =====
-        let carrinhoItens = 0;
-
-        function adicionarAoCarrinho(produtoNome) {
-            carrinhoItens++;
-            
-            // Atualizar contador do carrinho usando a nova estrutura
-            updateCartCount(carrinhoItens);
-            
-            // Feedback visual premium
-            // Usar novo sistema de notificações
-            showNotification(`🛒 ${produtoNome} adicionado ao carrinho!`, 'success');
-            
-            // Aqui seria implementada a lógica real do carrinho
-            // Salvar no localStorage ou enviar para servidor
-        }
-
-        // Adicionar event listeners aos botões de adicionar ao carrinho
-        document.addEventListener('DOMContentLoaded', function() {
-            const botoes = document.querySelectorAll('.btn-add-cart');
-            
-            botoes.forEach(function(botao) {
-                botao.addEventListener('click', function() {
-                    // Pegar dados do produto do elemento pai
-                    const cardProduto = this.closest('.produto-card-dz');
-                    const nomeProduto = cardProduto ? cardProduto.querySelector('h3').textContent : 'Produto';
-                    
-                    // Animação no botão
-                    this.style.transform = 'scale(0.95)';
-                    setTimeout(() => {
-                        this.style.transform = 'scale(1)';
-                    }, 150);
-                    
-                    adicionarAoCarrinho(nomeProduto.trim());
-                });
-            });
-        });
+        // Função adicionarAoCarrinho() removida - agora usamos addToCart() diretamente
+        // Event listeners para .btn-add-cart removidos - usamos onclick direto no HTML
 
         // ===== NEWSLETTER FORM =====
         document.addEventListener('DOMContentLoaded', function() {
@@ -5402,13 +5591,18 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         });
 
         // ===== CONSOLE LOG PARA DEBUG =====
-        console.log('D&Z E-commerce carregado com sucesso!');
-        console.log('Design premium para mulheres que sabem o que querem');
-        console.log('Navbar elementos:', {
+        console.log('🎨 D&Z E-commerce carregado com sucesso!');
+        console.log('💅 Design premium para mulheres que sabem o que querem');
+        console.log('📦 Navbar elementos:', {
             hamburger: document.querySelector('.hamburger'),
             overlay: document.querySelector('.mobile-menu-overlay'),
             menu: document.querySelector('.mobile-menu')
         });
+        console.log('');
+        console.log('🛒 CARRINHO:');
+        console.log('  Status: Aguardando inicialização...');
+        console.log('  Use clearCart() no console para limpar dados corrompidos');
+        console.log('');
         
         // ===== CARROSSEL BANNER =====
         let currentSlide = 0;
@@ -5441,6 +5635,306 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         setInterval(() => {
             nextSlide();
         }, bannerInterval);
+        
+        // ===== FUNÇÕES DO CARRINHO =====
+        function addToCart(productId, productName, event) {
+            console.log('');
+            console.log('🛒 ========== ADICIONAR AO CARRINHO ==========');
+            console.log('📋 Parâmetros recebidos:');
+            console.log('   - productId:', productId, '(tipo:', typeof productId + ')');
+            console.log('   - productName:', productName);
+            console.log('   - event:', event);
+            
+            // Validar productId PRIMEIRO
+            if (!productId || productId === '' || productId === 0 || productId === '0') {
+                console.error('❌ ERRO: productId inválido:', productId);
+                showNotification('❌ Erro: ID do produto inválido', 'error');
+                return;
+            }
+            
+            // Se não recebeu o evento, tenta pegar do window.event
+            const evt = event || window.event;
+            
+            if (!evt) {
+                console.error('❌ ERRO: Evento não disponível');
+                showNotification('❌ Erro ao adicionar produto', 'error');
+                return;
+            }
+            
+            console.log('✅ Event disponível:', evt);
+            console.log('   - target:', evt.target);
+            console.log('   - target.tagName:', evt.target.tagName);
+            console.log('   - target.className:', evt.target.className);
+            
+            // Buscar informações do produto
+            const productCard = evt.target.closest('.produto-card');
+            
+            if (!productCard) {
+                console.error('❌ ERRO: .produto-card não encontrado!');
+                console.log('   - Tentando buscar a partir de:', evt.target);
+                console.log('   - Parent:', evt.target.parentElement);
+                console.log('   - Parent.parent:', evt.target.parentElement?.parentElement);
+                showNotification('❌ Erro ao localizar produto', 'error');
+                return;
+            }
+            
+            console.log('✅ Card do produto encontrado');
+            console.log('   - Card HTML:', productCard.outerHTML.substring(0, 200) + '...');
+            
+            // Buscar todos os elementos necessários - tentar múltiplas estratégias
+            let priceElement = productCard.querySelector('.produto-price');
+            let imgElement = productCard.querySelector('img');
+            let titleElement = productCard.querySelector('.produto-title');
+            
+            // Se não encontrou o título, buscar por h3
+            if (!titleElement) {
+                titleElement = productCard.querySelector('h3');
+                console.log('⚠️ Título não encontrado por .produto-title, tentando h3...');
+            }
+            
+            // Se não encontrou imagem, buscar dentro de .produto-image
+            if (!imgElement) {
+                const imgContainer = productCard.querySelector('.produto-image');
+                if (imgContainer) {
+                    imgElement = imgContainer.querySelector('img');
+                    console.log('⚠️ Imagem não encontrada diretamente, tentando dentro de .produto-image...');
+                }
+            }
+            
+            console.log('📦 Elementos do card:');
+            console.log('   - priceElement:', priceElement ? '✅ encontrado' : '❌ NÃO encontrado');
+            console.log('   - imgElement:', imgElement ? '✅ encontrado' : '❌ NÃO encontrado');
+            console.log('   - titleElement:', titleElement ? '✅ encontrado' : '❌ NÃO encontrado');
+            
+            if (priceElement) {
+                console.log('   - Texto do preço:', priceElement.textContent.trim());
+            }
+            if (titleElement) {
+                console.log('   - Texto do título:', titleElement.textContent.trim());
+            }
+            if (imgElement) {
+                console.log('   - Src da imagem:', imgElement.src ? (imgElement.src.substring(0, 80) + '...') : 'sem src');
+            }
+            
+            // Extrair nome do produto (usar do elemento se disponível)
+            const name = titleElement ? titleElement.textContent.trim() : (productName || 'Produto sem nome');
+            console.log('📝 Nome extraído:', name);
+            
+            // Extrair preço (pode ser promocional ou normal)
+            let price = 0;
+            if (priceElement) {
+                const priceText = priceElement.textContent.trim();
+                
+                // Buscar todos os valores R$
+                const priceMatch = priceText.match(/R\$\s*([\d.,]+)/g);
+                console.log('💰 Regex de preços:', priceMatch);
+                
+                if (priceMatch && priceMatch.length > 0) {
+                    // Se houver dois preços (riscado + promocional), pegar o último
+                    const lastPrice = priceMatch[priceMatch.length - 1];
+                    console.log('   - Preço selecionado:', lastPrice);
+                    
+                    // Remover R$ e espaços
+                    let priceStr = lastPrice.replace('R$', '').trim();
+                    
+                    // Converter formato brasileiro (1.234,56) para formato numérico (1234.56)
+                    priceStr = priceStr.replace(/\./g, '').replace(',', '.');
+                    console.log('   - String limpa:', priceStr);
+                    
+                    price = parseFloat(priceStr);
+                    console.log('   - Número convertido:', price);
+                    
+                    if (isNaN(price) || price < 0) {
+                        console.error('❌ Preço inválido após conversão!');
+                        price = 0;
+                    }
+                } else {
+                    console.warn('⚠️ Nenhum preço encontrado no regex');
+                }
+            } else {
+                console.warn('⚠️ Elemento de preço não encontrado no card');
+            }
+            
+            // Buscar imagem do produto
+            const image = imgElement ? imgElement.src : '💅';
+            console.log('🖼️ Imagem:', image ? (image.substring(0, 100) + '...') : 'emoji padrão');
+            
+            // Garantir que productId seja número
+            const numericProductId = parseInt(productId);
+            
+            if (isNaN(numericProductId)) {
+                console.error('❌ ERRO: productId não é um número válido após parseInt:', productId);
+                showNotification('❌ Erro: ID inválido', 'error');
+                return;
+            }
+            
+            const newProductData = {
+                id: numericProductId,
+                name: name,
+                price: price,
+                qty: 1,
+                image: image
+            };
+            
+            console.log('');
+            console.log('📦 DADOS FINAIS DO PRODUTO:');
+            console.log(newProductData);
+            console.log('');
+            
+            // Obter carrinho do localStorage
+            let cart = JSON.parse(localStorage.getItem('dz_cart') || '[]');
+            
+            // Verificar se produto já existe no carrinho
+            const existingIndex = cart.findIndex(item => parseInt(item.id) === numericProductId);
+            
+            if (existingIndex >= 0) {
+                cart[existingIndex].qty += 1;
+                console.log('✅ Produto já existe, quantidade atualizada para:', cart[existingIndex].qty);
+            } else {
+                cart.push(newProductData);
+                console.log('✅ Novo produto adicionado ao carrinho');
+            }
+            
+            // Salvar carrinho atualizado
+            localStorage.setItem('dz_cart', JSON.stringify(cart));
+            console.log('💾 Carrinho salvo no localStorage');
+            console.log('🛒 Carrinho completo:', cart);
+            console.log('========================================');
+            console.log('');
+            
+            // Mostrar notificação
+            showNotification('🛒 ' + name + ' adicionado ao carrinho!', 'success');
+            
+            // Atualizar contador do carrinho
+            updateCartBadge();
+            
+            // Atualizar mini carrinho SE estiver aberto (mas NÃO abre automaticamente)
+            if (typeof renderMiniCart === 'function') {
+                renderMiniCart();
+            }
+            
+            // IMPORTANTE: NÃO abrir o carrinho automaticamente
+            // O carrinho só deve abrir quando clicar no botão do header
+            console.log('✅ Produto adicionado. Carrinho NÃO será aberto automaticamente.');
+        }
+        
+        function buyNow(productId, event) {
+            console.log('🛍️ Comprar Agora - productId:', productId);
+            // Se não recebeu o evento, tenta pegar do window.event
+            const evt = event || window.event;
+            
+            // Buscar informações do produto diretamente
+            const productCard = evt.target.closest('.produto-card');
+            
+            if (!productCard) {
+                console.error('Card do produto não encontrado');
+                return;
+            }
+            
+            const titleElement = productCard.querySelector('.produto-title');
+            const productName = titleElement ? titleElement.textContent.trim() : 'Produto';
+            
+            // Criar um novo evento sintético para passar para addToCart
+            const syntheticEvent = {
+                target: evt.target,
+                currentTarget: evt.currentTarget
+            };
+            
+            // Adicionar ao carrinho usando a função addToCart
+            addToCart(productId, productName, syntheticEvent);
+            
+            // Redirecionar para o carrinho após um breve delay
+            setTimeout(() => {
+                window.location.href = '/cliente/pages/carrinho.php';
+            }, 300);
+        }
+        
+        function showNotification(message, type = 'success') {
+            // Criar elemento de notificação
+            const notification = document.createElement('div');
+            
+            // Definir cor baseada no tipo
+            let bgColor;
+            switch(type) {
+                case 'success':
+                    bgColor = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                    break;
+                case 'error':
+                    bgColor = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+                    break;
+                case 'info':
+                    bgColor = 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+                    break;
+                default:
+                    bgColor = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+            }
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                background: ${bgColor};
+                color: white;
+                padding: 16px 24px;
+                border-radius: 12px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+                z-index: 10000;
+                font-weight: 600;
+                animation: slideInRight 0.3s ease;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Remover após 3 segundos
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+        
+        function updateCartCount() {
+            // Atualizar contador do carrinho no header
+            const cart = JSON.parse(localStorage.getItem('dz_cart') || '[]');
+            const totalItems = cart.reduce((sum, item) => {
+                const itemQty = parseInt(item.qty) || 0;
+                return sum + itemQty;
+            }, 0);
+            
+            // Buscar badge por ID e classe para compatibilidade
+            const cartBadge = document.getElementById('cartBadge') || document.querySelector('.cart-count');
+            const cartButton = document.getElementById('cartButton');
+            
+            if (cartBadge) {
+                cartBadge.textContent = totalItems;
+                
+                if (totalItems > 0) {
+                    cartBadge.style.display = 'flex';
+                    // Adicionar classe especial ao botão quando tem itens
+                    if (cartButton) {
+                        cartButton.classList.add('has-items');
+                    }
+                } else {
+                    cartBadge.style.display = 'none';
+                    // Remover classe quando vazio
+                    if (cartButton) {
+                        cartButton.classList.remove('has-items');
+                    }
+                }
+                
+                // Animação de bounce
+                cartBadge.style.animation = 'none';
+                setTimeout(() => {
+                    cartBadge.style.animation = 'bounce 0.5s ease';
+                }, 10);
+            }
+        }
+        
+        // Atualizar contador ao carregar página
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+            console.log('Carrinho inicializado:', JSON.parse(localStorage.getItem('dz_cart') || '[]'));
+        });
         
         // ===== CARROSSEL LANÇAMENTOS =====
         function scrollLancamentos(direction) {
@@ -5761,7 +6255,7 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             position: fixed;
             top: 0;
             right: 0;
-            width: 420px;
+            width: 380px;
             max-width: 100%;
             height: 100vh;
             background: white;
@@ -5781,21 +6275,22 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 24px;
-            border-bottom: 1px solid #f1f5f9;
+            padding: 20px;
+            border-bottom: 2px solid #f1f5f9;
+            flex-shrink: 0;
         }
 
         .mini-cart-header h2 {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 700;
             color: #1e293b;
             margin: 0;
         }
 
         .btn-close-cart {
-            width: 40px;
-            height: 40px;
-            border-radius: 20px;
+            width: 38px;
+            height: 38px;
+            border-radius: 19px;
             border: none;
             background: rgba(230, 0, 126, 0.1);
             color: var(--color-magenta);
@@ -5809,17 +6304,31 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         .btn-close-cart:hover {
             background: var(--color-magenta);
             color: white;
-            transform: rotate(90deg);
+            transform: rotate(90deg) scale(1.05);
+        }
+
+        .btn-close-cart:active {
+            transform: rotate(90deg) scale(0.95);
         }
 
         .mini-cart-body {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            overflow-x: hidden;
+            padding: 14px;
+            min-height: 200px;
+            max-height: calc(100vh - 320px);
+            background: #f8fafc;
         }
 
         .mini-cart-body::-webkit-scrollbar {
             width: 6px;
+        }
+
+        .mini-cart-body::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 3px;
+            margin: 4px 0;
         }
 
         .mini-cart-body::-webkit-scrollbar-thumb {
@@ -5827,35 +6336,41 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             border-radius: 3px;
         }
 
+        .mini-cart-body::-webkit-scrollbar-thumb:hover {
+            background: var(--color-magenta-dark);
+        }
+
         .cart-empty {
             text-align: center;
-            padding: 60px 20px;
+            padding: 40px 20px;
         }
 
         .cart-empty-icon {
-            font-size: 64px;
-            margin-bottom: 16px;
+            font-size: 56px;
+            margin-bottom: 12px;
             opacity: 0.3;
         }
 
         .cart-empty h3 {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: #64748b;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .cart-empty p {
             color: #94a3b8;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
         }
 
         .btn-continue-shopping {
             background: linear-gradient(135deg, var(--color-magenta) 0%, var(--color-magenta-dark) 100%);
             color: white;
-            padding: 12px 24px;
-            border-radius: 25px;
+            padding: 10px 20px;
+            border-radius: 22px;
             border: none;
             font-weight: 600;
+            font-size: 0.9rem;
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -5866,89 +6381,125 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         }
 
         .cart-item {
-            display: flex;
-            gap: 16px;
-            padding: 16px;
-            background: #fafafa;
+            display: grid;
+            grid-template-columns: 70px 1fr;
+            gap: 12px;
+            padding: 14px;
+            background: white;
             border-radius: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             position: relative;
             transition: all 0.3s ease;
+            align-items: start;
+            border: 1px solid #f1f5f9;
         }
 
         .cart-item:hover {
-            background: #f1f5f9;
-            transform: translateX(-4px);
+            background: #fafafa;
+            border-color: #e2e8f0;
+            box-shadow: 0 2px 8px rgba(230, 0, 126, 0.08);
+        }
+
+        .cart-item:last-child {
+            margin-bottom: 0;
         }
 
         .cart-item-image {
-            width: 80px;
-            height: 80px;
-            border-radius: 8px;
+            width: 70px;
+            height: 70px;
+            border-radius: 10px;
             background: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
+            font-size: 1.8rem;
             flex-shrink: 0;
             border: 1px solid #e2e8f0;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         }
 
         .cart-item-image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 10px;
+        }
+
+        .cart-item-image span {
+            display: block;
+            font-size: 2rem;
+            line-height: 1;
         }
 
         .cart-item-details {
-            flex: 1;
             display: flex;
             flex-direction: column;
             gap: 6px;
+            min-width: 0;
+            width: 100%;
         }
 
         .cart-item-name {
             font-weight: 600;
             color: #1e293b;
-            font-size: 0.95rem;
-            line-height: 1.3;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            word-break: break-word;
+            margin-bottom: 2px;
         }
 
         .cart-item-variant {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: #64748b;
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 2px;
         }
 
         .cart-item-price {
             font-weight: 700;
             color: var(--color-magenta);
-            font-size: 1.1rem;
+            font-size: 1.05rem;
+            margin: 0;
+            letter-spacing: -0.01em;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-variant-numeric: tabular-nums;
         }
 
         .cart-item-actions {
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 8px;
-            margin-top: auto;
+            margin-top: 6px;
         }
 
         .qty-control {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 4px;
             background: white;
             border-radius: 20px;
-            padding: 4px 8px;
-            border: 1px solid #e2e8f0;
+            padding: 4px 6px;
+            border: 1.5px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         }
 
         .qty-btn {
-            width: 24px;
-            height: 24px;
-            border-radius: 12px;
+            width: 26px;
+            height: 26px;
+            border-radius: 13px;
             border: none;
-            background: rgba(230, 0, 126, 0.1);
+            background: linear-gradient(135deg, rgba(230, 0, 126, 0.1) 0%, rgba(230, 0, 126, 0.15) 100%);
             color: var(--color-magenta);
             font-weight: 700;
             cursor: pointer;
@@ -5956,13 +6507,26 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 15px;
+            line-height: 1;
         }
 
-        .qty-btn:hover {
-            background: var(--color-magenta);
+        .qty-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--color-magenta) 0%, var(--color-magenta-dark) 100%);
             color: white;
             transform: scale(1.1);
+            box-shadow: 0 2px 6px rgba(230, 0, 126, 0.3);
+        }
+
+        .qty-btn:active:not(:disabled) {
+            transform: scale(0.95);
+        }
+
+        .qty-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            background: rgba(148, 163, 184, 0.1);
+            color: #94a3b8;
         }
 
         .qty-btn:disabled {
@@ -5971,17 +6535,19 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         }
 
         .qty-value {
-            min-width: 24px;
+            min-width: 28px;
             text-align: center;
-            font-weight: 600;
-            color: #1e293b;
-            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--color-magenta);
+            font-size: 0.95rem;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            letter-spacing: -0.02em;
         }
 
         .btn-remove-item {
-            width: 32px;
-            height: 32px;
-            border-radius: 16px;
+            width: 30px;
+            height: 30px;
+            border-radius: 15px;
             border: none;
             background: rgba(239, 68, 68, 0.1);
             color: #ef4444;
@@ -5990,35 +6556,48 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-left: auto;
+            flex-shrink: 0;
         }
 
         .btn-remove-item:hover {
             background: #ef4444;
             color: white;
-            transform: scale(1.1);
+            transform: scale(1.15);
+        }
+
+        .btn-remove-item:active {
+            transform: scale(0.95);
+        }
+
+        .btn-remove-item svg {
+            width: 15px;
+            height: 15px;
         }
 
         .free-shipping-bar {
-            padding: 16px;
+            padding: 14px;
             background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
-            border-radius: 12px;
-            margin-bottom: 16px;
+            border-radius: 10px;
+            margin-bottom: 14px;
+            border: 1px solid #fbcfe8;
         }
 
         .shipping-text {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #1e293b;
             margin-bottom: 8px;
             font-weight: 600;
+            text-align: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
 
         .shipping-progress {
-            height: 8px;
-            background: white;
-            border-radius: 4px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 3px;
             overflow: hidden;
             position: relative;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
         .shipping-progress-bar {
@@ -6055,26 +6634,36 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         }
 
         .mini-cart-footer {
-            padding: 20px 24px;
-            border-top: 1px solid #f1f5f9;
+            padding: 16px 20px;
+            border-top: 2px solid #f1f5f9;
             background: white;
+            flex-shrink: 0;
         }
 
         .mini-cart-subtotal {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
-            font-size: 1.1rem;
+            margin-bottom: 14px;
+            padding: 12px 14px;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #f1f5f9;
         }
 
         .mini-cart-subtotal span {
             color: #64748b;
+            font-weight: 600;
+            font-size: 0.95rem;
         }
 
         .mini-cart-subtotal strong {
             color: var(--color-magenta);
             font-size: 1.3rem;
+            font-weight: 700;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.02em;
         }
 
         .btn-view-cart {
@@ -6082,19 +6671,24 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             width: 100%;
             background: linear-gradient(135deg, var(--color-magenta) 0%, var(--color-magenta-dark) 100%);
             color: white;
-            padding: 16px;
-            border-radius: 12px;
+            padding: 15px;
+            border-radius: 10px;
             text-align: center;
             text-decoration: none;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 0.95rem;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(230, 0, 126, 0.25);
+            letter-spacing: 0.02em;
         }
 
         .btn-view-cart:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(230, 0, 126, 0.35);
+            box-shadow: 0 8px 24px rgba(230, 0, 126, 0.4);
+        }
+
+        .btn-view-cart:active {
+            transform: translateY(0);
         }
 
         /* Responsivo */
@@ -6103,20 +6697,113 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                 width: 100%;
             }
 
+            .cart-count {
+                width: 18px;
+                height: 18px;
+                font-size: 0.65rem;
+                top: -4px;
+                right: -4px;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+            }
+
             .cart-item {
-                flex-direction: column;
+                grid-template-columns: 60px 1fr;
+                gap: 10px;
+                padding: 10px;
             }
 
             .cart-item-image {
-                width: 100%;
-                height: 120px;
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .cart-item-image span {
+                font-size: 1.6rem;
+            }
+
+            .cart-item-name {
+                font-size: 0.85rem;
+            }
+
+            .cart-item-price {
+                font-size: 0.95rem;
+            }
+
+            .cart-item-actions {
+                flex-direction: row;
+                gap: 6px;
+            }
+
+            .qty-control {
+                padding: 3px 5px;
+                gap: 3px;
+            }
+
+            .qty-btn {
+                width: 24px;
+                height: 24px;
+                font-size: 14px;
+            }
+
+            .qty-value {
+                min-width: 24px;
+                font-size: 0.9rem;
+            }
+
+            .btn-remove-item {
+                width: 28px;
+                height: 28px;
+            }
+
+            .mini-cart-header {
+                padding: 16px;
+            }
+
+            .mini-cart-header h2 {
+                font-size: 1.25rem;
+            }
+
+            .mini-cart-body {
+                padding: 12px;
+            }
+
+            .mini-cart-footer {
+                padding: 12px 14px;
+            }
+
+            .mini-cart-subtotal {
+                padding: 10px 12px;
+                margin-bottom: 12px;
+            }
+
+            .mini-cart-subtotal span {
+                font-size: 0.9rem;
+            }
+
+            .mini-cart-subtotal strong {
+                font-size: 1.2rem;
+            }
+
+            .free-shipping-bar {
+                padding: 12px;
+            }
+
+            .btn-view-cart {
+                padding: 13px;
+                font-size: 0.9rem;
             }
         }
     </style>
 
     <script>
         // ===== DROPDOWN DO USUÁRIO =====
-        function toggleUserDropdown() {
+        function toggleUserDropdown(event) {
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+            
             const dropdown = document.querySelector('.user-dropdown');
             if (dropdown) {
                 dropdown.classList.toggle('active');
@@ -6143,44 +6830,86 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         function setCart(cart) {
             localStorage.setItem('dz_cart', JSON.stringify(cart));
         }
-
-        function addToCart(item) {
-            const cart = getCart();
-            const existingItem = cart.find(i => i.id === item.id && i.variant === item.variant);
-            
-            if (existingItem) {
-                existingItem.qty += item.qty || 1;
-            } else {
-                cart.push({
-                    id: item.id,
-                    name: item.name,
-                    price: item.price,
-                    qty: item.qty || 1,
-                    image: item.image || '💅',
-                    variant: item.variant || ''
-                });
-            }
-            
-            setCart(cart);
+        
+        // Função helper para debug - disponível no console
+        window.clearCart = function() {
+            localStorage.removeItem('dz_cart');
             updateCartBadge();
             renderMiniCart();
-            openMiniCart();
-            
-            showNotification(`🛒 ${item.name} adicionado ao carrinho!`, 'success');
-        }
+            console.log('🗑️ Carrinho limpo com sucesso!');
+        };
+        
+        window.viewCart = function() {
+            console.log('🛒 Carrinho atual:', getCart());
+            return getCart();
+        };
+
+        // Função addToCart foi movida para cima (linha ~5609) para evitar duplicação
 
         function removeFromCart(itemId, variant = '') {
+            console.log('🗑️ Tentando remover produto:', itemId, variant);
             let cart = getCart();
-            cart = cart.filter(item => !(item.id === itemId && item.variant === variant));
+            console.log('Carrinho antes da remoção:', cart);
+            
+            // Normalizar itemId (pode ser número ou string)
+            const numericItemId = (itemId === 0 || itemId === '0') ? 0 : (parseInt(itemId) || itemId);
+            console.log('ID normalizado para comparação:', numericItemId);
+            
+            const initialLength = cart.length;
+            
+            cart = cart.filter((item, index) => {
+                // Normalizar item.id também
+                const itemNumericId = (item.id === 0 || item.id === '0') ? 0 : (parseInt(item.id) || item.id);
+                const itemVariant = item.variant || '';
+                
+                const idsMatch = itemNumericId === numericItemId;
+                const variantsMatch = itemVariant === variant;
+                const shouldRemove = idsMatch && variantsMatch;
+                const shouldKeep = !shouldRemove;
+                
+                console.log(`Item ${index}:`, {
+                    originalId: item.id,
+                    numericId: itemNumericId,
+                    variant: itemVariant,
+                    comparandoCom: numericItemId,
+                    variantComparando: variant,
+                    idsMatch: idsMatch,
+                    variantsMatch: variantsMatch,
+                    shouldRemove: shouldRemove,
+                    shouldKeep: shouldKeep
+                });
+                
+                return shouldKeep;
+            });
+            
+            const removedCount = initialLength - cart.length;
+            console.log(`✅ Removidos ${removedCount} item(ns)`);
+            console.log('Carrinho após remoção:', cart);
+            
             setCart(cart);
             updateCartBadge();
-            renderMiniCart();
-            showNotification('Produto removido do carrinho', 'info');
+            
+            if (removedCount > 0) {
+                renderMiniCart();
+                showNotification('Produto removido do carrinho', 'info');
+            } else {
+                console.warn('⚠️ Nenhum item foi removido!');
+                showNotification('Erro ao remover produto', 'error');
+            }
         }
 
         function updateQty(itemId, variant, newQty) {
+            console.log('Atualizando quantidade:', itemId, variant, newQty);
             const cart = getCart();
-            const item = cart.find(i => i.id === itemId && i.variant === variant);
+            
+            // Normalizar itemId (pode ser número ou string, incluindo 0)
+            const numericItemId = (itemId === 0 || itemId === '0') ? 0 : (parseInt(itemId) || itemId);
+            
+            const item = cart.find(i => {
+                const iNumericId = (i.id === 0 || i.id === '0') ? 0 : (parseInt(i.id) || i.id);
+                const iVariant = i.variant || '';
+                return iNumericId === numericItemId && iVariant === variant;
+            });
             
             if (item) {
                 if (newQty <= 0) {
@@ -6196,21 +6925,16 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
 
         function getSubtotal() {
             const cart = getCart();
-            return cart.reduce((total, item) => total + (item.price * item.qty), 0);
+            return cart.reduce((total, item) => {
+                const itemPrice = (typeof item.price === 'number' && !isNaN(item.price)) ? item.price : 0;
+                const itemQty = parseInt(item.qty) || 0;
+                return total + (itemPrice * itemQty);
+            }, 0);
         }
 
         function updateCartBadge() {
-            const cart = getCart();
-            const totalItems = cart.reduce((total, item) => total + item.qty, 0);
-            const badge = document.getElementById('cartBadge');
-            
-            if (badge) {
-                badge.textContent = totalItems;
-                badge.style.animation = 'none';
-                setTimeout(() => {
-                    badge.style.animation = 'bounce 0.5s ease';
-                }, 10);
-            }
+            // Chama a função principal updateCartCount() para evitar duplicação
+            updateCartCount();
         }
 
         function renderMiniCart() {
@@ -6219,10 +6943,16 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             const subtotalEl = document.getElementById('miniCartSubtotal');
             const freeShippingBar = document.getElementById('freeShippingBar');
             
-            if (!body) return;
+            console.log('renderMiniCart chamado - Itens no carrinho:', cart);
+            
+            if (!body) {
+                console.error('Elemento miniCartBody não encontrado');
+                return;
+            }
             
             // Se carrinho vazio
             if (cart.length === 0) {
+                console.log('Carrinho vazio, mostrando mensagem');
                 body.innerHTML = `
                     <div class="cart-empty">
                         <div class="cart-empty-icon">🛒</div>
@@ -6244,30 +6974,54 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             }
             
             // Renderizar itens
-            body.innerHTML = cart.map(item => `
-                <div class="cart-item">
+            console.log('Renderizando', cart.length, 'itens no mini carrinho');
+            
+            body.innerHTML = cart.map((item, index) => {
+                // Garantir que o preço seja válido
+                const itemPrice = (typeof item.price === 'number' && !isNaN(item.price)) ? item.price : 0;
+                const itemQty = parseInt(item.qty) || 1;
+                const itemId = item.id || 0;
+                const itemVariant = item.variant || '';
+                const itemName = item.name || 'Produto';
+                const itemImage = item.image || '';
+                
+                console.log(`Item ${index}:`, {
+                    id: itemId,
+                    name: itemName,
+                    price: itemPrice,
+                    qty: itemQty,
+                    image: itemImage ? itemImage.substring(0, 50) + '...' : 'sem imagem'
+                });
+                
+                // Escapar aspas no nome e variant para evitar erros de sintaxe
+                const escapedName = itemName.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                const escapedVariant = itemVariant.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                
+                return `
+                <div class="cart-item" data-product-id="${itemId}">
                     <div class="cart-item-image">
-                        ${item.image.startsWith('http') ? `<img src="${item.image}" alt="${item.name}">` : item.image}
+                        ${itemImage && itemImage.startsWith('http') ? `<img src="${itemImage}" alt="${escapedName}" loading="lazy">` : `<span style="font-size: 2rem;">${itemImage || '💅'}</span>`}
                     </div>
                     <div class="cart-item-details">
-                        <div class="cart-item-name">${item.name}</div>
-                        ${item.variant ? `<div class="cart-item-variant">${item.variant}</div>` : ''}
-                        <div class="cart-item-price">R$ ${item.price.toFixed(2).replace('.', ',')}</div>
+                        <div class="cart-item-name">${itemName}</div>
+                        ${itemVariant ? `<div class="cart-item-variant">${itemVariant}</div>` : ''}
+                        <div class="cart-item-price">R$ ${itemPrice.toFixed(2).replace('.', ',')}</div>
                         <div class="cart-item-actions">
                             <div class="qty-control">
-                                <button class="qty-btn" onclick="updateQty('${item.id}', '${item.variant}', ${item.qty - 1})" ${item.qty <= 1 ? 'disabled' : ''}>−</button>
-                                <span class="qty-value">${item.qty}</span>
-                                <button class="qty-btn" onclick="updateQty('${item.id}', '${item.variant}', ${item.qty + 1})">+</button>
+                                <button class="qty-btn" onclick="updateQty(${itemId}, '', ${itemQty - 1})" ${itemQty <= 1 ? 'disabled' : ''} aria-label="Diminuir quantidade">−</button>
+                                <span class="qty-value">${itemQty}</span>
+                                <button class="qty-btn" onclick="updateQty(${itemId}, '', ${itemQty + 1})" aria-label="Aumentar quantidade">+</button>
                             </div>
-                            <button class="btn-remove-item" onclick="removeFromCart('${item.id}', '${item.variant}')" title="Remover">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <button class="btn-remove-item" onclick="removeFromCart(${itemId}, '')" title="Remover produto" aria-label="Remover produto">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
                                 </svg>
                             </button>
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
             
             // Atualizar subtotal
             const subtotal = getSubtotal();
@@ -6297,12 +7051,15 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         }
 
         function openMiniCart() {
+            console.log('🛒 Abrindo carrinho');
+            renderMiniCart();
             document.getElementById('miniCartOverlay').classList.add('active');
             document.getElementById('miniCartDrawer').classList.add('active');
             document.body.style.overflow = 'hidden';
         }
 
         function closeMiniCart() {
+            console.log('Fechando mini carrinho');
             document.getElementById('miniCartOverlay').classList.remove('active');
             document.getElementById('miniCartDrawer').classList.remove('active');
             document.body.style.overflow = '';
@@ -6310,14 +7067,70 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
 
         // Event Listeners
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== INICIALIZANDO CARRINHO ===');
+            
+            // Verificar se o localStorage tem dados corrompidos
+            try {
+                const cartData = localStorage.getItem('dz_cart');
+                console.log('LocalStorage dz_cart raw:', cartData);
+                
+                if (cartData) {
+                    const cart = JSON.parse(cartData);
+                    console.log('Carrinho parseado:', cart);
+                    
+                    // Validar e limpar itens inválidos
+                    const validCart = cart.filter(item => {
+                        // Verificar se item tem todas as propriedades necessárias
+                        // Aceita id: 0, mas rejeita undefined/null
+                        const hasId = item && (item.id === 0 || item.id);
+                        const hasName = item && item.name && item.name !== '';
+                        const hasValidPrice = item && typeof item.price === 'number' && !isNaN(item.price);
+                        
+                        const isValid = hasId && hasName && hasValidPrice;
+                        
+                        if (!isValid) {
+                            console.warn('Item inválido encontrado e removido:', item);
+                            console.warn('Motivo:', {
+                                hasId: hasId,
+                                hasName: hasName,
+                                hasValidPrice: hasValidPrice
+                            });
+                        }
+                        return isValid;
+                    });
+                    
+                    if (validCart.length !== cart.length) {
+                        console.log('Carrinho limpo de', cart.length - validCart.length, 'itens inválidos');
+                        localStorage.setItem('dz_cart', JSON.stringify(validCart));
+                    }
+                }
+            } catch (e) {
+                console.error('Erro ao validar carrinho, limpando...', e);
+                localStorage.removeItem('dz_cart');
+            }
+            
             // Atualizar badge ao carregar
             updateCartBadge();
             renderMiniCart();
             
-            // Abrir drawer ao clicar no botão
+            console.log('=== CARRINHO INICIALIZADO ===');
+            console.log('💡 Comandos úteis no console:');
+            console.log('  - clearCart() : Limpa todo o carrinho');
+            console.log('  - viewCart() : Visualiza o conteúdo do carrinho');
+            
+            // Abrir drawer ao clicar no botão DO CARRINHO apenas
             const cartButton = document.getElementById('cartButton');
             if (cartButton) {
-                cartButton.addEventListener('click', openMiniCart);
+                cartButton.addEventListener('click', function(e) {
+                    // Parar propagação do evento
+                    e.stopPropagation();
+                    e.preventDefault();
+                    
+                    // Só abrir se for realmente o cartButton
+                    if (e.currentTarget.id === 'cartButton') {
+                        openMiniCart();
+                    }
+                });
             }
             
             // Fechar drawer
@@ -6331,24 +7144,9 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                 }
             });
             
-            // Atualizar botões "Adicionar ao Carrinho" existentes
-            document.querySelectorAll('.produto-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const card = this.closest('.produto-card-dz') || this.closest('.produto-card');
-                    const name = card.querySelector('h3, .produto-title').textContent.trim();
-                    const priceText = card.querySelector('.produto-price').textContent;
-                    const price = parseFloat(priceText.replace('R$', '').replace('.', '').replace(',', '.').trim());
-                    
-                    addToCart({
-                        id: 'prod_' + Date.now(),
-                        name: name,
-                        price: price,
-                        qty: 1,
-                        image: '💅',
-                        variant: ''
-                    });
-                });
-            });
+            // Event listeners para .produto-btn removidos
+            // Agora usamos onclick direto no HTML com novos botões:
+            // <button class="btn-add-cart" onclick="addToCart(id, name, event)">🛒 Adicionar</button>
             
             console.log('🛒 Mini Carrinho inicializado!');
         });
