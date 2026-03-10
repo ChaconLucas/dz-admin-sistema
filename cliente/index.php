@@ -3540,10 +3540,10 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
     <header class="header-loja" id="navbar">
         <div class="container-header">
             <!-- Logo D&Z Oficial -->
-            <div class="logo-container">
+            <a href="index.php" class="logo-container" title="Voltar à página inicial" style="text-decoration: none; color: inherit;">
                 <img src="assets/images/Logodz.png" alt="D&Z" class="logo-dz-oficial">
                 <span class="logo-text">D&Z</span>
-            </div>
+            </a>
             
             <!-- Navegação -->
             <nav class="nav-loja">
@@ -5078,12 +5078,13 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             }
         });
         
-        // Navegação suave
+        // Navegação suave (apenas para âncoras #)
         document.querySelectorAll('.nav-loja a').forEach(link => {
             link.addEventListener('click', (e) => {
-                e.preventDefault();
                 const targetId = link.getAttribute('href');
-                if (targetId.startsWith('#')) {
+                // Só previne comportamento padrão se for uma âncora (#)
+                if (targetId && targetId.startsWith('#')) {
+                    e.preventDefault();
                     const targetElement = document.querySelector(targetId);
                     if (targetElement) {
                         const offsetTop = targetElement.offsetTop - 100;
@@ -5093,6 +5094,7 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                         });
                     }
                 }
+                // Se não for âncora, deixa o navegador seguir o link normalmente
             });
         });
         
@@ -5192,6 +5194,22 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             animatedElements.forEach(function(element) {
                 observer.observe(element);
             });
+            
+            // Logo: se clicar no index.php já estando no index, volta ao topo
+            const logoContainer = document.querySelector('.logo-container');
+            if (logoContainer) {
+                logoContainer.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    // Se o link é para index.php e já estamos no index.php
+                    if (href === 'index.php' || href === './index.php' || href === '/index.php') {
+                        e.preventDefault();
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            }
         });
 
         // ===== CARRINHO (FUNCIONALIDADE BÁSICA) =====

@@ -331,7 +331,7 @@ $pageTitle = 'Login - D&Z';
             </div>
             
             <div class="forgot-password">
-                <a href="/recuperar-senha.php">Esqueceu sua senha?</a>
+                <a href="recuperar-senha.php">Esqueceu sua senha?</a>
             </div>
             
             <button type="submit" class="btn-submit">Entrar</button>

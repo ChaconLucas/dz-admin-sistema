@@ -1,0 +1,186 @@
+<!-- ===== RESET MOBILE MENU FORCE ===== -->
+<style>
+    /* FORÇA ESCONDER MENU MOBILE EM TODAS AS CONDIÇÕES */
+    .mobile-menu,
+    .mobile-menu-overlay {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        z-index: -1000 !important;
+    }
+    
+    /* SÓ MOSTRA EM DISPOSITIVOS MÓVEIS */
+    @media (max-width: 768px) {
+        .mobile-menu,
+        .mobile-menu-overlay {
+            display: block !important;
+            z-index: 1000 !important;
+        }
+        
+        /* Mas ainda escondido até ser ativado */
+        .mobile-menu:not(.active),
+        .mobile-menu-overlay:not(.active) {
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+    }
+</style>
+
+<!-- ===== NAVBAR PREMIUM D&Z ===== -->
+<header class="header-loja" id="navbar">
+    <div class="container-header">
+        <!-- Logo D&Z Oficial -->
+        <a href="index.php" class="logo-container" title="Voltar à página inicial">
+            <img src="assets/images/Logodz.png" alt="D&Z" class="logo-dz-oficial">
+            <span class="logo-text">D&Z</span>
+        </a>
+        
+        <!-- Navegação -->
+        <nav class="nav-loja">
+            <ul>
+                <li><a href="produtos.php">TODOS</a></li>
+                
+                <li class="has-dropdown">
+                    <a href="produtos.php?menu=unhas">UNHAS <span class="dropdown-icon">▼</span></a>
+                    <div class="dropdown-menu">
+                        <ul>
+                            <li><a href="produtos.php?categoria=Esmaltes">Esmaltes</a></li>
+                            <li><a href="produtos.php?categoria=Géis">Géis</a></li>
+                            <li><a href="produtos.php?categoria=Preparadores">Preparadores</a></li>
+                            <li><a href="produtos.php?categoria=Molde">Molde</a></li>
+                        </ul>
+                    </div>
+                </li>
+                
+                <li class="has-dropdown">
+                    <a href="produtos.php?menu=cilios">CÍLIOS <span class="dropdown-icon">▼</span></a>
+                    <div class="dropdown-menu">
+                        <ul>
+                            <li><a href="produtos.php?categoria=Cola">Cola</a></li>
+                            <li><a href="produtos.php?categoria=Removedor">Removedor</a></li>
+                            <li><a href="produtos.php?categoria=Fio a fio">Fio a fio</a></li>
+                            <li><a href="produtos.php?categoria=Postiço">Postiço</a></li>
+                            <li><a href="produtos.php?categoria=Tufo">Tufo</a></li>
+                        </ul>
+                    </div>
+                </li>
+                
+                <li class="has-dropdown">
+                    <a href="produtos.php?menu=eletronicos">ELETRÔNICOS <span class="dropdown-icon">▼</span></a>
+                    <div class="dropdown-menu">
+                        <ul>
+                            <li><a href="produtos.php?categoria=Cabine">Cabine</a></li>
+                            <li><a href="produtos.php?categoria=Motor">Motor</a></li>
+                            <li><a href="produtos.php?categoria=Luminária">Luminária</a></li>
+                            <li><a href="produtos.php?categoria=Coletor">Coletor</a></li>
+                        </ul>
+                    </div>
+                </li>
+                
+                <li class="has-dropdown">
+                    <a href="produtos.php?menu=ferramentas">FERRAMENTAS <span class="dropdown-icon">▼</span></a>
+                    <div class="dropdown-menu">
+                        <ul>
+                            <li><a href="produtos.php?categoria=Alicates">Alicates</a></li>
+                            <li><a href="produtos.php?categoria=Espátulas">Espátulas</a></li>
+                            <li><a href="produtos.php?categoria=Tesouras">Tesouras</a></li>
+                            <li><a href="produtos.php?categoria=Cortadores">Cortadores</a></li>
+                            <li><a href="produtos.php?categoria=Lixas">Lixas</a></li>
+                            <li><a href="produtos.php?categoria=Empurradores">Empurradores</a></li>
+                            <li><a href="produtos.php?categoria=Pincéis">Pincéis</a></li>
+                            <li><a href="produtos.php?categoria=Pinças">Pinças</a></li>
+                        </ul>
+                    </div>
+                </li>
+                
+                <li class="has-dropdown">
+                    <a href="produtos.php?menu=marcas">MARCAS <span class="dropdown-icon">▼</span></a>
+                    <div class="dropdown-menu">
+                        <ul>
+                            <li><a href="produtos.php?marca=D%26Z">D&Z</a></li>
+                            <li><a href="produtos.php?marca=Sioux">Sioux</a></li>
+                            <li><a href="produtos.php?marca=Sunny%27s">Sunny's</a></li>
+                            <li><a href="produtos.php?marca=Crush">Crush</a></li>
+                            <li><a href="produtos.php?marca=XD">XD</a></li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+        
+        <!-- Lado direito: Busca + Ícones -->
+        <div class="nav-right">
+            <div class="search-panel" id="searchPanel">
+                <input type="search" id="searchInput" placeholder="Buscar produtos" aria-label="Buscar produtos">
+            </div>
+            
+            <!-- Área do usuário -->
+            <div class="user-area">
+                <!-- Menu Mobile Toggle (apenas para mobile) -->
+                <button class="mobile-menu-toggle" onclick="toggleMobileMenu(event)">
+                    <div class="hamburger">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </button>
+                
+                <button class="btn-icon btn-search" id="searchToggle" title="Pesquisar" aria-expanded="false" aria-controls="searchPanel">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+            </button>
+            
+            <?php if (!$usuarioLogado): ?>
+                <!-- Botões de Login e Cadastro (usuário NÃO logado) -->
+                <a href="pages/login.php" class="btn-auth btn-login">Entrar</a>
+                <a href="pages/register.php" class="btn-auth btn-register">Cadastrar</a>
+            <?php else: ?>
+                <!-- Dropdown do usuário logado -->
+                <div class="user-dropdown">
+                    <button class="user-dropdown-btn" onclick="toggleUserDropdown(event)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </button>
+                    <div class="user-dropdown-menu">
+                        <div class="user-greeting">Olá, <?php echo $nomeUsuario; ?></div>
+                        <a href="pages/minha-conta.php">Minha conta</a>
+                        <a href="pages/pedidos.php">Meus pedidos</a>
+                        <a href="pages/logout.php">Sair</a>
+                    </div>
+                </div>
+            <?php endif; ?>
+            
+            <button class="btn-cart" id="cartButton" title="Carrinho">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                </svg>
+                <span>Carrinho</span>
+                <span class="cart-count" id="cartBadge">0</span>
+            </button>
+        </div>
+        <!-- Fim user-area -->
+        </div>
+        <!-- Fim nav-right -->
+    </div>
+    <!-- Fim container-header -->
+</header>
+
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay" onclick="closeMobileMenu(event)"></div>
+
+<!-- Mobile Menu -->
+<nav class="mobile-menu">
+    <ul>
+        <li><a href="index.php" onclick="closeMobileMenu()">Início</a></li>
+        <li><a href="produtos.php" onclick="closeMobileMenu()">Todos os Produtos</a></li>
+        <li><a href="produtos.php?menu=unhas" onclick="closeMobileMenu()">Unhas</a></li>
+        <li><a href="produtos.php?menu=cilios" onclick="closeMobileMenu()">Cílios</a></li>
+        <li><a href="produtos.php?menu=eletronicos" onclick="closeMobileMenu()">Eletrônicos</a></li>
+        <li><a href="produtos.php?menu=ferramentas" onclick="closeMobileMenu()">Ferramentas</a></li>
+        <li><a href="produtos.php?menu=marcas" onclick="closeMobileMenu()">Marcas</a></li>
+    </ul>
+</nav>

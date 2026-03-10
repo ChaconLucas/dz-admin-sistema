@@ -1855,10 +1855,10 @@ function corStatus($status) {
     <header class="header-loja" id="navbar">
         <div class="container-header">
             <!-- Logo D&Z Oficial -->
-            <div class="logo-container">
+            <a href="../index.php" class="logo-container" title="Voltar à página inicial" style="text-decoration: none; color: inherit;">
                 <img src="../assets/images/Logodz.png" alt="D&Z" class="logo-dz-oficial">
                 <span class="logo-text">D&Z</span>
-            </div>
+            </a>
             
             <!-- Navegação -->
             <nav class="nav-loja">
