@@ -398,47 +398,49 @@ if (!empty($categoria)) {
                     
                     <?php foreach ($produtos as $product): ?>
                     <!-- Produto: <?php echo htmlspecialchars($product['nome']); ?> -->
-                    <div class="produto-card">
-                        <div class="produto-image">
-                            <?php if (!empty($product['imagem_principal'])): ?>
-                            <img src="../admin/assets/images/produtos/<?php echo htmlspecialchars($product['imagem_principal']); ?>" 
-                                 alt="<?php echo htmlspecialchars($product['nome']); ?>"
-                                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;"
-                                 onerror="this.parentElement.innerHTML='<div class=\'produto-placeholder\'>💅</div>';">
-                            <?php else: ?>
-                            <div class="produto-placeholder">💅</div>
-                            <?php endif; ?>
-                        </div>
-                        
-                        <div class="produto-content">
-                            <h3 class="produto-title"><?php echo htmlspecialchars($product['nome']); ?></h3>
-                            <p class="produto-description">
-                                <?php echo htmlspecialchars(substr($product['descricao'] ?? '', 0, 80)); ?><?php echo strlen($product['descricao'] ?? '') > 80 ? '...' : ''; ?>
-                            </p>
-                            
-                            <div class="produto-price">
-                                <?php if (isOnSale($product)): ?>
-                                    <span style="text-decoration: line-through; opacity: 0.6; font-size: 0.85em; margin-right: 8px;">
-                                        <?php echo formatPrice($product['preco']); ?>
-                                    </span>
-                                    <span style="color: var(--color-magenta); font-weight: 700;">
-                                        <?php echo formatPrice($product['preco_promocional']); ?>
-                                    </span>
+                    <a href="produto.php?id=<?php echo $product['id']; ?>" class="produto-card-link">
+                        <div class="produto-card">
+                            <div class="produto-image">
+                                <?php if (!empty($product['imagem_principal'])): ?>
+                                <img src="../admin/assets/images/produtos/<?php echo htmlspecialchars($product['imagem_principal']); ?>" 
+                                     alt="<?php echo htmlspecialchars($product['nome']); ?>"
+                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;"
+                                     onerror="this.parentElement.innerHTML='<div class=\'produto-placeholder\'>💅</div>';">
                                 <?php else: ?>
-                                    <?php echo formatPrice($product['preco']); ?>
+                                <div class="produto-placeholder">💅</div>
                                 <?php endif; ?>
                             </div>
                             
-                            <div class="produto-actions">
-                                <button class="btn-add-cart" onclick="addToCart(<?php echo $product['id']; ?>, '<?php echo htmlspecialchars($product['nome'], ENT_QUOTES); ?>', event)">
-                                    🛒 Adicionar
-                                </button>
-                                <button class="btn-buy-now" onclick="buyNow(<?php echo $product['id']; ?>, event)">
-                                    Comprar
-                                </button>
+                            <div class="produto-content">
+                                <h3 class="produto-title"><?php echo htmlspecialchars($product['nome']); ?></h3>
+                                <p class="produto-description">
+                                    <?php echo htmlspecialchars(substr($product['descricao'] ?? '', 0, 80)); ?><?php echo strlen($product['descricao'] ?? '') > 80 ? '...' : ''; ?>
+                                </p>
+                                
+                                <div class="produto-price">
+                                    <?php if (isOnSale($product)): ?>
+                                        <span style="text-decoration: line-through; opacity: 0.6; font-size: 0.85em; margin-right: 8px;">
+                                            <?php echo formatPrice($product['preco']); ?>
+                                        </span>
+                                        <span style="color: var(--color-magenta); font-weight: 700;">
+                                            <?php echo formatPrice($product['preco_promocional']); ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <?php echo formatPrice($product['preco']); ?>
+                                    <?php endif; ?>
+                                </div>
+                                
+                                <div class="produto-actions" onclick="event.stopPropagation(); event.preventDefault();">
+                                    <button class="btn-add-cart" onclick="addToCart(<?php echo $product['id']; ?>, '<?php echo htmlspecialchars($product['nome'], ENT_QUOTES); ?>', event)">
+                                        🛒 Adicionar
+                                    </button>
+                                    <button class="btn-buy-now" onclick="buyNow(<?php echo $product['id']; ?>, event)">
+                                        Comprar
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </a>
                     <?php endforeach; ?>
                     
                 </div>
@@ -970,6 +972,19 @@ if (!empty($categoria)) {
         align-items: start;
     }
     
+    /* Link wrapper para tornar cards clicáveis */
+    .produto-card-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        transition: all 0.3s ease;
+    }
+    
+    .produto-card-link:hover .produto-card {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+    
     /* Ajustar cards para grid (sem comportamento de carrossel) */
     .produtos-grid-page .produto-card {
         flex: none;
@@ -979,6 +994,7 @@ if (!empty($categoria)) {
         height: auto;
         display: flex;
         flex-direction: column;
+        transition: all 0.3s ease;
     }
     
     /* Garantir altura uniforme do conteúdo */

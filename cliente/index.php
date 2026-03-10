@@ -5992,65 +5992,7 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             });
         }
         
-        // ===== POP-UP DE DESCONTO (PRIMEIRA VISITA) =====
-        function showWelcomeDiscount() {
-            // Verificar se já mostrou o pop-up E se o usuário não está navegando pela primeira vez
-            if (!localStorage.getItem('dz_welcome_shown') && !sessionStorage.getItem('dz_just_arrived')) {
-                // Marcar que o usuário acabou de chegar (evita popup imediato)
-                sessionStorage.setItem('dz_just_arrived', 'true');
-                
-                setTimeout(() => {
-                    // Verificar novamente se não foi fechado enquanto esperava
-                    if (!localStorage.getItem('dz_welcome_shown')) {
-                        const popup = document.createElement('div');
-                        popup.style.cssText = `
-                            position: fixed;
-                            top: 0;
-                            left: 0;
-                            width: 100%;
-                            height: 100%;
-                            background: rgba(0, 0, 0, 0.7);
-                            z-index: 10000;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            backdrop-filter: blur(5px);
-                        `;
-                        
-                        popup.innerHTML = `
-                            <div style="
-                                background: white;
-                                padding: 40px;
-                                border-radius: 20px;
-                                text-align: center;
-                                max-width: 400px;
-                                margin: 20px;
-                                position: relative;
-                                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-                            ">
-                                <button onclick="this.parentElement.parentElement.remove(); localStorage.setItem('dz_welcome_shown', 'true')" 
-                                        style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666;">×</button>
-                                
-                                <div style="font-size: 3rem; margin-bottom: 20px;">🎉</div>
-                                <h3 style="color: var(--color-magenta); margin-bottom: 15px; font-size: 1.5rem;">Bem-vinda à D&Z!</h3>
-                                <p style="margin-bottom: 20px; color: #666;">
-                                    Ganhe <strong style="color: var(--color-magenta);">15% de desconto</strong> na sua primeira compra!
-                                </p>
-                                <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-                                    <strong style="color: var(--color-magenta); font-size: 1.2rem;">BEM-VINDA15</strong>
-                                </div>
-                                <button onclick="this.parentElement.parentElement.remove(); localStorage.setItem('dz_welcome_shown', 'true'); showNotification('Cupom copiado! Cole no checkout para ganhar 15% OFF 🎉', 'success')" 
-                                        style="background: linear-gradient(135deg, var(--color-magenta), var(--color-magenta-dark)); color: white; padding: 12px 30px; border: none; border-radius: 25px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-                                    Aproveitar Desconto
-                                </button>
-                            </div>
-                        `;
-                        
-                        document.body.appendChild(popup);
-                    }
-                }, 8000); // Aumentar para 8 segundos
-            }
-        }
+
         
         // ===== INICIALIZAÇÃO =====
         document.addEventListener('DOMContentLoaded', function() {
@@ -6059,13 +6001,6 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             
             // Simular lazy loading
             simulateLazyLoading();
-            
-            // Mostrar pop-up de boas-vindas (apenas uma vez, após 10 segundos)
-            setTimeout(() => {
-                if (!localStorage.getItem('dz_welcome_shown')) {
-                    showWelcomeDiscount();
-                }
-            }, 10000);
             
             console.log('🎉 D&Z E-commerce Premium carregado!');
             console.log('✨ Funcionalidades: Chat, Scroll, Lazy Loading');
