@@ -58,11 +58,11 @@
                     <a href="produtos.php?menu=cilios">CÍLIOS <span class="dropdown-icon">▼</span></a>
                     <div class="dropdown-menu">
                         <ul>
-                            <li><a href="produtos.php?categoria=Cola">Cola</a></li>
-                            <li><a href="produtos.php?categoria=Removedor">Removedor</a></li>
-                            <li><a href="produtos.php?categoria=Fio a fio">Fio a fio</a></li>
-                            <li><a href="produtos.php?categoria=Postiço">Postiço</a></li>
-                            <li><a href="produtos.php?categoria=Tufo">Tufo</a></li>
+                            <li><a href="produtos.php?categoria=Colas para Cílios">Cola</a></li>
+                            <li><a href="produtos.php?categoria=Removedores">Removedor</a></li>
+                            <li><a href="produtos.php?categoria=Fio a Fio">Fio a fio</a></li>
+                            <li><a href="produtos.php?categoria=Postiços">Postiço</a></li>
+                            <li><a href="produtos.php?categoria=Tufos">Tufo</a></li>
                         </ul>
                     </div>
                 </li>
@@ -72,9 +72,9 @@
                     <div class="dropdown-menu">
                         <ul>
                             <li><a href="produtos.php?categoria=Cabine">Cabine</a></li>
-                            <li><a href="produtos.php?categoria=Motor">Motor</a></li>
-                            <li><a href="produtos.php?categoria=Luminária">Luminária</a></li>
-                            <li><a href="produtos.php?categoria=Coletor">Coletor</a></li>
+                            <li><a href="produtos.php?categoria=Motores para Unha">Motor</a></li>
+                            <li><a href="produtos.php?categoria=Iluminação LED">Luminária</a></li>
+                            <li><a href="produtos.php?categoria=Coletores de Pó">Coletor</a></li>
                         </ul>
                     </div>
                 </li>
@@ -96,7 +96,7 @@
                 </li>
                 
                 <li class="has-dropdown">
-                    <a href="produtos.php?menu=marcas">MARCAS <span class="dropdown-icon">▼</span></a>
+                    <a href="produtos.php?secao=marcas">MARCAS <span class="dropdown-icon">▼</span></a>
                     <div class="dropdown-menu">
                         <ul>
                             <li><a href="produtos.php?marca=D%26Z">D&Z</a></li>

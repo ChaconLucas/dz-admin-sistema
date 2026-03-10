@@ -25,6 +25,7 @@ $categoria = isset($_GET['categoria']) ? trim($_GET['categoria']) : '';
 $busca = isset($_GET['busca']) ? trim($_GET['busca']) : '';
 $menu = isset($_GET['menu']) ? trim($_GET['menu']) : '';
 $marca = isset($_GET['marca']) ? trim($_GET['marca']) : '';
+$secao_marcas = isset($_GET['secao']) && $_GET['secao'] == 'marcas'; // Filtrar apenas produtos com marca
 $preco_min = isset($_GET['preco_min']) && is_numeric($_GET['preco_min']) ? (float)$_GET['preco_min'] : null;
 $preco_max = isset($_GET['preco_max']) && is_numeric($_GET['preco_max']) ? (float)$_GET['preco_max'] : null;
 $apenas_promocao = isset($_GET['promo']) && $_GET['promo'] == '1';
@@ -57,15 +58,14 @@ $queryCount = "
 $params = [];
 $types = '';
 
-// Filtro por categoria
+// Filtro por categoria (prioridade) ou menu group
 if (!empty($categoria)) {
+    // Categoria específica tem prioridade
     $queryCount .= " AND LOWER(c.nome) = LOWER(?)";
     $params[] = $categoria;
     $types .= 's';
-}
-
-// Filtro por menu
-if (!empty($menu)) {
+} elseif (!empty($menu)) {
+    // Se não houver categoria, filtrar por grupo de menu
     $queryCount .= " AND c.menu_group = ?";
     $params[] = $menu;
     $types .= 's';
@@ -73,9 +73,14 @@ if (!empty($menu)) {
 
 // Filtro por marca
 if (!empty($marca)) {
-    $queryCount .= " AND p.marca = ?";
+    $queryCount .= " AND LOWER(p.marca) = LOWER(?)";
     $params[] = $marca;
     $types .= 's';
+}
+
+// Filtro por seção de marcas (apenas produtos com marca configurada)
+if ($secao_marcas && empty($marca)) {
+    $queryCount .= " AND p.marca IS NOT NULL AND p.marca != ''";
 }
 
 // Filtro por busca
@@ -137,23 +142,28 @@ $query = "
 $params = [];
 $types = '';
 
-// Aplicar mesmos filtros
+// Aplicar mesmos filtros - categoria (prioridade) ou menu group
 if (!empty($categoria)) {
+    // Categoria específica tem prioridade
     $query .= " AND LOWER(c.nome) = LOWER(?)";
     $params[] = $categoria;
     $types .= 's';
-}
-
-if (!empty($menu)) {
+} elseif (!empty($menu)) {
+    // Se não houver categoria, filtrar por grupo de menu
     $query .= " AND c.menu_group = ?";
     $params[] = $menu;
     $types .= 's';
 }
 
 if (!empty($marca)) {
-    $query .= " AND p.marca = ?";
+    $query .= " AND LOWER(p.marca) = LOWER(?)";
     $params[] = $marca;
     $types .= 's';
+}
+
+// Filtro por seção de marcas (apenas produtos com marca configurada)
+if ($secao_marcas && empty($marca)) {
+    $query .= " AND p.marca IS NOT NULL AND p.marca != ''";
 }
 
 if (!empty($busca)) {
@@ -232,6 +242,8 @@ if (!empty($categoria)) {
     $pageTitle = ucfirst($menu);
 } elseif (!empty($marca)) {
     $pageTitle = 'Marca: ' . htmlspecialchars($marca);
+} elseif ($secao_marcas) {
+    $pageTitle = 'Produtos com Marca';
 }
 
 ?>
@@ -279,7 +291,7 @@ if (!empty($categoria)) {
             <aside class="filtros-sidebar">
                 <div class="sidebar-header">
                     <h3>Filtrar por</h3>
-                    <?php if (!empty($marca) || $preco_min !== null || $preco_max !== null || $apenas_promocao): ?>
+                    <?php if (!empty($marca) || $preco_min !== null || $preco_max !== null || $apenas_promocao || $secao_marcas): ?>
                         <a href="produtos.php" class="btn-limpar">Limpar</a>
                     <?php endif; ?>
                 </div>
