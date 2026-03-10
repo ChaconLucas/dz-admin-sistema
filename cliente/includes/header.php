@@ -1056,13 +1056,19 @@
         
         .produto-image {
             width: 100%;
-            height: 200px;
+            height: 220px;
             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             overflow: hidden;
+        }
+        
+        .produto-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         
         .produto-image::before {
@@ -1108,7 +1114,9 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
             text-overflow: ellipsis;
-            min-height: 2.6rem;
+            height: 3.38rem;
+            min-height: 3.38rem;
+            max-height: 3.38rem;
             color: #1e293b;
             margin-bottom: 8px;
             line-height: 1.3;
@@ -1124,6 +1132,9 @@
             line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            height: 2.7rem;
+            min-height: 2.7rem;
+            max-height: 2.7rem;
         }
         
         .produto-price {
@@ -1131,7 +1142,9 @@
             font-weight: 700;
             color: var(--color-magenta);
             margin-bottom: 15px;
+            height: 2.25rem;
             min-height: 2.25rem;
+            max-height: 2.25rem;
             display: flex;
             align-items: center;
             flex-wrap: wrap;

@@ -25,8 +25,99 @@ $categoria = isset($_GET['categoria']) ? trim($_GET['categoria']) : '';
 $busca = isset($_GET['busca']) ? trim($_GET['busca']) : '';
 $menu = isset($_GET['menu']) ? trim($_GET['menu']) : '';
 $marca = isset($_GET['marca']) ? trim($_GET['marca']) : '';
+$preco_min = isset($_GET['preco_min']) && is_numeric($_GET['preco_min']) ? (float)$_GET['preco_min'] : null;
+$preco_max = isset($_GET['preco_max']) && is_numeric($_GET['preco_max']) ? (float)$_GET['preco_max'] : null;
+$apenas_promocao = isset($_GET['promo']) && $_GET['promo'] == '1';
+$ordenar = isset($_GET['ordenar']) ? trim($_GET['ordenar']) : 'recentes';
 
-// Query base com prepared statements
+// Paginação
+$produtosPorPagina = 12;
+$paginaAtual = isset($_GET['pagina']) && is_numeric($_GET['pagina']) ? max(1, (int)$_GET['pagina']) : 1;
+$offset = ($paginaAtual - 1) * $produtosPorPagina;
+
+// ===== BUSCAR MARCAS PARA FILTROS =====
+$marcas = [];
+$queryMarcas = "SELECT DISTINCT marca FROM produtos 
+                WHERE status = 'ativo' AND marca IS NOT NULL AND marca != '' 
+                ORDER BY marca";
+$resultMarcas = mysqli_query($conn, $queryMarcas);
+while ($row = mysqli_fetch_assoc($resultMarcas)) {
+    $marcas[] = $row['marca'];
+}
+
+// ===== QUERY PRINCIPAL COM PAGINAÇÃO =====
+// Primeiro, contar total de produtos (sem limit)
+$queryCount = "
+    SELECT COUNT(*) as total
+    FROM produtos p
+    LEFT JOIN categorias c ON p.categoria_id = c.id
+    WHERE p.status = 'ativo'
+";
+
+$params = [];
+$types = '';
+
+// Filtro por categoria
+if (!empty($categoria)) {
+    $queryCount .= " AND LOWER(c.nome) = LOWER(?)";
+    $params[] = $categoria;
+    $types .= 's';
+}
+
+// Filtro por menu
+if (!empty($menu)) {
+    $queryCount .= " AND c.menu_group = ?";
+    $params[] = $menu;
+    $types .= 's';
+}
+
+// Filtro por marca
+if (!empty($marca)) {
+    $queryCount .= " AND p.marca = ?";
+    $params[] = $marca;
+    $types .= 's';
+}
+
+// Filtro por busca
+if (!empty($busca)) {
+    $queryCount .= " AND (p.nome LIKE ? OR p.descricao LIKE ?)";
+    $buscaParam = '%' . $busca . '%';
+    $params[] = $buscaParam;
+    $params[] = $buscaParam;
+    $types .= 'ss';
+}
+
+// Filtro por faixa de preço
+if ($preco_min !== null) {
+    $queryCount .= " AND (COALESCE(p.preco_promocional, p.preco) >= ?)";
+    $params[] = $preco_min;
+    $types .= 'd';
+}
+
+if ($preco_max !== null) {
+    $queryCount .= " AND (COALESCE(p.preco_promocional, p.preco) <= ?)";
+    $params[] = $preco_max;
+    $types .= 'd';
+}
+
+// Filtro por promoção
+if ($apenas_promocao) {
+    $queryCount .= " AND p.preco_promocional IS NOT NULL AND p.preco_promocional > 0";
+}
+
+// Executar count
+$stmtCount = mysqli_prepare($conn, $queryCount);
+if (!empty($params)) {
+    mysqli_stmt_bind_param($stmtCount, $types, ...$params);
+}
+mysqli_stmt_execute($stmtCount);
+$resultCount = mysqli_stmt_get_result($stmtCount);
+$totalProdutos = mysqli_fetch_assoc($resultCount)['total'];
+mysqli_stmt_close($stmtCount);
+
+$totalPaginas = ceil($totalProdutos / $produtosPorPagina);
+
+// Agora buscar os produtos da página atual
 $query = "
     SELECT 
         p.id,
@@ -42,31 +133,29 @@ $query = "
     WHERE p.status = 'ativo'
 ";
 
+// Resetar params para reutilizar
 $params = [];
 $types = '';
 
-// Filtro por categoria (nome da categoria)
+// Aplicar mesmos filtros
 if (!empty($categoria)) {
     $query .= " AND LOWER(c.nome) = LOWER(?)";
     $params[] = $categoria;
     $types .= 's';
 }
 
-// Filtro por menu (menu_group)
 if (!empty($menu)) {
     $query .= " AND c.menu_group = ?";
     $params[] = $menu;
     $types .= 's';
 }
 
-// Filtro por marca
 if (!empty($marca)) {
     $query .= " AND p.marca = ?";
     $params[] = $marca;
     $types .= 's';
 }
 
-// Filtro por busca
 if (!empty($busca)) {
     $query .= " AND (p.nome LIKE ? OR p.descricao LIKE ?)";
     $buscaParam = '%' . $busca . '%';
@@ -75,16 +164,53 @@ if (!empty($busca)) {
     $types .= 'ss';
 }
 
+if ($preco_min !== null) {
+    $query .= " AND (COALESCE(p.preco_promocional, p.preco) >= ?)";
+    $params[] = $preco_min;
+    $types .= 'd';
+}
+
+if ($preco_max !== null) {
+    $query .= " AND (COALESCE(p.preco_promocional, p.preco) <= ?)";
+    $params[] = $preco_max;
+    $types .= 'd';
+}
+
+if ($apenas_promocao) {
+    $query .= " AND p.preco_promocional IS NOT NULL AND p.preco_promocional > 0";
+}
+
 // Ordenação
-$query .= " ORDER BY p.id DESC";
+switch ($ordenar) {
+    case 'menor_preco':
+        $query .= " ORDER BY COALESCE(p.preco_promocional, p.preco) ASC";
+        break;
+    case 'maior_preco':
+        $query .= " ORDER BY COALESCE(p.preco_promocional, p.preco) DESC";
+        break;
+    case 'nome_az':
+        $query .= " ORDER BY p.nome ASC";
+        break;
+    case 'nome_za':
+        $query .= " ORDER BY p.nome DESC";
+        break;
+    case 'recentes':
+    default:
+        $query .= " ORDER BY p.id DESC";
+        break;
+}
 
-// Executar query com prepared statement
+// Adicionar LIMIT e OFFSET para paginação
+$query .= " LIMIT ? OFFSET ?";
+$params[] = $produtosPorPagina;
+$params[] = $offset;
+$types .= 'ii';
+
+// Executar query
 $stmt = mysqli_prepare($conn, $query);
-
 if (!empty($params)) {
     mysqli_stmt_bind_param($stmt, $types, ...$params);
 }
-
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 
@@ -143,127 +269,693 @@ if (!empty($categoria)) {
 </div>
 
 <!-- ===== PÁGINA DE PRODUTOS ===== -->
-<section class="produtos-page" style="padding: 0 0 60px; min-height: 70vh; background: #fafafa; margin-top: -20px;">
-    <div class="container-dz">
+<section class="produtos-page" style="padding: 0 0 60px; min-height: 70vh; background: #fafafa; margin-top: 0;">
+    <div class="produtos-container-wide">
         
-        <!-- Título da página -->
-        <div class="section-title fade-in-up" style="margin-bottom: 15px; padding-top: 0;">
-            <h2 style="margin-top: 0;"><?php echo htmlspecialchars($pageTitle); ?></h2>
-            <p>
-                <?php if (!empty($produtos)): ?>
-                    <?php echo count($produtos); ?> produto<?php echo count($produtos) > 1 ? 's' : ''; ?> encontrado<?php echo count($produtos) > 1 ? 's' : ''; ?>
-                <?php else: ?>
-                    Nenhum produto disponível nesta categoria
-                <?php endif; ?>
-            </p>
-        </div>
-        
-        <!-- Grid de Produtos -->
-        <?php if (!empty($produtos)): ?>
-        <div class="produtos-grid-page">
+        <!-- Layout: Sidebar + Conteúdo -->
+        <div class="produtos-layout">
             
-            <?php foreach ($produtos as $product): ?>
-            <!-- Produto: <?php echo htmlspecialchars($product['nome']); ?> -->
-            <div class="produto-card">
-                <div class="produto-image">
-                    <?php if (!empty($product['imagem_principal'])): ?>
-                    <img src="../admin/assets/images/produtos/<?php echo htmlspecialchars($product['imagem_principal']); ?>" 
-                         alt="<?php echo htmlspecialchars($product['nome']); ?>"
-                         style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;"
-                         onerror="this.parentElement.innerHTML='<div class=\'produto-placeholder\'>💅</div>';">
-                    <?php else: ?>
-                    <div class="produto-placeholder">💅</div>
+            <!-- ===== SIDEBAR DE FILTROS - NOVA ESTRUTURA MINIMALISTA ===== -->
+            <aside class="filtros-sidebar">
+                <div class="sidebar-header">
+                    <h3>Filtrar por</h3>
+                    <?php if (!empty($marca) || $preco_min !== null || $preco_max !== null || $apenas_promocao): ?>
+                        <a href="produtos.php" class="btn-limpar">Limpar</a>
                     <?php endif; ?>
                 </div>
                 
-                <div class="produto-content">
-                    <h3 class="produto-title"><?php echo htmlspecialchars($product['nome']); ?></h3>
-                    <p class="produto-description">
-                        <?php echo htmlspecialchars(substr($product['descricao'] ?? '', 0, 80)); ?><?php echo strlen($product['descricao'] ?? '') > 80 ? '...' : ''; ?>
-                    </p>
+                <!-- SEÇÃO: MARCAS -->
+                <?php if (!empty($marcas)): ?>
+                <div class="filtro-secao">
+                    <h4 class="filtro-titulo">Marcas</h4>
+                    <ul class="filtro-lista">
+                        <?php foreach ($marcas as $m): ?>
+                        <li>
+                            <a href="?marca=<?php echo urlencode($m); ?>" 
+                               class="filtro-link <?php echo ($marca == $m) ? 'active' : ''; ?>">
+                                <?php echo htmlspecialchars($m); ?>
+                            </a>
+                        </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                <?php endif; ?>
+                
+                <!-- SEÇÃO: FAIXA DE PREÇO -->
+                <div class="filtro-secao">
+                    <h4 class="filtro-titulo">Faixa de Preço</h4>
+                    <ul class="filtro-lista">
+                        <li>
+                            <a href="?preco_max=50<?php echo !empty($marca) ? '&marca='.urlencode($marca) : ''; ?>" 
+                               class="filtro-link <?php echo ($preco_max == 50 && $preco_min === null) ? 'active' : ''; ?>">
+                                Até R$ 50
+                            </a>
+                        </li>
+                        <li>
+                            <a href="?preco_min=50&preco_max=100<?php echo !empty($marca) ? '&marca='.urlencode($marca) : ''; ?>" 
+                               class="filtro-link <?php echo ($preco_min == 50 && $preco_max == 100) ? 'active' : ''; ?>">
+                                R$ 50 – R$ 100
+                            </a>
+                        </li>
+                        <li>
+                            <a href="?preco_min=100<?php echo !empty($marca) ? '&marca='.urlencode($marca) : ''; ?>" 
+                               class="filtro-link <?php echo ($preco_min == 100 && $preco_max === null) ? 'active' : ''; ?>">
+                                Acima de R$ 100
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- SEÇÃO: STATUS -->
+                <div class="filtro-secao">
+                    <h4 class="filtro-titulo">Status</h4>
+                    <div class="filtro-opcoes">
+                        <label class="filtro-checkbox">
+                            <input type="checkbox" <?php echo $apenas_promocao ? 'checked' : ''; ?> 
+                                   onchange="window.location.href='?promo=<?php echo $apenas_promocao ? '0' : '1'; ?><?php echo !empty($marca) ? '&marca='.urlencode($marca) : ''; ?><?php echo $preco_min !== null ? '&preco_min='.$preco_min : ''; ?><?php echo $preco_max !== null ? '&preco_max='.$preco_max : ''; ?>'">
+                            <span>Apenas promoções</span>
+                        </label>
+                        <label class="filtro-checkbox">
+                            <input type="checkbox">
+                            <span>Apenas lançamentos</span>
+                        </label>
+                    </div>
+                </div>
+            </aside>
+            
+            <!-- ===== CONTEÚDO PRINCIPAL (Título + Barra Superior + Grid) ===== -->
+            <div class="produtos-conteudo">
+                
+                <!-- Título e contagem -->
+                <div class="produtos-header-inline">
+                    <div>
+                        <h1 class="produtos-titulo"><?php echo htmlspecialchars($pageTitle); ?></h1>
+                        <p class="produtos-contagem">
+                            <?php if ($totalProdutos > 0): ?>
+                                Mostrando <strong><?php echo $offset + 1; ?></strong>–<strong><?php echo min($offset + $produtosPorPagina, $totalProdutos); ?></strong> de <strong><?php echo $totalProdutos; ?></strong> produto<?php echo $totalProdutos > 1 ? 's' : ''; ?>
+                            <?php else: ?>
+                                Nenhum produto encontrado
+                            <?php endif; ?>
+                        </p>
+                    </div>
                     
-                    <div class="produto-price">
-                        <?php if (isOnSale($product)): ?>
-                            <span style="text-decoration: line-through; opacity: 0.6; font-size: 0.85em; margin-right: 8px;">
-                                <?php echo formatPrice($product['preco']); ?>
-                            </span>
-                            <span style="color: var(--color-magenta); font-weight: 700;">
-                                <?php echo formatPrice($product['preco_promocional']); ?>
-                            </span>
-                        <?php else: ?>
-                            <?php echo formatPrice($product['preco']); ?>
+                    <div class="barra-ordenacao">
+                        <label for="ordenar">Ordenar:</label>
+                        <select name="ordenar" id="ordenar" onchange="aplicarOrdenacao(this.value)">
+                            <option value="recentes" <?php echo ($ordenar == 'recentes') ? 'selected' : ''; ?>>Mais recentes</option>
+                            <option value="menor_preco" <?php echo ($ordenar == 'menor_preco') ? 'selected' : ''; ?>>Menor preço</option>
+                            <option value="maior_preco" <?php echo ($ordenar == 'maior_preco') ? 'selected' : ''; ?>>Maior preço</option>
+                            <option value="nome_az" <?php echo ($ordenar == 'nome_az') ? 'selected' : ''; ?>>Nome (A-Z)</option>
+                            <option value="nome_za" <?php echo ($ordenar == 'nome_za') ? 'selected' : ''; ?>>Nome (Z-A)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- ===== BARRA DE PAGINAÇÃO (se necessário) ===== -->
+                <?php if ($totalPaginas > 1): ?>
+                <div class="produtos-barra-superior">
+                    <div class="barra-info">
+                        <span class="pagina-info">Página <strong><?php echo $paginaAtual; ?></strong> de <strong><?php echo $totalPaginas; ?></strong></span>
+                    </div>
+                </div>
+                <?php endif; ?>
+                
+                <!-- Grid de Produtos -->
+                <?php if (!empty($produtos)): ?>
+                <div class="produtos-grid-page">
+                    
+                    <?php foreach ($produtos as $product): ?>
+                    <!-- Produto: <?php echo htmlspecialchars($product['nome']); ?> -->
+                    <div class="produto-card">
+                        <div class="produto-image">
+                            <?php if (!empty($product['imagem_principal'])): ?>
+                            <img src="../admin/assets/images/produtos/<?php echo htmlspecialchars($product['imagem_principal']); ?>" 
+                                 alt="<?php echo htmlspecialchars($product['nome']); ?>"
+                                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;"
+                                 onerror="this.parentElement.innerHTML='<div class=\'produto-placeholder\'>💅</div>';">
+                            <?php else: ?>
+                            <div class="produto-placeholder">💅</div>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <div class="produto-content">
+                            <h3 class="produto-title"><?php echo htmlspecialchars($product['nome']); ?></h3>
+                            <p class="produto-description">
+                                <?php echo htmlspecialchars(substr($product['descricao'] ?? '', 0, 80)); ?><?php echo strlen($product['descricao'] ?? '') > 80 ? '...' : ''; ?>
+                            </p>
+                            
+                            <div class="produto-price">
+                                <?php if (isOnSale($product)): ?>
+                                    <span style="text-decoration: line-through; opacity: 0.6; font-size: 0.85em; margin-right: 8px;">
+                                        <?php echo formatPrice($product['preco']); ?>
+                                    </span>
+                                    <span style="color: var(--color-magenta); font-weight: 700;">
+                                        <?php echo formatPrice($product['preco_promocional']); ?>
+                                    </span>
+                                <?php else: ?>
+                                    <?php echo formatPrice($product['preco']); ?>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <div class="produto-actions">
+                                <button class="btn-add-cart" onclick="addToCart(<?php echo $product['id']; ?>, '<?php echo htmlspecialchars($product['nome'], ENT_QUOTES); ?>', event)">
+                                    🛒 Adicionar
+                                </button>
+                                <button class="btn-buy-now" onclick="buyNow(<?php echo $product['id']; ?>, event)">
+                                    Comprar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                    
+                </div>
+                
+                <!-- ===== PAGINAÇÃO ===== -->
+                <?php if ($totalPaginas > 1): ?>
+                <div class="paginacao">
+                    <?php
+                    // Construir query string preservando filtros
+                    $queryString = '';
+                    if (!empty($categoria)) $queryString .= '&categoria=' . urlencode($categoria);
+                    if (!empty($marca)) $queryString .= '&marca=' . urlencode($marca);
+                    if (!empty($busca)) $queryString .= '&busca=' . urlencode($busca);
+                    if (!empty($menu)) $queryString .= '&menu=' . urlencode($menu);
+                    if ($preco_min !== null) $queryString .= '&preco_min=' . $preco_min;
+                    if ($preco_max !== null) $queryString .= '&preco_max=' . $preco_max;
+                    if ($apenas_promocao) $queryString .= '&promo=1';
+                    if (!empty($ordenar)) $queryString .= '&ordenar=' . urlencode($ordenar);
+                    ?>
+                    
+                    <?php if ($paginaAtual > 1): ?>
+                        <a href="?pagina=<?php echo $paginaAtual - 1; ?><?php echo $queryString; ?>" class="btn-paginacao">← Anterior</a>
+                    <?php endif; ?>
+                    
+                    <div class="paginacao-numeros">
+                        <?php
+                        $range = 2; // Mostrar 2 páginas antes e depois
+                        $start = max(1, $paginaAtual - $range);
+                        $end = min($totalPaginas, $paginaAtual + $range);
+                        
+                        if ($start > 1): ?>
+                            <a href="?pagina=1<?php echo $queryString; ?>" class="btn-pagina">1</a>
+                            <?php if ($start > 2): ?>
+                                <span class="paginacao-ellipsis">...</span>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                        
+                        <?php for ($i = $start; $i <= $end; $i++): ?>
+                            <a href="?pagina=<?php echo $i; ?><?php echo $queryString; ?>" 
+                               class="btn-pagina <?php echo ($i == $paginaAtual) ? 'active' : ''; ?>">
+                                <?php echo $i; ?>
+                            </a>
+                        <?php endfor; ?>
+                        
+                        <?php if ($end < $totalPaginas): ?>
+                            <?php if ($end < $totalPaginas - 1): ?>
+                                <span class="paginacao-ellipsis">...</span>
+                            <?php endif; ?>
+                            <a href="?pagina=<?php echo $totalPaginas; ?><?php echo $queryString; ?>" class="btn-pagina"><?php echo $totalPaginas; ?></a>
                         <?php endif; ?>
                     </div>
                     
-                    <div class="produto-actions">
-                        <button class="btn-add-cart" onclick="addToCart(<?php echo $product['id']; ?>, '<?php echo htmlspecialchars($product['nome'], ENT_QUOTES); ?>', event)">
-                            🛒 Adicionar
-                        </button>
-                        <button class="btn-buy-now" onclick="buyNow(<?php echo $product['id']; ?>, event)">
-                            Comprar
-                        </button>
-                    </div>
+                    <?php if ($paginaAtual < $totalPaginas): ?>
+                        <a href="?pagina=<?php echo $paginaAtual + 1; ?><?php echo $queryString; ?>" class="btn-paginacao">Próxima →</a>
+                    <?php endif; ?>
                 </div>
+                <?php endif; ?>
+                
+                <?php else: ?>
+                
+                <!-- Mensagem quando não há produtos -->
+                <div class="no-products" style="text-align: center; padding: 80px 20px; background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+                    <div style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;">🔍</div>
+                    <h3 style="font-size: 24px; color: #333; margin-bottom: 12px;">Nenhum produto encontrado</h3>
+                    <p style="color: #666; margin-bottom: 30px;">
+                        Tente ajustar seus filtros ou explore outras categorias.
+                    </p>
+                    <a href="produtos.php" class="btn-primary" style="display: inline-block; padding: 12px 32px; background: linear-gradient(135deg, #E6007E, #C4006A); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: transform 0.2s;">
+                        Ver todos os produtos
+                    </a>
+                </div>
+                
+                <?php endif; ?>
+                
             </div>
-            <?php endforeach; ?>
             
         </div>
-        
-        <?php else: ?>
-        
-        <!-- Mensagem quando não há produtos -->
-        <div class="no-products" style="text-align: center; padding: 80px 20px; background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
-            <div style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;">🔍</div>
-            <h3 style="font-size: 24px; color: #333; margin-bottom: 12px;">Nenhum produto encontrado</h3>
-            <p style="color: #666; margin-bottom: 30px;">
-                Tente ajustar sua busca ou explore outras categorias.
-            </p>
-            <a href="produtos.php" class="btn-primary" style="display: inline-block; padding: 12px 32px; background: linear-gradient(135deg, #E6007E, #C4006A); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: transform 0.2s;">
-                Ver todos os produtos
-            </a>
-        </div>
-        
-        <?php endif; ?>
         
     </div>
 </section>
 
 <!-- CSS do Mini Cart -->
 <style>
-    /* ===== GRID DE PRODUTOS (Página de Listagem) ===== */
-    .produtos-grid-page {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 24px;
+    /* ===== CONTAINER PRINCIPAL LARGO ===== */
+    .produtos-container-wide {
+        max-width: 1500px;
         width: 100%;
+        padding: 24px 24px 32px;
         margin: 0 auto;
     }
     
-    /* Responsividade do Grid */
+    /* ===== CABEÇALHO INTEGRADO (dentro do conteúdo) ===== */
+    .produtos-header-inline {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 2px solid #f0f0f0;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .produtos-titulo {
+        font-size: 1.75rem;
+        color: #333;
+        margin: 0 0 4px 0;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+    }
+    
+    .produtos-contagem {
+        font-size: 0.9rem;
+        color: #666;
+        margin: 0;
+        font-weight: 400;
+    }
+    
+    .produtos-contagem strong {
+        color: #E6007E;
+        font-weight: 600;
+    }
+    
+    /* ===== LAYOUT: SIDEBAR + CONTEÚDO ===== */
+    .produtos-layout {
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        gap: 28px;
+        align-items: start;
+    }
+    
+    /* ===== SIDEBAR DE FILTROS - MINIMALISTA E ELEGANTE ===== */
+    .filtros-sidebar {
+        background: white;
+        border-radius: 8px;
+        padding: 0;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        height: fit-content;
+        position: sticky;
+        top: 100px;
+        border: 1px solid #f0f0f0;
+        overflow: hidden;
+    }
+    
+    /* HEADER DA SIDEBAR */
+    .sidebar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 20px;
+        border-bottom: 1px solid #f5f5f5;
+    }
+    
+    .sidebar-header h3 {
+        font-size: 0.938rem;
+        color: #333;
+        margin: 0;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+    }
+    
+    .btn-limpar {
+        font-size: 0.813rem;
+        color: #E6007E;
+        text-decoration: none;
+        font-weight: 500;
+        padding: 0;
+        background: none;
+        border: none;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    
+    .btn-limpar:hover {
+        color: #C4006A;
+        text-decoration: underline;
+    }
+    
+    /* SEÇÕES DE FILTRO */
+    .filtro-secao {
+        padding: 16px 20px;
+        border-bottom: 1px solid #f5f5f5;
+    }
+    
+    .filtro-secao:last-child {
+        border-bottom: none;
+    }
+    
+    .filtro-titulo {
+        font-size: 0.75rem;
+        color: #888;
+        margin: 0 0 12px 0;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+    }
+    
+    /* LISTAS DE LINKS */
+    .filtro-lista {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .filtro-lista li {
+        margin: 0;
+    }
+    
+    .filtro-link {
+        display: block;
+        padding: 7px 0;
+        color: #555;
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 400;
+        line-height: 1.3;
+        transition: all 0.2s ease;
+        position: relative;
+        padding-left: 0;
+    }
+    
+    .filtro-link:hover {
+        color: #E6007E;
+        padding-left: 3px;
+    }
+    
+    .filtro-link.active {
+        color: #E6007E;
+        font-weight: 500;
+        padding-left: 3px;
+    }
+    
+    .filtro-link.active::before {
+        content: '';
+        position: absolute;
+        left: -10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 3px;
+        background: #E6007E;
+        border-radius: 50%;
+    }
+    
+    /* CHECKBOXES (STATUS) */
+    .filtro-opcoes {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .filtro-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font-size: 0.875rem;
+        color: #555;
+        font-weight: 400;
+        transition: color 0.2s;
+    }
+    
+    .filtro-checkbox:hover {
+        color: #E6007E;
+    }
+    
+    .filtro-checkbox input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+        accent-color: #E6007E;
+        margin: 0;
+    }
+    
+    .filtro-checkbox span {
+        user-select: none;
+    }
+    
+    /* ===== CONTEÚDO PRINCIPAL ===== */
+    .produtos-conteudo {
+        min-width: 0; /* Fix para grid overflow */
+        margin-top: 0;
+        padding-top: 0;
+    }
+    
+    /* ===== BARRA SUPERIOR DE INFORMAÇÕES (Paginação) ===== */
+    .produtos-barra-superior {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 16px;
+        border: none;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    
+    .barra-info {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    
+    .pagina-info {
+        font-size: 0.85rem;
+        color: #666;
+        margin: 0;
+        white-space: nowrap;
+    }
+    
+    .pagina-info strong {
+        color: #E6007E;
+        font-weight: 600;
+    }
+    
+    .barra-ordenacao {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 14px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+    }
+    
+    .barra-ordenacao label {
+        font-size: 0.9rem;
+        color: #666;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+    
+    .barra-ordenacao select {
+        padding: 6px 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        background: white;
+        cursor: pointer;
+        transition: all 0.2s;
+        min-width: 160px;
+    }
+    
+    .barra-ordenacao select:hover,
+    .barra-ordenacao select:focus {
+        border-color: #E6007E;
+        outline: none;
+    }
+    
+    /* ===== PAGINAÇÃO ===== */
+    .paginacao {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin-top: 48px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-paginacao,
+    .btn-pagina {
+        padding: 10px 16px;
+        background: white;
+        color: #666;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: all 0.2s;
+    }
+    
+    .btn-paginacao:hover,
+    .btn-pagina:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        color: #E6007E;
+    }
+    
+    .btn-pagina.active {
+        background: linear-gradient(135deg, #E6007E, #C4006A);
+        color: white;
+    }
+    
+    .paginacao-numeros {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+    
+    .paginacao-ellipsis {
+        color: #999;
+        padding: 0 4px;
+    }
+    
+    /* ===== RESPONSIVIDADE ===== */
     @media (max-width: 1200px) {
+        .produtos-container-wide {
+            max-width: 1200px;
+            padding: 16px 20px 24px;
+        }
+        
         .produtos-grid-page {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        }
+    }
+    
+    @media (max-width: 992px) {
+        .produtos-container-wide {
+            padding: 12px 16px 20px;
+        }
+        
+        .produtos-header-inline {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+        }
+        
+        .produtos-titulo {
+            font-size: 1.5rem;
+        }
+        
+        .produtos-layout {
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+        
+        .filtros-sidebar {
+            position: static;
+            order: 2;
+        }
+        
+        .produtos-conteudo {
+            order: 1;
+        }
+        
+        .produtos-grid-page {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
         }
     }
     
     @media (max-width: 768px) {
+        .produtos-titulo {
+            font-size: 1.4rem;
+        }
+        
+        .produtos-contagem {
+            font-size: 0.85rem;
+        }
+        
+        .produtos-header-inline {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+        }
+        
+        .barra-ordenacao {
+            width: 100%;
+            justify-content: space-between;
+        }
+        
+        .barra-ordenacao label {
+            font-size: 0.85rem;
+        }
+        
+        .barra-ordenacao select {
+            flex: 1;
+            max-width: 200px;
+            font-size: 0.85rem;
+        }
+        
+        .produtos-barra-superior {
+            padding-bottom: 12px;
+        }
+        
+        .barra-info {
+            flex-direction: column;
+            gap: 6px;
+            align-items: flex-start;
+        }
+        
         .produtos-grid-page {
             grid-template-columns: repeat(2, 1fr);
             gap: 16px;
+        }
+        
+        .filtros-sidebar {
+            padding: 16px;
+        }
+        
+        .btn-paginacao,
+        .btn-pagina {
+            padding: 8px 12px;
+            font-size: 0.9rem;
         }
     }
     
     @media (max-width: 480px) {
         .produtos-grid-page {
             grid-template-columns: repeat(2, 1fr);
-            gap: 14px;
+            gap: 12px;
         }
         
-        .produtos-grid-page .produto-card {
-            min-width: 100%;
-            max-width: 100%;
+        .paginacao {
+            gap: 8px;
         }
+        
+        .btn-paginacao {
+            font-size: 0.85rem;
+            padding: 8px 10px;
+        }
+        
+        .btn-pagina {
+            padding: 8px 10px;
+            font-size: 0.85rem;
+        }
+    }
+    
+    /* ===== GRID DE PRODUTOS (Página de Listagem) ===== */
+    .produtos-grid-page {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 20px;
+        width: 100%;
+        margin: 0 auto;
+        align-items: start;
     }
     
     /* Ajustar cards para grid (sem comportamento de carrossel) */
@@ -272,6 +964,40 @@ if (!empty($categoria)) {
         width: 100%;
         min-width: 100%;
         max-width: 100%;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Garantir altura uniforme do conteúdo */
+    .produtos-grid-page .produto-card .produto-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Empurrar botões para o final */
+    .produtos-grid-page .produto-card .produto-actions {
+        margin-top: auto;
+    }
+    
+    /* Garantir alturas fixas dos elementos de conteúdo */
+    .produtos-grid-page .produto-card .produto-title {
+        height: 3.38rem;
+        min-height: 3.38rem;
+        max-height: 3.38rem;
+    }
+    
+    .produtos-grid-page .produto-card .produto-description {
+        height: 2.7rem;
+        min-height: 2.7rem;
+        max-height: 2.7rem;
+    }
+    
+    .produtos-grid-page .produto-card .produto-price {
+        height: 2.25rem;
+        min-height: 2.25rem;
+        max-height: 2.25rem;
     }
     
     /* ===== MINI CARRINHO DRAWER - CSS ===== */
@@ -841,6 +1567,14 @@ if (!empty($categoria)) {
 
 <!-- JavaScript do Carrinho -->
 <script>
+    // ===== FUNÇÃO DE ORDENAÇÃO =====
+    function aplicarOrdenacao(valor) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('ordenar', valor);
+        url.searchParams.delete('pagina'); // Reset para primeira página ao mudar ordenação
+        window.location.href = url.toString();
+    }
+    
     // ===== MINI CARRINHO - JAVASCRIPT =====
     const FREE_SHIPPING_THRESHOLD = 99.00;
 

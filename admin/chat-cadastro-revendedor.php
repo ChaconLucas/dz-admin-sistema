@@ -13,7 +13,7 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #ff00d4 0%, #111e88 100%);
+            background: linear-gradient(135deg, #E6007E 0%, #C4006A 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -34,7 +34,7 @@
         }
         
         .chat-header {
-            background: linear-gradient(135deg, #ff00d4, #e91e63);
+            background: linear-gradient(135deg, #E6007E, #C4006A);
             color: white;
             padding: 1.5rem;
             text-align: center;
@@ -86,7 +86,7 @@
         .bot-avatar {
             width: 35px;
             height: 35px;
-            background: linear-gradient(135deg, #ff00d4, #e91e63);
+            background: linear-gradient(135deg, #E6007E, #C4006A);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -113,7 +113,7 @@
         }
         
         .message.user .message-content {
-            background: linear-gradient(135deg, #ff00d4, #e91e63);
+            background: linear-gradient(135deg, #E6007E, #C4006A);
             color: white;
             border-radius: 18px 18px 5px 18px;
             max-width: 75%;
@@ -178,13 +178,13 @@
         
         .chat-input input:focus,
         .chat-input select:focus {
-            border-color: #ff00d4;
+            border-color: #E6007E;
         }
         
         .send-btn {
             width: 45px;
             height: 45px;
-            background: linear-gradient(135deg, #ff00d4, #e91e63);
+            background: linear-gradient(135deg, #E6007E, #C4006A);
             border: none;
             border-radius: 50%;
             color: white;
@@ -215,8 +215,8 @@
         
         .option-btn {
             background: white;
-            border: 2px solid #ff00d4;
-            color: #ff00d4;
+            border: 2px solid #E6007E;
+            color: #E6007E;
             padding: 0.6rem 1rem;
             border-radius: 15px;
             cursor: pointer;
@@ -226,7 +226,7 @@
         }
         
         .option-btn:hover {
-            background: #ff00d4;
+            background: #E6007E;
             color: white;
         }
         
