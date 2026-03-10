@@ -3900,7 +3900,7 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             
             <!-- Botão Ver Todos -->
             <div class="ver-todos-btn">
-                <button onclick="window.location.href='<?php echo htmlspecialchars($homeSettings['launch_button_link'] ?? '#catalogo'); ?>'">
+                <button onclick="window.location.href='produtos.php?menu=lancamentos'">
                     <?php echo htmlspecialchars($homeSettings['launch_button_text'] ?? 'Ver Todos os Lançamentos'); ?>
                 </button>
             </div>

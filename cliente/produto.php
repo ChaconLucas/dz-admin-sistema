@@ -76,6 +76,36 @@ if (!empty($produto['marca'])) {
     mysqli_stmt_close($stmtCombos);
 }
 
+// Buscar variações do produto
+$variacoes = [];
+$variacoesPorTipo = [];
+$checkTableVariacoes = mysqli_query($conn, "SHOW TABLES LIKE 'produto_variacoes'");
+if (mysqli_num_rows($checkTableVariacoes) > 0) {
+    $queryVariacoes = "SELECT * FROM produto_variacoes 
+                       WHERE produto_id = ? AND ativo = 1
+                       ORDER BY tipo, valor";
+    $stmtVar = mysqli_prepare($conn, $queryVariacoes);
+    mysqli_stmt_bind_param($stmtVar, 'i', $produtoId);
+    mysqli_stmt_execute($stmtVar);
+    $resultVar = mysqli_stmt_get_result($stmtVar);
+    while ($row = mysqli_fetch_assoc($resultVar)) {
+        $variacoes[] = $row;
+        // Agrupar por tipo
+        $tipo = $row['tipo'] ?? 'Variação';
+        if (!isset($variacoesPorTipo[$tipo])) {
+            $variacoesPorTipo[$tipo] = [];
+        }
+        $variacoesPorTipo[$tipo][] = $row;
+    }
+    mysqli_stmt_close($stmtVar);
+}
+
+// Decodificar galeria de imagens do campo JSON
+$galeriaImagens = [];
+if (!empty($produto['imagens'])) {
+    $galeriaImagens = json_decode($produto['imagens'], true) ?? [];
+}
+
 $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
 ?>
 <?php require_once 'includes/header.php'; ?>
@@ -115,66 +145,175 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
                     <div class="produto-placeholder-large">💅</div>
                     <?php endif; ?>
                 </div>
+                
+                <!-- Galeria de miniaturas (se houver imagens extras) -->
+                <?php if (!empty($galeriaImagens) && count($galeriaImagens) > 0): ?>
+                <div class="produto-gallery-thumbs">
+                    <!-- Imagem principal como primeira thumb -->
+                    <?php if (!empty($produto['imagem_principal'])): ?>
+                    <div class="thumb-item active" onclick="changeMainImage('../admin/assets/images/produtos/<?php echo htmlspecialchars($produto['imagem_principal']); ?>', this)">
+                        <img src="../admin/assets/images/produtos/<?php echo htmlspecialchars($produto['imagem_principal']); ?>" 
+                             alt="Imagem 1">
+                    </div>
+                    <?php endif; ?>
+                    
+                    <!-- Imagens extras da galeria -->
+                    <?php foreach ($galeriaImagens as $index => $imgNome): ?>
+                    <div class="thumb-item" onclick="changeMainImage('../admin/assets/images/produtos/<?php echo htmlspecialchars($imgNome); ?>', this)">
+                        <img src="../admin/assets/images/produtos/<?php echo htmlspecialchars($imgNome); ?>" 
+                             alt="Imagem <?php echo $index + 2; ?>"
+                             onerror="this.parentElement.style.display='none';">
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <?php endif; ?>
             </div>
             
             <!-- COLUNA DIREITA: INFORMAÇÕES -->
             <div class="produto-info">
-                <h1 class="produto-name"><?php echo htmlspecialchars($produto['nome']); ?></h1>
-                
-                <?php if ($produto['marca'] || $produto['categoria']): ?>
-                <div class="produto-meta">
-                    <?php if ($produto['marca']): ?>
-                    <span class="meta-item">
-                        <strong>Marca:</strong> 
-                        <a href="produtos.php?marca=<?php echo urlencode($produto['marca']); ?>"><?php echo htmlspecialchars($produto['marca']); ?></a>
-                    </span>
+                <!-- Cabeçalho com título e meta -->
+                <div class="produto-header">
+                    <?php if ($produto['marca'] || $produto['categoria']): ?>
+                    <div class="produto-meta">
+                        <?php if ($produto['marca']): ?>
+                        <a href="produtos.php?marca=<?php echo urlencode($produto['marca']); ?>" class="meta-link"><?php echo htmlspecialchars($produto['marca']); ?></a>
+                        <?php endif; ?>
+                        <?php if ($produto['marca'] && $produto['categoria']): ?>
+                        <span class="meta-separator">•</span>
+                        <?php endif; ?>
+                        <?php if ($produto['categoria']): ?>
+                        <a href="produtos.php?categoria=<?php echo urlencode($produto['categoria']); ?>" class="meta-link"><?php echo htmlspecialchars($produto['categoria']); ?></a>
+                        <?php endif; ?>
+                    </div>
                     <?php endif; ?>
-                    <?php if ($produto['categoria']): ?>
-                    <span class="meta-item">
-                        <strong>Categoria:</strong> 
-                        <a href="produtos.php?categoria=<?php echo urlencode($produto['categoria']); ?>"><?php echo htmlspecialchars($produto['categoria']); ?></a>
-                    </span>
-                    <?php endif; ?>
+                    <h1 class="produto-name"><?php echo htmlspecialchars($produto['nome']); ?></h1>
                 </div>
-                <?php endif; ?>
                 
+                <!-- Preço destacado -->
                 <div class="produto-price-section">
                     <?php if (isOnSale($produto)): ?>
-                    <div class="price-container">
-                        <span class="price-old"><?php echo formatPrice($produto['preco']); ?></span>
-                        <span class="price-current sale"><?php echo formatPrice($produto['preco_promocional']); ?></span>
-                        <span class="price-discount">
+                    <div class="price-badge-sale">Em Promoção</div>
+                    <div class="price-wrapper">
+                        <div class="price-main">
+                            <span class="price-label">De:</span>
+                            <span class="price-old"><?php echo formatPrice($produto['preco']); ?></span>
+                        </div>
+                        <div class="price-main">
+                            <span class="price-label">Por:</span>
+                            <span class="price-current sale"><?php echo formatPrice($produto['preco_promocional']); ?></span>
+                        </div>
+                        <div class="price-discount">
                             <?php
                             $desconto = (($produto['preco'] - $produto['preco_promocional']) / $produto['preco']) * 100;
-                            echo '-' . round($desconto) . '%';
+                            echo 'Economize ' . round($desconto) . '%';
                             ?>
-                        </span>
+                        </div>
                     </div>
                     <?php else: ?>
-                    <div class="price-container">
+                    <div class="price-wrapper">
                         <span class="price-current"><?php echo formatPrice($produto['preco']); ?></span>
                     </div>
                     <?php endif; ?>
                 </div>
                 
-                <div class="produto-stock">
-                    <?php if ($produto['estoque'] > 0): ?>
-                    <span class="stock-available">✓ Estoque disponível (<?php echo $produto['estoque']; ?> unidades)</span>
-                    <?php else: ?>
-                    <span class="stock-unavailable">✗ Produto esgotado</span>
-                    <?php endif; ?>
-                </div>
-                
-                <?php if (!empty($produto['descricao'])): ?>
-                <div class="produto-description-short">
-                    <?php 
-                    $descCurta = substr($produto['descricao'], 0, 150);
-                    echo nl2br(htmlspecialchars($descCurta));
-                    if (strlen($produto['descricao']) > 150) echo '...';
-                    ?>
+                <!-- Variações do Produto (se existirem) -->
+                <?php if (!empty($variacoesPorTipo)): ?>
+                <div class="produto-variacoes-section">
+                    <?php foreach ($variacoesPorTipo as $tipo => $variacoesTipo): ?>
+                    <div class="variacao-grupo">
+                        <label class="variacao-label"><?php echo htmlspecialchars($tipo); ?>:</label>
+                        <div class="variacao-opcoes">
+                            <?php foreach ($variacoesTipo as $variacao): ?>
+                            <?php 
+                            // Determinar imagem da variação (priorizar imagem_principal, depois imagem)
+                            $imagemVariacao = '';
+                            if (!empty($variacao['imagem_principal'])) {
+                                $imagemVariacao = $variacao['imagem_principal'];
+                            } elseif (!empty($variacao['imagem'])) {
+                                $imagemVariacao = $variacao['imagem'];
+                            }
+                            
+                            // Determinar preço da variação seguindo prioridade correta
+                            $precoVariacao = null;
+                            $precoPromoVariacao = null;
+                            $precoAdicional = 0;
+                            
+                            // Prioridade 1: preco_promocional da variação
+                            if (isset($variacao['preco_promocional']) && $variacao['preco_promocional'] > 0) {
+                                $precoPromoVariacao = $variacao['preco_promocional'];
+                                if (isset($variacao['preco']) && $variacao['preco'] > 0) {
+                                    $precoVariacao = $variacao['preco'];
+                                } else {
+                                    $precoVariacao = $produto['preco'];
+                                }
+                            }
+                            // Prioridade 2: preco específico da variação
+                            elseif (isset($variacao['preco']) && $variacao['preco'] > 0) {
+                                $precoVariacao = $variacao['preco'];
+                            }
+                            // Prioridade 3: preco_adicional
+                            elseif (isset($variacao['preco_adicional']) && $variacao['preco_adicional'] > 0) {
+                                $precoAdicional = $variacao['preco_adicional'];
+                                $precoVariacao = $produto['preco'] + $precoAdicional;
+                            }
+                            // Fallback: preço base do produto
+                            else {
+                                $precoVariacao = $produto['preco'];
+                                if (isset($produto['preco_promocional']) && $produto['preco_promocional'] > 0) {
+                                    $precoPromoVariacao = $produto['preco_promocional'];
+                                }
+                            }
+                            
+                            $estoqueVariacao = isset($variacao['estoque']) ? (int)$variacao['estoque'] : 0;
+                            ?>
+                            <button type="button" 
+                                    class="variacao-btn" 
+                                    data-preco="<?php echo $precoVariacao; ?>"
+                                    data-preco-promo="<?php echo $precoPromoVariacao ?? ''; ?>"
+                                    data-estoque="<?php echo $estoqueVariacao; ?>"
+                                    data-imagem="<?php echo htmlspecialchars($imagemVariacao); ?>"
+                                    onclick="selectVariacao(this)">
+                                <?php echo htmlspecialchars($variacao['valor']); ?>
+                            </button>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
                 </div>
                 <?php endif; ?>
                 
+                <!-- Info e descrição -->
+                <div class="produto-details-block">
+                    <div class="produto-stock">
+                        <?php if ($produto['estoque'] > 0): ?>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="stock-icon">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                        </svg>
+                        <span class="stock-text">Em estoque (<?php echo $produto['estoque']; ?> unidades)</span>
+                        <?php else: ?>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class="stock-icon">
+                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                        </svg>
+                        <span class="stock-text">Produto esgotado</span>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <?php if (!empty($produto['descricao'])): ?>
+                    <div class="produto-description-short">
+                        <?php 
+                        $descCurta = substr($produto['descricao'], 0, 150);
+                        echo nl2br(htmlspecialchars($descCurta));
+                        if (strlen($produto['descricao']) > 150) echo '...';
+                        ?>
+                    </div>
+                    <?php endif; ?>
+                </div>
+                
+                <!-- Divisor -->
+                <div class="produto-divider"></div>
+                
+                <!-- Botões de ação -->
+                <div class="produto-actions-block">
                 <div class="produto-actions-box">
                     <?php if ($produto['estoque'] > 0): ?>
                     <?php 
@@ -184,14 +323,23 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
                         : '💅';
                     ?>
                     <button class="btn-add-to-cart-large" onclick="addToCart(<?php echo $produto['id']; ?>, '<?php echo htmlspecialchars($produto['nome'], ENT_QUOTES); ?>', <?php echo $precoFinal; ?>, '<?php echo htmlspecialchars($imagemProduto, ENT_QUOTES); ?>', event)">
-                        🛒 Adicionar ao Carrinho
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="btn-icon">
+                            <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+                        </svg>
+                        <span>Adicionar ao Carrinho</span>
                     </button>
                     <button class="btn-buy-now-large" onclick="buyNow(<?php echo $produto['id']; ?>, '<?php echo htmlspecialchars($produto['nome'], ENT_QUOTES); ?>', <?php echo $precoFinal; ?>, '<?php echo htmlspecialchars($imagemProduto, ENT_QUOTES); ?>', event)">
-                        ⚡ Comprar Agora
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="btn-icon">
+                            <path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                        </svg>
+                        <span>Comprar Agora</span>
                     </button>
                     <?php else: ?>
-                    <button class="btn-disabled" disabled>Produto Esgotado</button>
+                    <button class="btn-disabled" disabled>
+                        <span>Produto Esgotado</span>
+                    </button>
                     <?php endif; ?>
+                </div>
                 </div>
             </div>
             
@@ -275,9 +423,17 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
         
         <!-- AVALIAÇÕES (Seção preparada) -->
         <div class="produto-section">
-            <h2 class="section-title">Avaliações</h2>
+            <h2 class="section-title">Avaliações de Clientes</h2>
             <div class="avaliacoes-empty">
-                <p>⭐ Avaliações em breve</p>
+                <div class="stars-preview">☆ ☆ ☆ ☆ ☆</div>
+                <h3>Seja a primeira a avaliar!</h3>
+                <p>Compartilhe sua experiência com este produto.<br>Sua opinião ajuda outras clientes a escolherem melhor.</p>
+                <span class="cta-review">
+                    <span>⭐</span>
+                    <span>Em breve: sistema de avaliações</span>
+                </span>
+            </div>
+        </div>
                 <p class="text-muted">Em breve você poderá ver e deixar sua avaliação sobre este produto.</p>
             </div>
         </div>
@@ -355,7 +511,7 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
     /* ===== PÁGINA DO PRODUTO ===== */
     .produto-page {
         padding: 40px 0 60px;
-        background: #fafafa;
+        background: linear-gradient(to bottom, #fafafa 0%, #f5f5f5 100%);
         min-height: 60vh;
     }
     
@@ -372,9 +528,10 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
         gap: 60px;
         background: white;
         padding: 40px;
-        border-radius: 16px;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.08);
         margin-bottom: 40px;
+        border: 1px solid rgba(0,0,0,0.04);
     }
     
     /* ===== GALERIA DE IMAGENS ===== */
@@ -388,262 +545,597 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
         width: 100%;
         height: auto;
         aspect-ratio: 1;
-        border-radius: 16px;
+        border-radius: 12px;
         overflow: hidden;
-        background: #f8f8f8;
+        background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
         display: flex;
         align-items: center;
         justify-content: center;
+        border: 1px solid #f0f0f0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        transition: all 0.3s ease;
+    }
+    
+    .produto-image-main:hover {
+        box-shadow: 0 4px 16px rgba(230, 0, 126, 0.12);
     }
     
     .produto-image-main img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        transition: all 0.4s ease;
+    }
+    
+    .produto-image-main:hover img {
+        transform: scale(1.05);
     }
     
     .produto-placeholder-large {
         font-size: 120px;
         color: var(--color-magenta);
-        opacity: 0.3;
+        opacity: 0.2;
+    }
+    
+    /* Galeria de miniaturas */
+    .produto-gallery-thumbs {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        padding: 8px 0;
+    }
+    
+    .thumb-item {
+        flex-shrink: 0;
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        background: #f5f5f5;
+    }
+    
+    .thumb-item:hover {
+        border-color: #ddd;
+        transform: translateY(-2px);
+    }
+    
+    .thumb-item.active {
+        border-color: var(--color-magenta);
+        box-shadow: 0 2px 8px rgba(230, 0, 126, 0.3);
+    }
+    
+    .thumb-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
     
     /* ===== INFORMAÇÕES DO PRODUTO ===== */
     .produto-info {
         display: flex;
         flex-direction: column;
-        gap: 24px;
+        gap: 0;
+    }
+    
+    /* Cabeçalho */
+    .produto-header {
+        margin-bottom: 28px;
     }
     
     .produto-name {
         font-size: 2rem;
         font-weight: 700;
-        color: #222;
-        margin: 0;
+        color: #1a1a1a;
+        margin: 10px 0 0;
         line-height: 1.2;
+        letter-spacing: -0.01em;
     }
     
     .produto-meta {
         display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        color: #666;
-        font-size: 0.95rem;
+        align-items: center;
+        gap: 8px;
+        color: #888;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 500;
+        margin-bottom: 8px;
     }
     
-    .produto-meta a {
+    .produto-meta .meta-link {
         color: var(--color-magenta);
         text-decoration: none;
-        font-weight: 600;
+        transition: all 0.2s ease;
+        position: relative;
     }
     
-    .produto-meta a:hover {
-        text-decoration: underline;
+    .produto-meta .meta-link::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 1px;
+        background: var(--color-magenta);
+        transition: width 0.3s ease;
     }
     
+    .produto-meta .meta-link:hover::after {
+        width: 100%;
+    }
+    
+    .produto-meta .meta-separator {
+        color: #ddd;
+        font-size: 0.7rem;
+    }
+    
+    /* Preço */
     .produto-price-section {
-        padding: 20px 0;
-        border-top: 1px solid #eee;
-        border-bottom: 1px solid #eee;
+        padding: 24px 0;
+        margin-bottom: 32px;
+        border-bottom: 1px solid #f0f0f0;
     }
     
-    .price-container {
+    .price-badge-sale {
+        display: inline-block;
+        background: transparent;
+        color: var(--color-magenta);
+        padding: 0;
+        border-radius: 0;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+    }
+    
+    .price-wrapper {
         display: flex;
-        align-items: center;
-        gap: 16px;
-        flex-wrap: wrap;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .price-main {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+    }
+    
+    .price-label {
+        font-size: 0.85rem;
+        color: #666;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     
     .price-old {
-        font-size: 1.2rem;
-        color: #999;
+        font-size: 1.4rem;
+        color: #aaa;
         text-decoration: line-through;
+        font-weight: 600;
     }
     
     .price-current {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #222;
+        font-size: 2.8rem;
+        font-weight: 800;
+        color: #1a1a1a;
+        letter-spacing: -0.02em;
+        line-height: 1;
     }
     
     .price-current.sale {
-        color: var(--color-magenta);
+        background: linear-gradient(135deg, var(--color-magenta) 0%, var(--color-magenta-dark) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
     
     .price-discount {
-        background: var(--color-magenta);
-        color: white;
-        padding: 6px 12px;
-        border-radius: 6px;
+        display: inline-block;
+        background: transparent;
+        color: #10b981;
+        padding: 0;
+        border-radius: 0;
         font-weight: 600;
         font-size: 0.9rem;
+        margin-top: 8px;
+        width: fit-content;
+    }
+    
+    /* Variações do Produto */
+    .produto-variacoes-section {
+        margin: 28px 0;
+        padding: 20px 0;
+        border-top: 1px solid #f0f0f0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .variacao-grupo {
+        margin-bottom: 20px;
+    }
+    
+    .variacao-grupo:last-child {
+        margin-bottom: 0;
+    }
+    
+    .variacao-label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #2a2a2a;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .variacao-opcoes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .variacao-btn {
+        padding: 10px 18px;
+        border: 2px solid #e0e0e0;
+        background: white;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #2a2a2a;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .variacao-btn:hover {
+        border-color: var(--color-magenta);
+        background: rgba(230, 0, 126, 0.05);
+        transform: translateY(-1px);
+    }
+    
+    .variacao-btn.selected {
+        border-color: var(--color-magenta);
+        background: var(--color-magenta);
+        color: white;
+    }
+    
+    /* Detalhes do produto */
+    .produto-details-block {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        margin-bottom: 0;
     }
     
     .produto-stock {
-        font-size: 1rem;
-        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        padding: 0;
+        margin-bottom: 24px;
     }
     
-    .stock-available {
-        color: #4CAF50;
+    .stock-icon {
+        flex-shrink: 0;
     }
     
-    .stock-unavailable {
+    .produto-stock .stock-text {
+        color: #666;
+    }
+    
+    .produto-stock svg {
+        color: #10b981;
+        width: 18px;
+        height: 18px;
+    }
+    
+    .produto-stock:has(.stock-unavailable) svg {
         color: #f44336;
     }
     
     .produto-description-short {
-        font-size: 1rem;
-        line-height: 1.6;
-        color: #555;
+        font-size: 0.95rem;
+        line-height: 1.8;
+        color: #666;
+        background: transparent;
+        padding: 0;
+        border-radius: 0;
+        border-left: none;
+    }
+    
+    /* Divisor */
+    .produto-divider {
+        height: 1px;
+        background: #f0f0f0;
+        margin: 32px 0;
     }
     
     /* ===== AÇÕES ===== */
+    .produto-actions-block {
+        margin-top: 0;
+    }
+    
     .produto-actions-box {
         display: flex;
-        flex-direction: column;
         gap: 12px;
-        margin-top: 12px;
+        margin-top: 0;
     }
     
     .btn-add-to-cart-large,
     .btn-buy-now-large,
     .btn-disabled {
-        padding: 18px 32px;
-        font-size: 1.1rem;
-        font-weight: 700;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 14px 24px;
+        font-size: 0.9rem;
+        font-weight: 600;
         border: none;
-        border-radius: 12px;
+        border-radius: 8px;
         cursor: pointer;
-        transition: all 0.3s;
-        text-align: center;
-        display: block;
-        width: 100%;
+        transition: all 0.3s ease;
+        text-transform: none;
+        letter-spacing: 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-add-to-cart-large .btn-icon,
+    .btn-buy-now-large .btn-icon,
+    .btn-disabled .btn-icon {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        z-index: 1;
+    }
+    
+    .btn-add-to-cart-large span,
+    .btn-buy-now-large span,
+    .btn-disabled span {
+        z-index: 1;
+    }
+    
+    .btn-add-to-cart-large::before,
+    .btn-buy-now-large::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s ease, height 0.6s ease;
+    }
+    
+    .btn-add-to-cart-large:hover::before,
+    .btn-buy-now-large:hover::before {
+        width: 300px;
+        height: 300px;
     }
     
     .btn-add-to-cart-large {
-        background: linear-gradient(135deg, var(--color-magenta), var(--color-magenta-dark));
+        background: var(--color-magenta);
         color: white;
+        box-shadow: 0 2px 8px rgba(230, 0, 126, 0.2);
     }
     
     .btn-add-to-cart-large:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(230, 0, 126, 0.35);
+        background: var(--color-magenta-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(230, 0, 126, 0.3);
+    }
+    
+    .btn-add-to-cart-large:active {
+        transform: translateY(0);
     }
     
     .btn-buy-now-large {
-        background: #222;
-        color: white;
+        background: white;
+        color: #2a2a2a;
+        border: 2px solid #e0e0e0;
+        box-shadow: none;
     }
     
     .btn-buy-now-large:hover {
-        background: #000;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        background: #fafafa;
+        border-color: #2a2a2a;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-buy-now-large:active {
+        transform: translateY(0);
     }
     
     .btn-disabled {
-        background: #ccc;
-        color: #666;
+        background: #ddd;
+        color: #999;
         cursor: not-allowed;
+        box-shadow: none;
+    }
+    
+    .btn-disabled:hover {
+        transform: none;
     }
     
     /* ===== SEÇÕES ===== */
     .produto-section {
-        background: white;
-        padding: 40px;
-        border-radius: 16px;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-        margin-bottom: 32px;
+        background: linear-gradient(to bottom, #ffffff 0%, #fafbfc 100%);
+        padding: 48px 40px;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06);
+        margin-bottom: 28px;
+        border: 1px solid rgba(230, 0, 126, 0.08);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .produto-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, transparent 0%, var(--color-magenta) 50%, transparent 100%);
+        opacity: 0.6;
     }
     
     .section-title {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
         font-weight: 700;
-        color: #222;
-        margin: 0 0 24px;
-        padding-bottom: 16px;
-        border-bottom: 3px solid var(--color-magenta);
+        color: #1a1a1a;
+        margin: 0 0 32px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        position: relative;
+    }
+    
+    .section-title::before {
+        content: '✦';
+        font-size: 1.2rem;
+        color: var(--color-magenta);
+        opacity: 0.7;
+    }
+    
+    .section-title::after {
+        content: '';
+        flex: 1;
+        height: 2px;
+        background: linear-gradient(90deg, rgba(230, 0, 126, 0.3) 0%, transparent 100%);
+        margin-left: 12px;
     }
     
     .produto-description-full {
-        font-size: 1rem;
-        line-height: 1.8;
-        color: #444;
+        font-size: 1.05rem;
+        line-height: 1.9;
+        color: #3a3a3a;
+        background: white;
+        padding: 24px;
+        border-radius: 8px;
+        border-left: 3px solid var(--color-magenta);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
     
     /* ===== PRODUTOS RELACIONADOS ===== */
     .produtos-grid-related {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-        gap: 24px;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 20px;
     }
     
     .produto-card-mini {
         display: block;
-        background: #fafafa;
-        border-radius: 12px;
+        background: white;
+        border-radius: 10px;
         overflow: hidden;
-        transition: all 0.3s;
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         text-decoration: none;
         color: inherit;
+        border: 1px solid #f0f0f0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        position: relative;
+    }
+    
+    .produto-card-mini::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--color-magenta), #ff4da6);
+        transform: scaleX(0);
+        transition: transform 0.4s ease;
+    }
+    
+    .produto-card-mini:hover::before {
+        transform: scaleX(1);
     }
     
     .produto-card-mini:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        transform: translateY(-6px);
+        box-shadow: 0 12px 28px rgba(230, 0, 126, 0.15);
+        border-color: rgba(230, 0, 126, 0.2);
     }
     
     .produto-image-mini {
         width: 100%;
         aspect-ratio: 1;
-        background: white;
+        background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
         display: flex;
         align-items: center;
         justify-content: center;
+        overflow: hidden;
+        position: relative;
     }
     
     .produto-image-mini img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+    
+    .produto-card-mini:hover .produto-image-mini img {
+        transform: scale(1.08);
     }
     
     .produto-placeholder-mini {
-        font-size: 60px;
+        font-size: 56px;
         color: var(--color-magenta);
-        opacity: 0.3;
+        opacity: 0.25;
     }
     
     .produto-content-mini {
-        padding: 16px;
+        padding: 16px 14px;
+        background: white;
     }
     
     .produto-content-mini h4 {
-        font-size: 1rem;
+        font-size: 0.95rem;
         font-weight: 600;
-        color: #222;
-        margin: 0 0 8px;
-        line-height: 1.3;
+        color: #2a2a2a;
+        margin: 0 0 10px;
+        line-height: 1.4;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
+        min-height: 2.8rem;
     }
     
     .price-mini {
         font-size: 1.1rem;
         font-weight: 700;
-        color: #222;
+        color: #1a1a1a;
         margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
     
     .price-mini .old {
-        font-size: 0.9rem;
-        color: #999;
+        font-size: 0.85rem;
+        color: #aaa;
         text-decoration: line-through;
-        margin-right: 8px;
+        font-weight: 500;
     }
     
     .price-mini .sale {
@@ -653,13 +1145,53 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
     /* ===== AVALIAÇÕES ===== */
     .avaliacoes-empty {
         text-align: center;
-        padding: 60px 20px;
-        color: #666;
+        padding: 48px 20px;
+        background: linear-gradient(135deg, rgba(230, 0, 126, 0.03) 0%, rgba(255, 77, 166, 0.03) 100%);
+        border-radius: 12px;
+        border: 2px dashed rgba(230, 0, 126, 0.15);
+    }
+    
+    .avaliacoes-empty .stars-preview {
+        font-size: 2.5rem;
+        margin-bottom: 16px;
+        opacity: 0.2;
+        letter-spacing: 4px;
+    }
+    
+    .avaliacoes-empty .icon-reviews {
+        font-size: 3.5rem;
+        margin-bottom: 16px;
+        opacity: 0.15;
+    }
+    
+    .avaliacoes-empty h3 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2a2a2a;
+        margin: 0 0 8px;
     }
     
     .avaliacoes-empty p {
-        font-size: 1.1rem;
-        margin: 8px 0;
+        font-size: 1rem;
+        color: #6b6b6b;
+        margin: 8px 0 20px;
+        line-height: 1.6;
+    }
+    
+    .avaliacoes-empty .cta-review {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 24px;
+        background: white;
+        color: var(--color-magenta);
+        border: 2px solid var(--color-magenta);
+        border-radius: 24px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: not-allowed;
+        opacity: 0.6;
+        transition: all 0.3s ease;
     }
     
     .text-muted {
@@ -1132,6 +1664,14 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
         .price-current {
             font-size: 2rem;
         }
+        
+        .produto-section {
+            padding: 36px 28px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+        }
     }
     
     @media (max-width: 768px) {
@@ -1139,22 +1679,348 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
             padding: 0 16px;
         }
         
+        .produto-content {
+            flex-direction: column;
+            gap: 32px;
+        }
+        
+        .produto-gallery {
+            width: 100%;
+        }
+        
+        .produto-info {
+            width: 100%;
+        }
+        
+        .produto-name {
+            font-size: 1.8rem;
+        }
+        
+        .produto-price-section {
+            padding: 20px 16px;
+        }
+        
+        .price-current {
+            font-size: 2.2rem;
+        }
+        
+        .price-old {
+            font-size: 1.2rem;
+        }
+        
+        .produto-actions-box {
+            flex-direction: column;
+        }
+        
+        .btn-add-to-cart-large,
+        .btn-buy-now-large,
+        .btn-disabled {
+            width: 100%;
+            font-size: 0.95rem;
+        }
+        
+        .produto-gallery-thumbs {
+            gap: 8px;
+        }
+        
+        .thumb-item {
+            width: 70px;
+            height: 70px;
+        }
+        
+        .variacao-opcoes {
+            gap: 8px;
+        }
+        
+        .variacao-btn {
+            padding: 8px 14px;
+            font-size: 0.85rem;
+        }
+        
         .produto-section {
-            padding: 24px 20px;
+            padding: 32px 20px;
+            margin-bottom: 20px;
         }
         
         .section-title {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
+            margin-bottom: 24px;
+        }
+        
+        .section-title::after {
+            display: none;
+        }
+        
+        .produto-description-full {
+            padding: 20px 16px;
+            font-size: 0.98rem;
         }
         
         .produtos-grid-related {
             grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
+            gap: 14px;
+        }
+        
+        .produto-content-mini h4 {
+            font-size: 0.9rem;
+            min-height: auto;
+        }
+        
+        .price-mini {
+            font-size: 1rem;
+        }
+        
+        .avaliacoes-empty {
+            padding: 36px 16px;
+        }
+        
+        .avaliacoes-empty .stars-preview {
+            font-size: 2rem;
+        }
+        
+        .avaliacoes-empty h3 {
+            font-size: 1.1rem;
+        }
+        
+        .avaliacoes-empty p {
+            font-size: 0.9rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .produto-name {
+            font-size: 1.5rem;
+        }
+        
+        .produto-price-section {
+            padding: 16px 12px;
+        }
+        
+        .price-current {
+            font-size: 2rem;
+        }
+        
+        .price-old {
+            font-size: 1rem;
+        }
+        
+        .btn-add-to-cart-large,
+        .btn-buy-now-large,
+        .btn-disabled {
+            padding: 16px 20px;
+            font-size: 0.9rem;
+            gap: 8px;
+        }
+        
+        .btn-add-to-cart-large .btn-icon,
+        .btn-buy-now-large .btn-icon,
+        .btn-disabled .btn-icon {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .produto-gallery-thumbs {
+            gap: 6px;
+        }
+        
+        .thumb-item {
+            width: 60px;
+            height: 60px;
+        }
+        
+        .variacao-btn {
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            flex: 1 1 auto;
+            min-width: calc(50% - 5px);
+        }
+        
+        .produtos-grid-related {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        
+        .produto-card-mini {
+            max-width: 100%;
         }
     }
 </style>
 
 <script>
+    // Salvar valores originais do produto para poder voltar
+    let imagemOriginalProduto = '';
+    let precoOriginalProduto = '';
+    let precoPromoOriginalProduto = '';
+    let estoqueOriginalProduto = '';
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Salvar imagem original
+        const mainImage = document.getElementById('mainProductImage');
+        if (mainImage && mainImage.src) {
+            imagemOriginalProduto = mainImage.src;
+        }
+        
+        // Salvar preço original
+        const precoCurrentElement = document.querySelector('.price-current');
+        if (precoCurrentElement) {
+            precoOriginalProduto = precoCurrentElement.textContent;
+        }
+        
+        // Salvar preço antigo (se tiver promoção)
+        const precoOldElement = document.querySelector('.price-old');
+        if (precoOldElement) {
+            precoPromoOriginalProduto = precoOldElement.textContent;
+        }
+        
+        // Salvar estoque original
+        const stockTextElement = document.querySelector('.stock-text');
+        if (stockTextElement) {
+            estoqueOriginalProduto = stockTextElement.textContent;
+        }
+    });
+    
+    // ===== GALERIA DE IMAGENS =====
+    function changeMainImage(imageUrl, thumbElement) {
+        // Atualizar imagem principal
+        const mainImage = document.getElementById('mainProductImage');
+        if (mainImage) {
+            mainImage.src = imageUrl;
+        }
+        
+        // Remover classe active de todos os thumbs
+        const allThumbs = document.querySelectorAll('.thumb-item');
+        allThumbs.forEach(thumb => thumb.classList.remove('active'));
+        
+        // Adicionar classe active no thumb clicado
+        if (thumbElement) {
+            thumbElement.classList.add('active');
+        }
+        
+        // Remover seleção das variações quando clicar em uma miniatura
+        const allVariacaoBtns = document.querySelectorAll('.variacao-btn');
+        allVariacaoBtns.forEach(btn => btn.classList.remove('selected'));
+        
+        // Restaurar valores originais do produto (preço e estoque)
+        if (precoOriginalProduto) {
+            const precoCurrentElement = document.querySelector('.price-current');
+            if (precoCurrentElement) {
+                precoCurrentElement.textContent = precoOriginalProduto;
+            }
+        }
+        
+        if (precoPromoOriginalProduto) {
+            const precoOldElement = document.querySelector('.price-old');
+            if (precoOldElement) {
+                precoOldElement.textContent = precoPromoOriginalProduto;
+            }
+        }
+        
+        if (estoqueOriginalProduto) {
+            const stockTextElement = document.querySelector('.stock-text');
+            const stockIconElement = document.querySelector('.stock-icon');
+            
+            if (stockTextElement) {
+                stockTextElement.textContent = estoqueOriginalProduto;
+                
+                // Restaurar ícone apropriado baseado no texto
+                if (stockIconElement) {
+                    if (estoqueOriginalProduto.includes('esgotado')) {
+                        stockIconElement.innerHTML = '<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>';
+                        stockIconElement.style.color = '#f44336';
+                    } else {
+                        stockIconElement.innerHTML = '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>';
+                        stockIconElement.style.color = '#10b981';
+                    }
+                }
+            }
+        }
+    }
+    
+    // ===== VARIAÇÕES DO PRODUTO =====
+    function selectVariacao(buttonElement) {
+        // Remover seleção de outros botões do mesmo grupo
+        const grupo = buttonElement.closest('.variacao-opcoes');
+        if (grupo) {
+            grupo.querySelectorAll('.variacao-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+        }
+        
+        // Adicionar classe selected no botão clicado
+        buttonElement.classList.add('selected');
+        
+        // Trocar imagem principal se variação tiver imagem própria
+        const imagemVariacao = buttonElement.dataset.imagem;
+        if (imagemVariacao && imagemVariacao.trim() !== '') {
+            const mainImage = document.getElementById('mainProductImage');
+            if (mainImage) {
+                // Efeito de fade suave
+                mainImage.style.opacity = '0.5';
+                
+                setTimeout(() => {
+                    // Construir caminho completo da imagem
+                    const imagePath = '../admin/assets/images/produtos/' + imagemVariacao;
+                    mainImage.src = imagePath;
+                    
+                    // Restaurar opacidade
+                    mainImage.style.opacity = '1';
+                    
+                    // Remover classe active de todos os thumbs (já que estamos mostrando imagem da variação)
+                    const allThumbs = document.querySelectorAll('.thumb-item');
+                    allThumbs.forEach(thumb => thumb.classList.remove('active'));
+                }, 150);
+            }
+        }
+        
+        // Atualizar preço da variação
+        const preco = parseFloat(buttonElement.dataset.preco);
+        const precoPromo = buttonElement.dataset.precoPromo ? parseFloat(buttonElement.dataset.precoPromo) : null;
+        
+        if (precoPromo && precoPromo > 0) {
+            // Variação tem preço promocional
+            const precoCurrentElement = document.querySelector('.price-current');
+            const precoOldElement = document.querySelector('.price-old');
+            
+            if (precoCurrentElement) {
+                precoCurrentElement.textContent = 'R$ ' + precoPromo.toFixed(2).replace('.', ',');
+            }
+            if (precoOldElement) {
+                precoOldElement.textContent = 'R$ ' + preco.toFixed(2).replace('.', ',');
+            }
+        } else if (preco && preco > 0) {
+            // Variação tem apenas preço normal
+            const precoCurrentElement = document.querySelector('.price-current');
+            if (precoCurrentElement) {
+                precoCurrentElement.textContent = 'R$ ' + preco.toFixed(2).replace('.', ',');
+            }
+        }
+        
+        // Atualizar estoque da variação
+        const estoque = parseInt(buttonElement.dataset.estoque);
+        const stockTextElement = document.querySelector('.stock-text');
+        const stockIconElement = document.querySelector('.stock-icon');
+        
+        if (stockTextElement) {
+            if (estoque > 0) {
+                stockTextElement.textContent = 'Em estoque (' + estoque + ' unidades)';
+                
+                // Atualizar ícone para checkmark (estoque disponível)
+                if (stockIconElement) {
+                    stockIconElement.innerHTML = '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>';
+                    stockIconElement.style.color = '#10b981';
+                }
+            } else {
+                stockTextElement.textContent = 'Produto esgotado';
+                
+                // Atualizar ícone para X (sem estoque)
+                if (stockIconElement) {
+                    stockIconElement.innerHTML = '<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>';
+                    stockIconElement.style.color = '#f44336';
+                }
+            }
+        }
+    }
+    
     // ===== CARRINHO - FUNÇÕES PRINCIPAIS =====
     const FREE_SHIPPING_THRESHOLD = 99.00;
 

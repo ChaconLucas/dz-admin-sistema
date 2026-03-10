@@ -46,14 +46,64 @@ while ($row = mysqli_fetch_assoc($resultMarcas)) {
     $marcas[] = $row['marca'];
 }
 
-// ===== QUERY PRINCIPAL COM PAGINAÇÃO =====
-// Primeiro, contar total de produtos (sem limit)
-$queryCount = "
-    SELECT COUNT(*) as total
-    FROM produtos p
-    LEFT JOIN categorias c ON p.categoria_id = c.id
-    WHERE p.status = 'ativo'
-";
+// ===== LÓGICA ESPECIAL PARA LANÇAMENTOS =====
+// Se menu=lancamentos, buscar produtos da tabela home_featured_products (section_key='launches')
+if (!empty($menu) && $menu === 'lancamentos') {
+    // Query de count para lançamentos
+    $queryCountLancamentos = "
+        SELECT COUNT(*) as total
+        FROM home_featured_products fp
+        INNER JOIN produtos p ON fp.product_id = p.id
+        WHERE fp.section_key = 'launches'
+          AND p.status = 'ativo'
+    ";
+    
+    $resultCountLancamentos = mysqli_query($conn, $queryCountLancamentos);
+    $totalProdutos = mysqli_fetch_assoc($resultCountLancamentos)['total'];
+    $totalPaginas = ceil($totalProdutos / $produtosPorPagina);
+    
+    // Query principal para lançamentos com paginação
+    $queryLancamentos = "
+        SELECT 
+            p.id,
+            p.nome,
+            p.descricao,
+            p.preco,
+            p.preco_promocional,
+            p.estoque,
+            p.imagem_principal,
+            c.nome AS categoria,
+            fp.position
+        FROM home_featured_products fp
+        INNER JOIN produtos p ON fp.product_id = p.id
+        LEFT JOIN categorias c ON p.categoria_id = c.id
+        WHERE fp.section_key = 'launches'
+          AND p.status = 'ativo'
+        ORDER BY fp.position ASC
+        LIMIT ? OFFSET ?
+    ";
+    
+    $stmtLancamentos = mysqli_prepare($conn, $queryLancamentos);
+    mysqli_stmt_bind_param($stmtLancamentos, 'ii', $produtosPorPagina, $offset);
+    mysqli_stmt_execute($stmtLancamentos);
+    $result = mysqli_stmt_get_result($stmtLancamentos);
+    
+    // Buscar produtos
+    $produtos = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $produtos[] = $row;
+    }
+    
+    mysqli_stmt_close($stmtLancamentos);
+} else {
+    // ===== QUERY NORMAL PARA OUTROS FILTROS =====
+    // Primeiro, contar total de produtos (sem limit)
+    $queryCount = "
+        SELECT COUNT(*) as total
+        FROM produtos p
+        LEFT JOIN categorias c ON p.categoria_id = c.id
+        WHERE p.status = 'ativo'
+    ";
 
 $params = [];
 $types = '';
@@ -224,13 +274,14 @@ if (!empty($params)) {
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 
-// Buscar produtos
-$produtos = [];
-while ($row = mysqli_fetch_assoc($result)) {
-    $produtos[] = $row;
-}
+    // Buscar produtos
+    $produtos = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $produtos[] = $row;
+    }
 
-mysqli_stmt_close($stmt);
+    mysqli_stmt_close($stmt);
+} // Fim do bloco else (query normal)
 
 // Definir título da página
 $pageTitle = 'Todos os Produtos';
@@ -239,7 +290,7 @@ if (!empty($categoria)) {
 } elseif (!empty($busca)) {
     $pageTitle = 'Resultados para: ' . htmlspecialchars($busca);
 } elseif (!empty($menu)) {
-    $pageTitle = ucfirst($menu);
+    $pageTitle = ($menu === 'lancamentos') ? 'Lançamentos' : ucfirst($menu);
 } elseif (!empty($marca)) {
     $pageTitle = 'Marca: ' . htmlspecialchars($marca);
 } elseif ($secao_marcas) {
