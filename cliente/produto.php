@@ -268,6 +268,9 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
                             ?>
                             <button type="button" 
                                     class="variacao-btn" 
+                                    data-variacao-id="<?php echo $variacao['id']; ?>"
+                                    data-tipo="<?php echo htmlspecialchars($tipo); ?>"
+                                    data-valor="<?php echo htmlspecialchars($variacao['valor']); ?>"
                                     data-preco="<?php echo $precoVariacao; ?>"
                                     data-preco-promo="<?php echo $precoPromoVariacao ?? ''; ?>"
                                     data-estoque="<?php echo $estoqueVariacao; ?>"
@@ -311,6 +314,15 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
                 
                 <!-- Divisor -->
                 <div class="produto-divider"></div>
+                
+                <!-- Hidden inputs para variação selecionada -->
+                <input type="hidden" id="variacaoSelecionadaId" value="">
+                <input type="hidden" id="variacaoSelecionadaTipo" value="">
+                <input type="hidden" id="variacaoSelecionadaValor" value="">
+                <input type="hidden" id="variacaoSelecionadaPreco" value="">
+                <input type="hidden" id="variacaoSelecionadaPrecoPromo" value="">
+                <input type="hidden" id="variacaoSelecionadaEstoque" value="">
+                <input type="hidden" id="variacaoSelecionadaImagem" value="">
                 
                 <!-- Botões de ação -->
                 <div class="produto-actions-block">
@@ -1900,6 +1912,15 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
         const allVariacaoBtns = document.querySelectorAll('.variacao-btn');
         allVariacaoBtns.forEach(btn => btn.classList.remove('selected'));
         
+        // Limpar variação selecionada dos campos hidden
+        document.getElementById('variacaoSelecionadaId').value = '';
+        document.getElementById('variacaoSelecionadaTipo').value = '';
+        document.getElementById('variacaoSelecionadaValor').value = '';
+        document.getElementById('variacaoSelecionadaPreco').value = '';
+        document.getElementById('variacaoSelecionadaPrecoPromo').value = '';
+        document.getElementById('variacaoSelecionadaEstoque').value = '';
+        document.getElementById('variacaoSelecionadaImagem').value = '';
+        
         // Restaurar valores originais do produto (preço e estoque)
         if (precoOriginalProduto) {
             const precoCurrentElement = document.querySelector('.price-current');
@@ -1948,6 +1969,15 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
         
         // Adicionar classe selected no botão clicado
         buttonElement.classList.add('selected');
+        
+        // Armazenar dados da variação selecionada nos campos hidden
+        document.getElementById('variacaoSelecionadaId').value = buttonElement.dataset.variacaoId || '';
+        document.getElementById('variacaoSelecionadaTipo').value = buttonElement.dataset.tipo || '';
+        document.getElementById('variacaoSelecionadaValor').value = buttonElement.dataset.valor || '';
+        document.getElementById('variacaoSelecionadaPreco').value = buttonElement.dataset.preco || '';
+        document.getElementById('variacaoSelecionadaPrecoPromo').value = buttonElement.dataset.precoPromo || '';
+        document.getElementById('variacaoSelecionadaEstoque').value = buttonElement.dataset.estoque || '';
+        document.getElementById('variacaoSelecionadaImagem').value = buttonElement.dataset.imagem || '';
         
         // Trocar imagem principal se variação tiver imagem própria
         const imagemVariacao = buttonElement.dataset.imagem;
@@ -2036,13 +2066,54 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
     function addToCart(productId, productName, productPrice, productImage, event) {
         if (event) event.preventDefault();
         
+        // Obter dados da variação selecionada (se houver)
+        const variacaoId = document.getElementById('variacaoSelecionadaId')?.value || '';
+        const variacaoTipo = document.getElementById('variacaoSelecionadaTipo')?.value || '';
+        const variacaoValor = document.getElementById('variacaoSelecionadaValor')?.value || '';
+        const variacaoPreco = document.getElementById('variacaoSelecionadaPreco')?.value || '';
+        const variacaoPrecoPromo = document.getElementById('variacaoSelecionadaPrecoPromo')?.value || '';
+        const variacaoEstoque = document.getElementById('variacaoSelecionadaEstoque')?.value || '';
+        const variacaoImagem = document.getElementById('variacaoSelecionadaImagem')?.value || '';
+        
+        // Verificar se produto tem variações e se alguma foi selecionada
+        const temVariacoes = document.querySelector('.produto-variacoes-section') !== null;
+        if (temVariacoes && !variacaoId) {
+            alert('Por favor, selecione uma opção antes de adicionar ao carrinho.');
+            return;
+        }
+        
         const cart = getCart();
         const numericId = (productId === 0 || productId === '0') ? 0 : (parseInt(productId) || productId);
-        const price = parseFloat(productPrice) || 0;
         
+        // Se houver variação, usar preço e imagem da variação
+        let finalPrice = parseFloat(productPrice) || 0;
+        let finalImage = productImage;
+        let finalName = productName;
+        let variantKey = '';
+        
+        if (variacaoId) {
+            // Usar preço da variação (prioridade: promocional > normal)
+            if (variacaoPrecoPromo && parseFloat(variacaoPrecoPromo) > 0) {
+                finalPrice = parseFloat(variacaoPrecoPromo);
+            } else if (variacaoPreco && parseFloat(variacaoPreco) > 0) {
+                finalPrice = parseFloat(variacaoPreco);
+            }
+            
+            // Usar imagem da variação se existir
+            if (variacaoImagem && variacaoImagem.trim() !== '') {
+                finalImage = 'http://localhost/admin-teste/admin/assets/images/produtos/' + variacaoImagem;
+            }
+            
+            // Montar nome com variação
+            finalName = productName + ' - ' + variacaoValor;
+            variantKey = variacaoId;
+        }
+        
+        // Procurar item existente (produto + variação)
         const existingItem = cart.find(item => {
             const itemNumericId = (item.id === 0 || item.id === '0') ? 0 : (parseInt(item.id) || item.id);
-            return itemNumericId === numericId;
+            const itemVariantKey = item.variantKey || '';
+            return itemNumericId === numericId && itemVariantKey === variantKey;
         });
         
         if (existingItem) {
@@ -2050,11 +2121,12 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
         } else {
             cart.push({
                 id: numericId,
-                name: productName,
-                price: price,
+                name: finalName,
+                price: finalPrice,
                 qty: 1,
-                variant: '',
-                image: productImage,
+                variant: variacaoValor || '',
+                variantKey: variantKey,
+                image: finalImage,
                 addedAt: new Date().toISOString()
             });
         }
@@ -2073,16 +2145,16 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
         }, 300);
     }
 
-    function removeFromCart(itemId, variant = '') {
+    function removeFromCart(itemId, variantKey = '') {
         let cart = getCart();
         const numericItemId = (itemId === 0 || itemId === '0') ? 0 : (parseInt(itemId) || itemId);
         const initialLength = cart.length;
         
         cart = cart.filter((item) => {
             const itemNumericId = (item.id === 0 || item.id === '0') ? 0 : (parseInt(item.id) || item.id);
-            const itemVariant = item.variant || '';
+            const itemVariantKey = item.variantKey || '';
             const idsMatch = itemNumericId === numericItemId;
-            const variantsMatch = itemVariant === variant;
+            const variantsMatch = itemVariantKey === variantKey;
             return !(idsMatch && variantsMatch);
         });
         
@@ -2095,20 +2167,20 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
         }
     }
 
-    function updateQty(itemId, variant, newQty) {
+    function updateQty(itemId, variantKey, newQty) {
         const cart = getCart();
         
         const numericItemId = (itemId === 0 || itemId === '0') ? 0 : (parseInt(itemId) || itemId);
         
         const item = cart.find(i => {
             const iNumericId = (i.id === 0 || i.id === '0') ? 0 : (parseInt(i.id) || i.id);
-            const iVariant = i.variant || '';
-            return iNumericId === numericItemId && iVariant === variant;
+            const iVariantKey = i.variantKey || '';
+            return iNumericId === numericItemId && iVariantKey === variantKey;
         });
         
         if (item) {
             if (newQty <= 0) {
-                removeFromCart(itemId, variant);
+                removeFromCart(itemId, variantKey);
             } else {
                 item.qty = newQty;
                 setCart(cart);
@@ -2173,28 +2245,28 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
             const itemQty = parseInt(item.qty) || 1;
             const itemId = item.id || 0;
             const itemVariant = item.variant || '';
+            const itemVariantKey = item.variantKey || '';
             const itemName = item.name || 'Produto';
             const itemImage = item.image || '';
             
             const escapedName = itemName.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-            const escapedVariant = itemVariant.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const escapedVariantKey = itemVariantKey.replace(/'/g, "\\'").replace(/"/g, '&quot;');
             
             return `
-            <div class="cart-item" data-product-id="${itemId}">
+            <div class="cart-item" data-product-id="${itemId}" data-variant-key="${escapedVariantKey}">
                 <div class="cart-item-image">
                     ${itemImage && itemImage.startsWith('http') ? `<img src="${itemImage}" alt="${escapedName}" loading="lazy">` : `<span style="font-size: 2rem;">${itemImage || '💅'}</span>`}
                 </div>
                 <div class="cart-item-details">
                     <div class="cart-item-name">${itemName}</div>
-                    ${itemVariant ? `<div class="cart-item-variant">${itemVariant}</div>` : ''}
                     <div class="cart-item-price">R$ ${itemPrice.toFixed(2).replace('.', ',')}</div>
                     <div class="cart-item-actions">
                         <div class="qty-control">
-                            <button class="qty-btn" onclick="updateQty(${itemId}, '', ${itemQty - 1})" ${itemQty <= 1 ? 'disabled' : ''} aria-label="Diminuir quantidade">−</button>
+                            <button class="qty-btn" onclick="updateQty(${itemId}, '${escapedVariantKey}', ${itemQty - 1})" ${itemQty <= 1 ? 'disabled' : ''} aria-label="Diminuir quantidade">−</button>
                             <span class="qty-value">${itemQty}</span>
-                            <button class="qty-btn" onclick="updateQty(${itemId}, '', ${itemQty + 1})" aria-label="Aumentar quantidade">+</button>
+                            <button class="qty-btn" onclick="updateQty(${itemId}, '${escapedVariantKey}', ${itemQty + 1})" aria-label="Aumentar quantidade">+</button>
                         </div>
-                        <button class="btn-remove-item" onclick="removeFromCart(${itemId}, '')" title="Remover produto" aria-label="Remover produto">
+                        <button class="btn-remove-item" onclick="removeFromCart(${itemId}, '${escapedVariantKey}')" title="Remover produto" aria-label="Remover produto">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
                             </svg>
