@@ -1848,28 +1848,6 @@ function corStatus($status) {
                 }, 10);
             }
         }
-        
-        // Atualizar badge do carrinho ao carregar a página
-        document.addEventListener('DOMContentLoaded', function() {
-            updateCartBadge();
-            
-            // Event listener para botão do carrinho
-            const cartButton = document.getElementById('cartButton');
-            if (cartButton) {
-                cartButton.addEventListener('click', function() {
-                    window.location.href = 'carrinho.php';
-                });
-            }
-            
-            // Event listener para logo (voltar para index)
-            const logoContainer = document.querySelector('.logo-container');
-            if (logoContainer) {
-                logoContainer.addEventListener('click', function() {
-                    window.location.href = '../index.php';
-                });
-                logoContainer.style.cursor = 'pointer';
-            }
-        });
     </script>
 </head>
 <body>
@@ -2213,43 +2191,8 @@ function corStatus($status) {
             }
         });
         
-        // Atualizar contador do carrinho
-        function updateCartCount() {
-            const cart = JSON.parse(localStorage.getItem('dz_cart') || '[]');
-            const totalItems = cart.reduce((sum, item) => {
-                const itemQty = parseInt(item.qty) || 0;
-                return sum + itemQty;
-            }, 0);
-            
-            const cartBadge = document.getElementById('cartBadge') || document.querySelector('.cart-count');
-            const cartButton = document.getElementById('cartButton');
-            
-            if (cartBadge) {
-                cartBadge.textContent = totalItems;
-                
-                if (totalItems > 0) {
-                    cartBadge.style.display = 'flex';
-                    if (cartButton) {
-                        cartButton.classList.add('has-items');
-                    }
-                } else {
-                    cartBadge.style.display = 'none';
-                    if (cartButton) {
-                        cartButton.classList.remove('has-items');
-                    }
-                }
-                
-                cartBadge.style.animation = 'none';
-                setTimeout(() => {
-                    cartBadge.style.animation = 'bounce 0.5s ease';
-                }, 10);
-            }
-        }
-        
         // Função para busca
         document.addEventListener('DOMContentLoaded', function() {
-            updateCartCount();
-            
             const searchToggle = document.getElementById('searchToggle');
             const searchPanel = document.getElementById('searchPanel');
             
@@ -2269,16 +2212,6 @@ function corStatus($status) {
                 });
             }
             
-            // Botão do carrinho
-            const cartButton = document.getElementById('cartButton');
-            if (cartButton) {
-                cartButton.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    window.location.href = 'carrinho.php';
-                });
-            }
-            
             // Logo - voltar para index
             const logoContainer = document.querySelector('.logo-container');
             if (logoContainer) {
@@ -2286,6 +2219,45 @@ function corStatus($status) {
                     window.location.href = '../index.php';
                 });
                 logoContainer.style.cursor = 'pointer';
+            }
+            
+            // ===== INICIALIZAR CHAT =====
+            createChatButton();
+            
+            // ===== INICIALIZAR MINI CARRINHO =====
+            console.log('🛒 Inicializando mini carrinho...');
+            updateCartBadgeUI();
+            
+            const closeMiniCartBtn = document.getElementById('closeMiniCart');
+            const miniCartOverlay = document.getElementById('miniCartOverlay');
+            const cartButton = document.getElementById('cartButton');
+            
+            console.log('🔎 Verificando elementos:', {
+                closeMiniCartBtn: !!closeMiniCartBtn,
+                miniCartOverlay: !!miniCartOverlay,
+                cartButton: !!cartButton
+            });
+            
+            if (closeMiniCartBtn) {
+                closeMiniCartBtn.addEventListener('click', closeMiniCart);
+                console.log('✅ Event listener adicionado ao botão de fechar');
+            }
+            
+            if (miniCartOverlay) {
+                miniCartOverlay.addEventListener('click', closeMiniCart);
+                console.log('✅ Event listener adicionado ao overlay');
+            }
+            
+            if (cartButton) {
+                cartButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🛍️ Clique no botão do carrinho! Abrindo mini cart...');
+                    openMiniCart();
+                });
+                console.log('✅ Event listener adicionado ao botão do carrinho');
+            } else {
+                console.error('❌ Botão do carrinho não encontrado!');
             }
         });
         
@@ -2477,10 +2449,587 @@ function corStatus($status) {
             ];
         }
         
-        // Inicializar chat quando a página carregar
-        document.addEventListener('DOMContentLoaded', function() {
-            createChatButton();
-        });
+        // ===== MINI CARRINHO - JAVASCRIPT =====
+        const FREE_SHIPPING_THRESHOLD = 99.00;
+
+        // Funções de gerenciamento do carrinho
+        function getCart() {
+            const cart = localStorage.getItem('dz_cart');
+            return cart ? JSON.parse(cart) : [];
+        }
+
+        function setCart(cart) {
+            localStorage.setItem('dz_cart', JSON.stringify(cart));
+        }
+        
+        function removeFromCart(itemId, variant = '') {
+            console.log('🗑️ Tentando remover produto:', itemId, variant);
+            let cart = getCart();
+            
+            const numericItemId = (itemId === 0 || itemId === '0') ? 0 : (parseInt(itemId) || itemId);
+            const initialLength = cart.length;
+            
+            cart = cart.filter((item) => {
+                const itemNumericId = (item.id === 0 || item.id === '0') ? 0 : (parseInt(item.id) || item.id);
+                const itemVariant = item.variant || '';
+                return !(itemNumericId === numericItemId && itemVariant === variant);
+            });
+            
+            const removedCount = initialLength - cart.length;
+            setCart(cart);
+            updateCartBadgeUI();
+            
+            if (removedCount > 0) {
+                renderMiniCart();
+                showNotification('Produto removido do carrinho', 'info');
+            }
+        }
+
+        function updateQty(itemId, variant, newQty) {
+            const cart = getCart();
+            const numericItemId = (itemId === 0 || itemId === '0') ? 0 : (parseInt(itemId) || itemId);
+            
+            const item = cart.find(i => {
+                const iNumericId = (i.id === 0 || i.id === '0') ? 0 : (parseInt(i.id) || i.id);
+                const iVariant = i.variant || '';
+                return iNumericId === numericItemId && iVariant === variant;
+            });
+            
+            if (item) {
+                if (newQty <= 0) {
+                    removeFromCart(itemId, variant);
+                } else {
+                    item.qty = newQty;
+                    setCart(cart);
+                    updateCartBadgeUI();
+                    renderMiniCart();
+                }
+            }
+        }
+
+        function getSubtotal() {
+            const cart = getCart();
+            return cart.reduce((total, item) => {
+                const itemPrice = (typeof item.price === 'number' && !isNaN(item.price)) ? item.price : 0;
+                const itemQty = parseInt(item.qty) || 0;
+                return total + (itemPrice * itemQty);
+            }, 0);
+        }
+
+        function updateCartBadgeUI() {
+            const cart = getCart();
+            const totalItems = cart.reduce((sum, item) => sum + (parseInt(item.qty) || 0), 0);
+            
+            const cartBadge = document.getElementById('cartBadge') || document.querySelector('.cart-count');
+            const cartButton = document.getElementById('cartButton');
+            
+            if (cartBadge) {
+                cartBadge.textContent = totalItems;
+                cartBadge.style.display = totalItems > 0 ? 'flex' : 'none';
+                if (cartButton) {
+                    if (totalItems > 0) {
+                        cartButton.classList.add('has-items');
+                    } else {
+                        cartButton.classList.remove('has-items');
+                    }
+                }
+            }
+        }
+
+        function renderMiniCart() {
+            const cart = getCart();
+            const body = document.getElementById('miniCartBody');
+            const subtotalEl = document.getElementById('miniCartSubtotal');
+            const freeShippingBar = document.getElementById('freeShippingBar');
+            
+            if (!body) return;
+            
+            if (cart.length === 0) {
+                body.innerHTML = `
+                    <div class="cart-empty">
+                        <div class="cart-empty-icon">🛒</div>
+                        <h3>Seu carrinho está vazio</h3>
+                        <p>Adicione produtos para começar suas compras!</p>
+                        <button class="btn-continue-shopping" onclick="closeMiniCart()">Continuar comprando</button>
+                    </div>
+                `;
+                subtotalEl.textContent = 'R$ 0,00';
+                freeShippingBar.innerHTML = `
+                    <div class="shipping-text">Faltam R$ ${FREE_SHIPPING_THRESHOLD.toFixed(2).replace('.', ',')} para ganhar frete grátis</div>
+                    <div class="shipping-progress"><div class="shipping-progress-bar" style="width: 0%"></div></div>
+                `;
+                return;
+            }
+            
+            body.innerHTML = cart.map((item) => {
+                const itemPrice = (typeof item.price === 'number' && !isNaN(item.price)) ? item.price : 0;
+                const itemQty = parseInt(item.qty) || 1;
+                const itemId = item.id || 0;
+                const itemVariant = item.variant || '';
+                const itemName = item.name || 'Produto';
+                const itemImage = item.image || '';
+                
+                const escapedName = itemName.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                
+                return `
+                <div class="cart-item" data-product-id="${itemId}">
+                    <div class="cart-item-image">
+                        ${itemImage && itemImage.startsWith('http') ? `<img src="${itemImage}" alt="${escapedName}" loading="lazy">` : `<span style="font-size: 2rem;">${itemImage || '💅'}</span>`}
+                    </div>
+                    <div class="cart-item-details">
+                        <div class="cart-item-name">${itemName}</div>
+                        ${itemVariant ? `<div class="cart-item-variant">${itemVariant}</div>` : ''}
+                        <div class="cart-item-price">R$ ${itemPrice.toFixed(2).replace('.', ',')}</div>
+                        <div class="cart-item-actions">
+                            <div class="qty-control">
+                                <button class="qty-btn" onclick="updateQty(${itemId}, '', ${itemQty - 1})" ${itemQty <= 1 ? 'disabled' : ''}>−</button>
+                                <span class="qty-value">${itemQty}</span>
+                                <button class="qty-btn" onclick="updateQty(${itemId}, '', ${itemQty + 1})">+</button>
+                            </div>
+                            <button class="btn-remove-item" onclick="removeFromCart(${itemId}, '')" title="Remover">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            }).join('');
+            
+            const subtotal = getSubtotal();
+            subtotalEl.textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+            
+            const remaining = FREE_SHIPPING_THRESHOLD - subtotal;
+            const progress = Math.min((subtotal / FREE_SHIPPING_THRESHOLD) * 100, 100);
+            
+            if (remaining > 0) {
+                freeShippingBar.innerHTML = `
+                    <div class="shipping-text">Faltam R$ ${remaining.toFixed(2).replace('.', ',')} para frete grátis</div>
+                    <div class="shipping-progress"><div class="shipping-progress-bar" style="width: ${progress}%"></div></div>
+                `;
+            } else {
+                freeShippingBar.innerHTML = `
+                    <div class="shipping-unlocked">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                        </svg>
+                        Parabéns! Você ganhou frete grátis! 🎉
+                    </div>
+                `;
+            }
+        }
+
+        function openMiniCart() {
+            console.log('🚪 Tentando abrir mini cart...');
+            const overlay = document.getElementById('miniCartOverlay');
+            const drawer = document.getElementById('miniCartDrawer');
+            console.log('🔎 Elementos encontrados:', { overlay: !!overlay, drawer: !!drawer });
+            
+            if (overlay && drawer) {
+                overlay.classList.add('active');
+                drawer.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                renderMiniCart();
+                console.log('✨ Mini cart aberto com sucesso!');
+            } else {
+                console.error('❌ Não foi possível abrir o mini cart - elementos não encontrados!');
+            }
+        }
+
+        function closeMiniCart() {
+            const overlay = document.getElementById('miniCartOverlay');
+            const drawer = document.getElementById('miniCartDrawer');
+            if (overlay && drawer) {
+                overlay.classList.remove('active');
+                drawer.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
     </script>
+    
+    <!-- ===== MINI CARRINHO DRAWER ===== -->
+    <div id="miniCartOverlay" class="mini-cart-overlay"></div>
+    <div id="miniCartDrawer" class="mini-cart-drawer">
+        <div class="mini-cart-header">
+            <h2>Seu carrinho</h2>
+            <button id="closeMiniCart" class="btn-close-cart" aria-label="Fechar carrinho">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="mini-cart-body" id="miniCartBody">
+            <!-- Conteúdo preenchido via JS -->
+        </div>
+
+        <div class="mini-cart-footer">
+            <div class="free-shipping-bar" id="freeShippingBar">
+                <!-- Barra de progresso preenchida via JS -->
+            </div>
+            <div class="mini-cart-subtotal">
+                <span>Subtotal:</span>
+                <strong id="miniCartSubtotal">R$ 0,00</strong>
+            </div>
+            <a href="carrinho.php" class="btn-view-cart">Ver carrinho completo</a>
+        </div>
+    </div>
+
+    <style>
+        /* ===== MINI CARRINHO DRAWER - CSS ===== */
+        .mini-cart-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 9998;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .mini-cart-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mini-cart-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 380px;
+            max-width: 100%;
+            height: 100vh;
+            background: white;
+            box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+            z-index: 9999;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mini-cart-drawer.active {
+            transform: translateX(0);
+        }
+
+        .mini-cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 2px solid #f1f5f9;
+            flex-shrink: 0;
+        }
+
+        .mini-cart-header h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .btn-close-cart {
+            width: 38px;
+            height: 38px;
+            border-radius: 19px;
+            border: none;
+            background: rgba(230, 0, 126, 0.1);
+            color: var(--color-magenta);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-close-cart:hover {
+            background: var(--color-magenta);
+            color: white;
+            transform: rotate(90deg) scale(1.05);
+        }
+
+        .mini-cart-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px;
+            background: #f8fafc;
+        }
+
+        .mini-cart-body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .mini-cart-body::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 3px;
+        }
+
+        .mini-cart-body::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--color-magenta) 0%, var(--color-magenta-dark) 100%);
+            border-radius: 3px;
+        }
+
+        .cart-empty {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .cart-empty-icon {
+            font-size: 56px;
+            margin-bottom: 12px;
+            opacity: 0.3;
+        }
+
+        .cart-empty h3 {
+            font-size: 1.1rem;
+            color: #64748b;
+            margin-bottom: 6px;
+        }
+
+        .cart-empty p {
+            color: #94a3b8;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .btn-continue-shopping {
+            background: linear-gradient(135deg, var(--color-magenta) 0%, var(--color-magenta-dark) 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 22px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .cart-item {
+            display: grid;
+            grid-template-columns: 70px 1fr;
+            gap: 12px;
+            padding: 14px;
+            background: white;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .cart-item:hover {
+            background: #fafafa;
+            border-color: #e2e8f0;
+            box-shadow: 0 2px 8px rgba(230, 0, 126, 0.08);
+        }
+
+        .cart-item-image {
+            width: 70px;
+            height: 70px;
+            border-radius: 10px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .cart-item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .cart-item-details {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .cart-item-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .cart-item-variant {
+            font-size: 0.75rem;
+            color: #64748b;
+            background: #f1f5f9;
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .cart-item-price {
+            font-weight: 700;
+            color: var(--color-magenta);
+            font-size: 1.05rem;
+        }
+
+        .cart-item-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .qty-control {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: white;
+            border-radius: 20px;
+            padding: 4px 6px;
+            border: 1.5px solid #e2e8f0;
+        }
+
+        .qty-btn {
+            width: 26px;
+            height: 26px;
+            border-radius: 13px;
+            border: none;
+            background: linear-gradient(135deg, rgba(230, 0, 126, 0.1) 0%, rgba(230, 0, 126, 0.15) 100%);
+            color: var(--color-magenta);
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .qty-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--color-magenta) 0%, var(--color-magenta-dark) 100%);
+            color: white;
+        }
+
+        .qty-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .qty-value {
+            min-width: 28px;
+            text-align: center;
+            font-weight: 700;
+            color: var(--color-magenta);
+        }
+
+        .btn-remove-item {
+            width: 30px;
+            height: 30px;
+            border-radius: 15px;
+            border: none;
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-remove-item:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .free-shipping-bar {
+            padding: 14px;
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+            border-radius: 10px;
+            margin-bottom: 14px;
+            border: 1px solid #fbcfe8;
+        }
+
+        .shipping-text {
+            font-size: 0.8rem;
+            color: #1e293b;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .shipping-progress {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .shipping-progress-bar {
+            height: 100%;
+            background: linear-gradient(135deg, var(--color-magenta) 0%, var(--color-magenta-dark) 100%);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .shipping-unlocked {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #10b981;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .mini-cart-footer {
+            padding: 16px 20px;
+            border-top: 2px solid #f1f5f9;
+            background: white;
+            flex-shrink: 0;
+        }
+
+        .mini-cart-subtotal {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            padding: 12px 14px;
+            background: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .mini-cart-subtotal span {
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .mini-cart-subtotal strong {
+            color: var(--color-magenta);
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .btn-view-cart {
+            display: block;
+            width: 100%;
+            background: linear-gradient(135deg, var(--color-magenta) 0%, var(--color-magenta-dark) 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(230, 0, 126, 0.25);
+        }
+
+        .btn-view-cart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(230, 0, 126, 0.4);
+        }
+
+        @media (max-width: 480px) {
+            .mini-cart-drawer {
+                width: 100%;
+            }
+        }
+    </style>
 </body>
 </html>
