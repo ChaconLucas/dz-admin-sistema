@@ -2631,6 +2631,13 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             background: linear-gradient(135deg, var(--color-magenta), var(--color-magenta-dark));
         }
         
+        /* Classe para esconder chat sem remover do DOM */
+        .chat-hidden {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        
         /* Chat Modal */
         .chat-modal {
             position: fixed;
@@ -7034,10 +7041,10 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             document.getElementById('miniCartDrawer').classList.add('active');
             document.body.style.overflow = 'hidden';
             
-            // Esconder chat quando carrinho abre
+            // Esconder chat quando carrinho abre (usando opacity)
             const chatButton = document.querySelector('.chat-button');
             const chatModal = document.getElementById('chatModal');
-            if (chatButton) chatButton.style.display = 'none';
+            if (chatButton) chatButton.classList.add('chat-hidden');
             if (chatModal) chatModal.classList.remove('active');
         }
 
@@ -7047,9 +7054,9 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             document.getElementById('miniCartDrawer').classList.remove('active');
             document.body.style.overflow = '';
             
-            // Mostrar chat quando carrinho fecha
+            // Mostrar chat quando carrinho fecha (removendo classe)
             const chatButton = document.querySelector('.chat-button');
-            if (chatButton) chatButton.style.display = 'block';
+            if (chatButton) chatButton.classList.remove('chat-hidden');
         }
 
         // Event Listeners
