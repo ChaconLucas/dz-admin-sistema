@@ -771,8 +771,14 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         /* Banner Carrossel Moderno */
         .banner-carousel {
             position: relative;
-            width: 100%;
-            overflow: visible;
+            width: 100vw;
+            overflow: hidden;
+            margin-top: -5px; /* Banner mais próximo da navbar */
+            margin-bottom: 0;
+            margin-left: -50vw;
+            margin-right: -50vw;
+            padding: 0;
+            left: 50%;
         }
         
         .carousel-container {
@@ -780,17 +786,15 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             width: 100%;
             display: flex;
             transition: transform 0.5s ease-in-out;
+            margin: 0;
+            padding: 0;
         }
         
         .carousel-slide {
             min-width: 100%;
+            margin: 0;
+            padding: 0;
             height: 100%;
-            padding: 60px 40px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            max-width: 1200px;
-            margin: 0 auto;
             position: relative;
         }
         
@@ -3372,11 +3376,11 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         .dz-hero-slide {
             position: relative;
             width: 100%;
-            height: 65vh;
-            min-height: 450px;
+            height: 70vh;
+            min-height: 500px;
             max-height: none;
             background-size: cover;
-            background-position: 60% center;
+            background-position: center center;
             background-repeat: no-repeat;
             border-radius: 0;
             overflow: hidden;
@@ -7029,6 +7033,12 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             document.getElementById('miniCartOverlay').classList.add('active');
             document.getElementById('miniCartDrawer').classList.add('active');
             document.body.style.overflow = 'hidden';
+            
+            // Esconder chat quando carrinho abre
+            const chatButton = document.querySelector('.chat-button');
+            const chatModal = document.getElementById('chatModal');
+            if (chatButton) chatButton.style.display = 'none';
+            if (chatModal) chatModal.classList.remove('active');
         }
 
         function closeMiniCart() {
@@ -7036,6 +7046,10 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             document.getElementById('miniCartOverlay').classList.remove('active');
             document.getElementById('miniCartDrawer').classList.remove('active');
             document.body.style.overflow = '';
+            
+            // Mostrar chat quando carrinho fecha
+            const chatButton = document.querySelector('.chat-button');
+            if (chatButton) chatButton.style.display = 'block';
         }
 
         // Event Listeners

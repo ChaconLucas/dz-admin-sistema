@@ -2002,27 +2002,43 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
             }
         }
         
-        // Atualizar preço da variação
+        // Atualizar preço e promoção da variação
         const preco = parseFloat(buttonElement.dataset.preco);
         const precoPromo = buttonElement.dataset.precoPromo ? parseFloat(buttonElement.dataset.precoPromo) : null;
         
-        if (precoPromo && precoPromo > 0) {
-            // Variação tem preço promocional
-            const precoCurrentElement = document.querySelector('.price-current');
-            const precoOldElement = document.querySelector('.price-old');
+        const priceSection = document.querySelector('.produto-price-section');
+        if (!priceSection) return;
+        
+        // Verificar se variação tem promoção válida
+        const temPromocao = precoPromo && precoPromo > 0 && precoPromo < preco;
+        
+        if (temPromocao) {
+            // VARIAÇÃO COM PROMOÇÃO - Reorganizar HTML para mostrar promoção
+            const desconto = Math.round(((preco - precoPromo) / preco) * 100);
             
-            if (precoCurrentElement) {
-                precoCurrentElement.textContent = 'R$ ' + precoPromo.toFixed(2).replace('.', ',');
-            }
-            if (precoOldElement) {
-                precoOldElement.textContent = 'R$ ' + preco.toFixed(2).replace('.', ',');
-            }
-        } else if (preco && preco > 0) {
-            // Variação tem apenas preço normal
-            const precoCurrentElement = document.querySelector('.price-current');
-            if (precoCurrentElement) {
-                precoCurrentElement.textContent = 'R$ ' + preco.toFixed(2).replace('.', ',');
-            }
+            priceSection.innerHTML = `
+                <div class="price-badge-sale">Em Promoção</div>
+                <div class="price-wrapper">
+                    <div class="price-main">
+                        <span class="price-label">De:</span>
+                        <span class="price-old">R$ ${preco.toFixed(2).replace('.', ',')}</span>
+                    </div>
+                    <div class="price-main">
+                        <span class="price-label">Por:</span>
+                        <span class="price-current sale">R$ ${precoPromo.toFixed(2).replace('.', ',')}</span>
+                    </div>
+                    <div class="price-discount">
+                        Economize ${desconto}%
+                    </div>
+                </div>
+            `;
+        } else {
+            // VARIAÇÃO SEM PROMOÇÃO - Apenas preço normal
+            priceSection.innerHTML = `
+                <div class="price-wrapper">
+                    <span class="price-current">R$ ${preco.toFixed(2).replace('.', ',')}</span>
+                </div>
+            `;
         }
         
         // Atualizar estoque da variação
