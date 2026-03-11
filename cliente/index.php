@@ -1122,28 +1122,109 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             justify-content: center;
             position: relative;
             overflow: hidden;
+            border-radius: 12px;
         }
         
-        .produto-image::before {
-            content: '';
+        /* Badges - aplicar APENAS quando houver classe específica */
+        .produto-image.novo::before {
+            content: 'NOVO';
             position: absolute;
             top: 10px;
             right: 10px;
-            width: 60px;
-            height: 20px;
+            padding: 4px 10px;
+            min-height: 22px;
+            max-width: calc(100% - 20px);
             background: #10b981;
             color: white;
-            border-radius: 10px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            display: flex;
+            border-radius: 12px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            line-height: 1.3;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            z-index: 3;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
         }
         
-        .produto-image.novo::before { content: 'NOVO'; background: #10b981; }
-        .produto-image.lancamento::before { content: 'LANÇAMENTO'; background: #f59e0b; }
-        .produto-image.exclusivo::before { content: 'EXCLUSIVO'; background: #8b5cf6; }
+        .produto-image.promocao::before {
+            content: 'PROMOÇÃO';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 10px;
+            min-height: 22px;
+            max-width: calc(100% - 20px);
+            background: #ef4444;
+            color: white;
+            border-radius: 12px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            line-height: 1.3;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            z-index: 3;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
+        }
+        
+        .produto-image.lancamento::before {
+            content: 'LANÇAMENTO';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 10px;
+            min-height: 22px;
+            max-width: calc(100% - 20px);
+            background: #f59e0b;
+            color: white;
+            border-radius: 12px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            line-height: 1.3;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            z-index: 3;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
+        }
+        
+        .produto-image.exclusivo::before {
+            content: 'EXCLUSIVO';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 10px;
+            min-height: 22px;
+            max-width: calc(100% - 20px);
+            background: #8b5cf6;
+            color: white;
+            border-radius: 12px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            line-height: 1.3;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            z-index: 3;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
+        }
         
         .produto-placeholder {
             font-size: 3rem;
@@ -3865,7 +3946,8 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                         <!-- Produto: <?php echo htmlspecialchars($product['nome']); ?> -->
                         <a href="produto.php?id=<?php echo $product['id']; ?>" class="produto-card-link">
                             <div class="produto-card">
-                                <div class="produto-image novo">
+                                <?php $badge = getProductBadge($product); ?>
+                                <div class="produto-image<?php echo !empty($badge) ? ' ' . $badge : ''; ?>">
                                     <?php if (!empty($product['imagem_principal'])): ?>
                                     <img src="../admin/assets/images/produtos/<?php echo htmlspecialchars($product['imagem_principal']); ?>" 
                                          alt="<?php echo htmlspecialchars($product['nome']); ?>"
@@ -3959,7 +4041,8 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                         <!-- Produto: <?php echo htmlspecialchars($product['nome']); ?> -->
                         <a href="produto.php?id=<?php echo $product['id']; ?>" class="produto-card-link">
                             <div class="produto-card">
-                                <div class="produto-image">
+                                <?php $badge = getProductBadge($product); ?>
+                                <div class="produto-image<?php echo !empty($badge) ? ' ' . $badge : ''; ?>">
                                     <?php if (!empty($product['imagem_principal'])): ?>
                                     <img src="../admin/assets/images/produtos/<?php echo htmlspecialchars($product['imagem_principal']); ?>" 
                                          alt="<?php echo htmlspecialchars($product['nome']); ?>"

@@ -1071,26 +1071,94 @@
             object-fit: cover;
         }
         
-        .produto-image::before {
-            content: '';
+        /* Badges - aplicar APENAS quando houver classe específica */
+        .produto-image.novo::before { 
+            content: 'NOVO'; 
             position: absolute;
             top: 10px;
             right: 10px;
-            width: 60px;
-            height: 20px;
+            padding: 6px 12px;
+            min-height: 28px;
+            max-width: calc(100% - 20px);
             background: #10b981;
             color: white;
             border-radius: 10px;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
+            white-space: nowrap;
+            text-transform: uppercase;
+            z-index: 3;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
         }
         
-        .produto-image.novo::before { content: 'NOVO'; background: #10b981; }
-        .produto-image.lancamento::before { content: 'LANÇAMENTO'; background: #f59e0b; }
-        .produto-image.exclusivo::before { content: 'EXCLUSIVO'; background: #8b5cf6; }
+        .produto-image.promocao::before { 
+            content: 'PROMOÇÃO'; 
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 6px 12px;
+            min-height: 28px;
+            max-width: calc(100% - 20px);
+            background: #ef4444;
+            color: white;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            text-transform: uppercase;
+            z-index: 3;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .produto-image.lancamento::before { 
+            content: 'LANÇAMENTO'; 
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 6px 12px;
+            min-height: 28px;
+            max-width: calc(100% - 20px);
+            background: #f59e0b;
+            color: white;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            text-transform: uppercase;
+            z-index: 3;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+        
+        .produto-image.exclusivo::before { 
+            content: 'EXCLUSIVO'; 
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 6px 12px;
+            min-height: 28px;
+            max-width: calc(100% - 20px);
+            background: #8b5cf6;
+            color: white;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            text-transform: uppercase;
+            z-index: 3;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
         
         .produto-placeholder {
             font-size: 3rem;

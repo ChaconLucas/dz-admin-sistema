@@ -72,8 +72,10 @@ if (!empty($menu) && $menu === 'lancamentos') {
             p.preco_promocional,
             p.estoque,
             p.imagem_principal,
+            p.created_at,
             c.nome AS categoria,
-            fp.position
+            fp.position,
+            'yes' AS is_lancamento
         FROM home_featured_products fp
         INNER JOIN produtos p ON fp.product_id = p.id
         LEFT JOIN categorias c ON p.categoria_id = c.id
@@ -182,9 +184,12 @@ $query = "
         p.preco_promocional,
         p.estoque,
         p.imagem_principal,
-        c.nome AS categoria
+        p.created_at,
+        c.nome AS categoria,
+        CASE WHEN fp.product_id IS NOT NULL THEN 'yes' ELSE NULL END AS is_lancamento
     FROM produtos p
     LEFT JOIN categorias c ON p.categoria_id = c.id
+    LEFT JOIN home_featured_products fp ON p.id = fp.product_id AND fp.section_key = 'launches'
     WHERE p.status = 'ativo'
 ";
 
@@ -449,9 +454,11 @@ if (!empty($categoria)) {
                     
                     <?php foreach ($produtos as $product): ?>
                     <!-- Produto: <?php echo htmlspecialchars($product['nome']); ?> -->
+                    <?php $badge = getProductBadge($product); ?>
+                    <!-- Badge: [<?php echo $badge ?: 'NENHUM'; ?>] -->
                     <a href="produto.php?id=<?php echo $product['id']; ?>" class="produto-card-link">
                         <div class="produto-card">
-                            <div class="produto-image">
+                            <div class="produto-image<?php echo !empty($badge) ? ' ' . $badge : ''; ?>">
                                 <?php if (!empty($product['imagem_principal'])): ?>
                                 <img src="../admin/assets/images/produtos/<?php echo htmlspecialchars($product['imagem_principal']); ?>" 
                                      alt="<?php echo htmlspecialchars($product['nome']); ?>"
@@ -575,6 +582,114 @@ if (!empty($categoria)) {
 
 <!-- CSS do Mini Cart -->
 <style>
+    /* ===== BADGES/SELOS DOS CARDS (ESPECÍFICO PRODUTOS.PHP) ===== */
+    .produtos-grid-page .produto-image {
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+    }
+    
+    /* Badges - aplicar APENAS quando houver classe específica */
+    .produtos-grid-page .produto-image.novo::before {
+        content: 'NOVO';
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 6px 12px;
+        min-height: 28px;
+        max-width: calc(100% - 20px);
+        background: #10b981;
+        color: white;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        line-height: 1.3;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        z-index: 3;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        box-sizing: border-box;
+    }
+    
+    .produtos-grid-page .produto-image.promocao::before {
+        content: 'PROMOÇÃO';
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 4px 10px;
+        min-height: 22px;
+        max-width: calc(100% - 20px);
+        background: #ef4444;
+        color: white;
+        border-radius: 12px;
+        font-size: 0.6rem;
+        font-weight: 700;
+        line-height: 1.3;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        z-index: 3;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        box-sizing: border-box;
+    }
+    
+    .produtos-grid-page .produto-image.lancamento::before {
+        content: 'LANÇAMENTO';
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 4px 10px;
+        min-height: 22px;
+        max-width: calc(100% - 20px);
+        background: #f59e0b;
+        color: white;
+        border-radius: 12px;
+        font-size: 0.6rem;
+        font-weight: 700;
+        line-height: 1.3;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        z-index: 3;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        box-sizing: border-box;
+    }
+    
+    .produtos-grid-page .produto-image.exclusivo::before {
+        content: 'EXCLUSIVO';
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 4px 10px;
+        min-height: 22px;
+        max-width: calc(100% - 20px);
+        background: #8b5cf6;
+        color: white;
+        border-radius: 12px;
+        font-size: 0.6rem;
+        font-weight: 700;
+        line-height: 1.3;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        z-index: 3;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        box-sizing: border-box;
+    }
+    
     /* ===== CONTAINER PRINCIPAL LARGO ===== */
     .produtos-container-wide {
         max-width: 1500px;

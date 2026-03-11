@@ -114,7 +114,9 @@ class CMSProvider {
                 p.preco_promocional,
                 p.imagem_principal,
                 p.slug,
-                fp.position
+                p.created_at,
+                fp.position,
+                'yes' AS is_lancamento
             FROM home_featured_products fp
             INNER JOIN produtos p ON fp.product_id = p.id
             WHERE fp.section_key = 'launches'
@@ -174,8 +176,11 @@ class CMSProvider {
                 p.preco_promocional,
                 p.imagem_principal,
                 p.slug,
-                p.estoque
+                p.estoque,
+                p.created_at,
+                CASE WHEN fp.product_id IS NOT NULL THEN 'yes' ELSE NULL END AS is_lancamento
             FROM produtos p
+            LEFT JOIN home_featured_products fp ON p.id = fp.product_id AND fp.section_key = 'launches'
             WHERE p.status = 'ativo'
             ORDER BY p.created_at DESC, p.id DESC
             LIMIT ?
@@ -605,6 +610,40 @@ function isOnSale($product) {
     return isset($product['preco_promocional']) 
            && $product['preco_promocional'] > 0 
            && $product['preco_promocional'] < $product['preco'];
+}
+
+/**
+ * Helper: Determinar qual badge/selo deve ser exibido no card
+ * 
+ * @param array $product Array do produto
+ * @return string Classe CSS do badge ('promocao', 'lancamento', 'novo', ou '' para nenhum)
+ */
+function getProductBadge($product) {
+    // Prioridade 1: Verificar se está em promoção
+    if (isOnSale($product)) {
+        return 'promocao';
+    }
+    
+    // Prioridade 2: Verificar se é lançamento (produto selecionado no CMS)
+    if (isset($product['is_lancamento']) && $product['is_lancamento'] === 'yes') {
+        return 'lancamento';
+    }
+    
+    // Prioridade 3: Verificar se é novo (últimos 30 dias)
+    if (isset($product['created_at']) && !empty($product['created_at'])) {
+        $createdDate = new DateTime($product['created_at']);
+        $now = new DateTime();
+        $diff = $now->diff($createdDate);
+        $daysDiff = $diff->days;
+        
+        // Se foi criado há menos de 30 dias
+        if ($daysDiff <= 30) {
+            return 'novo';
+        }
+    }
+    
+    // Sem badge
+    return '';
 }
 
 /**
