@@ -382,6 +382,7 @@
 
         header.header-loja .nav-right .search-panel,
         .header-loja .search-panel {
+            position: relative;
             width: 0 !important;
             max-width: 0 !important;
             opacity: 0 !important;
@@ -416,7 +417,7 @@
             width: 100% !important;
             min-width: 160px !important;
             max-width: 220px !important;
-            padding: 10px 14px !important;
+            padding: 10px 40px 10px 14px !important;
             border-radius: 20px !important;
             border: 1px solid rgba(230, 0, 126, 0.2) !important;
             background: white !important;
@@ -430,6 +431,34 @@
         .search-panel input:focus {
             border-color: var(--color-magenta);
             box-shadow: 0 8px 20px rgba(230, 0, 126, 0.2);
+        }
+        
+        /* Botão de submit da busca */
+        .search-submit-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            transition: color 0.3s ease;
+            border-radius: 4px;
+        }
+        
+        .search-submit-btn:hover {
+            color: var(--color-magenta);
+            background: rgba(230, 0, 126, 0.1);
+        }
+        
+        .search-submit-btn svg {
+            width: 18px;
+            height: 18px;
         }
         
         .btn-icon {

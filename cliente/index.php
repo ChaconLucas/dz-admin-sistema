@@ -430,6 +430,7 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
 
         header.header-loja .nav-right .search-panel,
         .header-loja .search-panel {
+            position: relative;
             width: 0 !important;
             max-width: 0 !important;
             opacity: 0 !important;
@@ -464,7 +465,7 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             width: 100% !important;
             min-width: 160px !important;
             max-width: 220px !important;
-            padding: 10px 14px !important;
+            padding: 10px 40px 10px 14px !important;
             border-radius: 20px !important;
             border: 1px solid rgba(230, 0, 126, 0.2) !important;
             background: white !important;
@@ -478,6 +479,34 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         .search-panel input:focus {
             border-color: var(--color-magenta);
             box-shadow: 0 8px 20px rgba(230, 0, 126, 0.2);
+        }
+        
+        /* Botão de submit da busca */
+        .search-submit-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            transition: color 0.3s ease;
+            border-radius: 4px;
+        }
+        
+        .search-submit-btn:hover {
+            color: var(--color-magenta);
+            background: rgba(230, 0, 126, 0.1);
+        }
+        
+        .search-submit-btn svg {
+            width: 18px;
+            height: 18px;
         }
         
         .btn-icon {
@@ -3716,12 +3745,12 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                     </li>
                     
                     <li class="has-dropdown">
-                        <a href="produtos.php?menu=marcas">MARCAS <span class="dropdown-icon">▼</span></a>
+                        <a href="produtos.php?secao=marcas">MARCAS <span class="dropdown-icon">▼</span></a>
                         <div class="dropdown-menu">
                             <ul>
-                                <li><a href="produtos.php?marca=D&Z">D&Z</a></li>
+                                <li><a href="produtos.php?marca=D%26Z">D&Z</a></li>
                                 <li><a href="produtos.php?marca=Sioux">Sioux</a></li>
-                                <li><a href="produtos.php?marca=Sunny's">Sunny's</a></li>
+                                <li><a href="produtos.php?marca=Sunny%27s">Sunny's</a></li>
                                 <li><a href="produtos.php?marca=Crush">Crush</a></li>
                                 <li><a href="produtos.php?marca=XD">XD</a></li>
                             </ul>
@@ -3732,9 +3761,14 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             
             <!-- Lado direito: Busca + Ícones -->
             <div class="nav-right">
-                <div class="search-panel" id="searchPanel">
-                    <input type="search" id="searchInput" placeholder="Buscar produtos" aria-label="Buscar produtos">
-                </div>
+                <form action="produtos.php" method="GET" class="search-panel" id="searchPanel">
+                    <input type="search" id="searchInput" name="busca" placeholder="Buscar produtos" aria-label="Buscar produtos">
+                    <button type="submit" class="search-submit-btn" aria-label="Pesquisar">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                    </button>
+                </form>
                 
                 <!-- Área do usuário -->
                 <div class="user-area">
@@ -5160,26 +5194,41 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
         if (searchToggle && searchPanel) {
             searchToggle.addEventListener('click', (e) => {
                 e.preventDefault();
-                e.stopPropagation(); // Impedir propagação do evento
+                e.stopPropagation();
+                
+                const isOpen = searchPanel.classList.contains('active');
+                const searchValue = searchInput ? searchInput.value.trim() : '';
                 
                 console.log('🔍 Botão de pesquisa clicado');
-                console.log('   - Target:', e.target);
-                console.log('   - ID:', e.currentTarget.id);
+                console.log('   - Painel aberto:', isOpen);
+                console.log('   - Valor:', searchValue);
                 
-                // Usar requestAnimationFrame para suavizar a animação
-                requestAnimationFrame(() => {
-                    const isOpen = searchPanel.classList.toggle('active');
-                    searchToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-                    
-                    if (isOpen && searchInput) {
-                        // Delay para sincronizar com a animação
-                        setTimeout(() => {
-                            requestAnimationFrame(() => {
-                                searchInput.focus();
-                            });
-                        }, 350);
-                    }
-                });
+                // Se painel estiver aberto E houver texto, enviar formulário
+                if (isOpen && searchValue) {
+                    console.log('✅ Enviando busca para: produtos.php?busca=' + searchValue);
+                    window.location.href = 'produtos.php?busca=' + encodeURIComponent(searchValue);
+                    return;
+                }
+                
+                // Se painel fechado, abrir
+                if (!isOpen) {
+                    requestAnimationFrame(() => {
+                        searchPanel.classList.add('active');
+                        searchToggle.setAttribute('aria-expanded', 'true');
+                        
+                        if (searchInput) {
+                            setTimeout(() => {
+                                requestAnimationFrame(() => {
+                                    searchInput.focus();
+                                });
+                            }, 350);
+                        }
+                    });
+                    return;
+                }
+                
+                // Se painel aberto mas sem texto, fechar
+                closeSearchPanel();
             });
         }
 

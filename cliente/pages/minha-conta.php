@@ -1880,12 +1880,12 @@ $pageTitle = 'Minha Conta - D&Z';
                     </li>
                     
                     <li class="has-dropdown">
-                        <a href="../produtos.php?menu=marcas">MARCAS <span class="dropdown-icon">▼</span></a>
+                        <a href="../produtos.php?secao=marcas">MARCAS <span class="dropdown-icon">▼</span></a>
                         <div class="dropdown-menu">
                             <ul>
-                                <li><a href="../produtos.php?marca=D&Z">D&Z</a></li>
+                                <li><a href="../produtos.php?marca=D%26Z">D&Z</a></li>
                                 <li><a href="../produtos.php?marca=Sioux">Sioux</a></li>
-                                <li><a href="../produtos.php?marca=Sunny's">Sunny's</a></li>
+                                <li><a href="../produtos.php?marca=Sunny%27s">Sunny's</a></li>
                                 <li><a href="../produtos.php?marca=Crush">Crush</a></li>
                                 <li><a href="../produtos.php?marca=XD">XD</a></li>
                             </ul>

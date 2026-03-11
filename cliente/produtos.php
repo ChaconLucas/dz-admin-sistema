@@ -2320,20 +2320,39 @@ if (!empty($categoria)) {
             e.preventDefault();
             e.stopPropagation();
             
-            console.log('🔍 Botão de pesquisa clicado');
+            const isOpen = searchPanel.classList.contains('active');
+            const searchValue = searchInput ? searchInput.value.trim() : '';
             
-            requestAnimationFrame(() => {
-                const isOpen = searchPanel.classList.toggle('active');
-                searchToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-                
-                if (isOpen && searchInput) {
-                    setTimeout(() => {
-                        requestAnimationFrame(() => {
-                            searchInput.focus();
-                        });
-                    }, 350);
-                }
-            });
+            console.log('🔍 Botão de pesquisa clicado');
+            console.log('   - Painel aberto:', isOpen);
+            console.log('   - Valor:', searchValue);
+            
+            // Se painel estiver aberto E houver texto, enviar formulário
+            if (isOpen && searchValue) {
+                console.log('✅ Enviando busca para: produtos.php?busca=' + searchValue);
+                window.location.href = 'produtos.php?busca=' + encodeURIComponent(searchValue);
+                return;
+            }
+            
+            // Se painel fechado, abrir
+            if (!isOpen) {
+                requestAnimationFrame(() => {
+                    searchPanel.classList.add('active');
+                    searchToggle.setAttribute('aria-expanded', 'true');
+                    
+                    if (searchInput) {
+                        setTimeout(() => {
+                            requestAnimationFrame(() => {
+                                searchInput.focus();
+                            });
+                        }, 350);
+                    }
+                });
+                return;
+            }
+            
+            // Se painel aberto mas sem texto, fechar
+            closeSearchPanel();
         });
     }
 
