@@ -1084,6 +1084,21 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             margin-bottom: 40px;
         }
         
+        /* Link wrapper para tornar cards clicáveis */
+        .produto-card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: all 0.3s ease;
+            flex: 0 0 280px;
+        }
+        
+        .produto-card-link:hover .produto-card {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+            border-color: rgba(230, 0, 126, 0.2);
+        }
+        
         .produto-card {
             flex: 0 0 280px;
             background: white;
@@ -1094,12 +1109,8 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             border: 1px solid #f1f5f9;
             display: flex;
             flex-direction: column;
-        }
-        
-        .produto-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-            border-color: rgba(230, 0, 126, 0.2);
+            height: 480px;
+            min-height: 480px;
         }
         
         .produto-image {
@@ -1145,6 +1156,7 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             display: flex;
             flex-direction: column;
             flex: 1;
+            justify-content: space-between;
         }
         
         .produto-title {
@@ -1156,7 +1168,9 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             -webkit-box-orient: vertical;
             overflow: hidden;
             text-overflow: ellipsis;
-            min-height: 2.6rem;
+            height: 3.4rem;
+            min-height: 3.4rem;
+            max-height: 3.4rem;
             color: #1e293b;
             margin-bottom: 8px;
             line-height: 1.3;
@@ -1172,6 +1186,9 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            height: 2.7rem;
+            min-height: 2.7rem;
+            max-height: 2.7rem;
         }
         
         .produto-price {
@@ -1179,7 +1196,9 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             font-weight: 700;
             color: var(--color-magenta);
             margin-bottom: 15px;
+            height: 2.25rem;
             min-height: 2.25rem;
+            max-height: 2.25rem;
             display: flex;
             align-items: center;
             flex-wrap: wrap;
@@ -1315,8 +1334,14 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                 padding: 0 20px;
             }
             
+            .produto-card-link {
+                flex: 0 0 250px;
+            }
+            
             .produto-card {
                 flex: 0 0 250px;
+                height: 460px;
+                min-height: 460px;
             }
             
             .produto-image {
@@ -1359,8 +1384,14 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                 padding: 0 15px;
             }
             
+            .produto-card-link {
+                flex: 0 0 220px;
+            }
+            
             .produto-card {
                 flex: 0 0 220px;
+                height: 440px;
+                min-height: 440px;
             }
             
             .produto-image {
@@ -3832,42 +3863,44 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                     <?php if (!empty($featuredProducts)): ?>
                         <?php foreach ($featuredProducts as $product): ?>
                         <!-- Produto: <?php echo htmlspecialchars($product['nome']); ?> -->
-                        <div class="produto-card">
-                            <div class="produto-image novo">
-                                <?php if (!empty($product['imagem_principal'])): ?>
-                                <img src="../admin/assets/images/produtos/<?php echo htmlspecialchars($product['imagem_principal']); ?>" 
-                                     alt="<?php echo htmlspecialchars($product['nome']); ?>"
-                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;"
-                                     onerror="this.parentElement.innerHTML='<div class=\'produto-placeholder\'>💅</div>';">
-                                <?php else: ?>
-                                <div class="produto-placeholder">💅</div>
-                                <?php endif; ?>
-                            </div>
-                            <div class="produto-content">
-                                <h3 class="produto-title"><?php echo htmlspecialchars($product['nome']); ?></h3>
-                                <p class="produto-description"><?php echo htmlspecialchars(substr($product['descricao'] ?? '', 0, 80)); ?><?php echo strlen($product['descricao'] ?? '') > 80 ? '...' : ''; ?></p>
-                                <div class="produto-price">
-                                    <?php if (isOnSale($product)): ?>
-                                        <span style="text-decoration: line-through; opacity: 0.6; font-size: 0.85em; margin-right: 8px;">
-                                            <?php echo formatPrice($product['preco']); ?>
-                                        </span>
-                                        <span style="color: var(--color-magenta); font-weight: 700;">
-                                            <?php echo formatPrice($product['preco_promocional']); ?>
-                                        </span>
+                        <a href="produto.php?id=<?php echo $product['id']; ?>" class="produto-card-link">
+                            <div class="produto-card">
+                                <div class="produto-image novo">
+                                    <?php if (!empty($product['imagem_principal'])): ?>
+                                    <img src="../admin/assets/images/produtos/<?php echo htmlspecialchars($product['imagem_principal']); ?>" 
+                                         alt="<?php echo htmlspecialchars($product['nome']); ?>"
+                                         style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;"
+                                         onerror="this.parentElement.innerHTML='<div class=\'produto-placeholder\'>💅</div>';">
                                     <?php else: ?>
-                                        <?php echo formatPrice($product['preco']); ?>
+                                    <div class="produto-placeholder">💅</div>
                                     <?php endif; ?>
                                 </div>
-                                <div class="produto-actions">
-                                    <button class="btn-add-cart" onclick="addToCart(<?php echo $product['id']; ?>, '<?php echo htmlspecialchars($product['nome'], ENT_QUOTES); ?>', event)">
-                                        🛒 Adicionar
-                                    </button>
-                                    <button class="btn-buy-now" onclick="buyNow(<?php echo $product['id']; ?>, event)">
-                                        Comprar
-                                    </button>
+                                <div class="produto-content">
+                                    <h3 class="produto-title"><?php echo htmlspecialchars($product['nome']); ?></h3>
+                                    <p class="produto-description"><?php echo htmlspecialchars(substr($product['descricao'] ?? '', 0, 80)); ?><?php echo strlen($product['descricao'] ?? '') > 80 ? '...' : ''; ?></p>
+                                    <div class="produto-price">
+                                        <?php if (isOnSale($product)): ?>
+                                            <span style="text-decoration: line-through; opacity: 0.6; font-size: 0.85em; margin-right: 8px;">
+                                                <?php echo formatPrice($product['preco']); ?>
+                                            </span>
+                                            <span style="color: var(--color-magenta); font-weight: 700;">
+                                                <?php echo formatPrice($product['preco_promocional']); ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <?php echo formatPrice($product['preco']); ?>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="produto-actions" onclick="event.stopPropagation(); event.preventDefault();">
+                                        <button class="btn-add-cart" onclick="addToCart(<?php echo $product['id']; ?>, '<?php echo htmlspecialchars($product['nome'], ENT_QUOTES); ?>', event)">
+                                            🛒 Adicionar
+                                        </button>
+                                        <button class="btn-buy-now" onclick="buyNow(<?php echo $product['id']; ?>, event)">
+                                            Comprar
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <!-- Fallback: Produto Exemplo -->
@@ -3924,42 +3957,44 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
                     <?php if (!empty($allProducts)): ?>
                         <?php foreach ($allProducts as $product): ?>
                         <!-- Produto: <?php echo htmlspecialchars($product['nome']); ?> -->
-                        <div class="produto-card">
-                            <div class="produto-image">
-                                <?php if (!empty($product['imagem_principal'])): ?>
-                                <img src="../admin/assets/images/produtos/<?php echo htmlspecialchars($product['imagem_principal']); ?>" 
-                                     alt="<?php echo htmlspecialchars($product['nome']); ?>"
-                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;"
-                                     onerror="this.parentElement.innerHTML='<div class=\'produto-placeholder\'>💅</div>';">
-                                <?php else: ?>
-                                <div class="produto-placeholder">💅</div>
-                                <?php endif; ?>
-                            </div>
-                            <div class="produto-content">
-                                <h3 class="produto-title"><?php echo htmlspecialchars($product['nome']); ?></h3>
-                                <p class="produto-description"><?php echo htmlspecialchars(substr($product['descricao'] ?? '', 0, 80)); ?><?php echo strlen($product['descricao'] ?? '') > 80 ? '...' : ''; ?></p>
-                                <div class="produto-price">
-                                    <?php if (isOnSale($product)): ?>
-                                        <span style="text-decoration: line-through; opacity: 0.6; font-size: 0.85em; margin-right: 8px;">
-                                            <?php echo formatPrice($product['preco']); ?>
-                                        </span>
-                                        <span style="color: var(--color-magenta); font-weight: 700;">
-                                            <?php echo formatPrice($product['preco_promocional']); ?>
-                                        </span>
+                        <a href="produto.php?id=<?php echo $product['id']; ?>" class="produto-card-link">
+                            <div class="produto-card">
+                                <div class="produto-image">
+                                    <?php if (!empty($product['imagem_principal'])): ?>
+                                    <img src="../admin/assets/images/produtos/<?php echo htmlspecialchars($product['imagem_principal']); ?>" 
+                                         alt="<?php echo htmlspecialchars($product['nome']); ?>"
+                                         style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;"
+                                         onerror="this.parentElement.innerHTML='<div class=\'produto-placeholder\'>💅</div>';">
                                     <?php else: ?>
-                                        <?php echo formatPrice($product['preco']); ?>
+                                    <div class="produto-placeholder">💅</div>
                                     <?php endif; ?>
                                 </div>
-                                <div class="produto-actions">
-                                    <button class="btn-add-cart" onclick="addToCart(<?php echo $product['id']; ?>, '<?php echo htmlspecialchars($product['nome'], ENT_QUOTES); ?>', event)">
-                                        🛒 Adicionar
-                                    </button>
-                                    <button class="btn-buy-now" onclick="buyNow(<?php echo $product['id']; ?>, event)">
-                                        Comprar
-                                    </button>
+                                <div class="produto-content">
+                                    <h3 class="produto-title"><?php echo htmlspecialchars($product['nome']); ?></h3>
+                                    <p class="produto-description"><?php echo htmlspecialchars(substr($product['descricao'] ?? '', 0, 80)); ?><?php echo strlen($product['descricao'] ?? '') > 80 ? '...' : ''; ?></p>
+                                    <div class="produto-price">
+                                        <?php if (isOnSale($product)): ?>
+                                            <span style="text-decoration: line-through; opacity: 0.6; font-size: 0.85em; margin-right: 8px;">
+                                                <?php echo formatPrice($product['preco']); ?>
+                                            </span>
+                                            <span style="color: var(--color-magenta); font-weight: 700;">
+                                                <?php echo formatPrice($product['preco_promocional']); ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <?php echo formatPrice($product['preco']); ?>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="produto-actions" onclick="event.stopPropagation(); event.preventDefault();">
+                                        <button class="btn-add-cart" onclick="addToCart(<?php echo $product['id']; ?>, '<?php echo htmlspecialchars($product['nome'], ENT_QUOTES); ?>', event)">
+                                            🛒 Adicionar
+                                        </button>
+                                        <button class="btn-buy-now" onclick="buyNow(<?php echo $product['id']; ?>, event)">
+                                            Comprar
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <!-- Fallback: Nenhum produto -->

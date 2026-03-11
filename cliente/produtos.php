@@ -1042,7 +1042,8 @@ if (!empty($categoria)) {
         width: 100%;
         min-width: 100%;
         max-width: 100%;
-        height: auto;
+        height: 480px;
+        min-height: 480px;
         display: flex;
         flex-direction: column;
         transition: all 0.3s ease;
@@ -1053,6 +1054,7 @@ if (!empty($categoria)) {
         flex: 1;
         display: flex;
         flex-direction: column;
+        justify-content: space-between;
     }
     
     /* Empurrar botões para o final */
@@ -1062,9 +1064,9 @@ if (!empty($categoria)) {
     
     /* Garantir alturas fixas dos elementos de conteúdo */
     .produtos-grid-page .produto-card .produto-title {
-        height: 3.38rem;
-        min-height: 3.38rem;
-        max-height: 3.38rem;
+        height: 3.4rem;
+        min-height: 3.4rem;
+        max-height: 3.4rem;
     }
     
     .produtos-grid-page .produto-card .produto-description {
