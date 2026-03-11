@@ -59,7 +59,6 @@ $pageTitle = 'Login - D&Z';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $pageTitle; ?></title>
-    <link rel="stylesheet" href="../css/loja.css">
     <style>
         :root {
             --color-magenta: #E6007E;
@@ -345,5 +344,7 @@ $pageTitle = 'Login - D&Z';
             <p>Não tem uma conta? <a href="register.php">Cadastre-se grátis</a></p>
         </div>
     </div>
+
+<?php require_once '../includes/chat.php'; ?>
 </body>
 </html>

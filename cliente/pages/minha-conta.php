@@ -122,7 +122,6 @@ $pageTitle = 'Minha Conta - D&Z';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $pageTitle; ?></title>
-    <link rel="stylesheet" href="../css/loja.css">
     <style>
         :root {
             --color-magenta: #E6007E;
@@ -2234,6 +2233,13 @@ $pageTitle = 'Minha Conta - D&Z';
             box-shadow: 0 12px 35px rgba(230, 0, 126, 0.6);
         }
         
+        .chat-button.chat-hidden,
+        .chat-modal.chat-hidden {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+        
         /* Chat Tooltip */
         .chat-tooltip {
             position: absolute;
@@ -2531,8 +2537,41 @@ $pageTitle = 'Minha Conta - D&Z';
                 logoContainer.style.cursor = 'pointer';
             }
             
+            // ===== MONITORAR MINI-CART E ESCONDER CHAT =====
+            function monitorMiniCart() {
+                const miniCart = document.getElementById('miniCartDrawer');
+                
+                if (!miniCart) {
+                    console.log('Mini-cart não encontrado');
+                    return;
+                }
+                
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.attributeName === 'class') {
+                            const chatBtn = document.querySelector('.chat-button');
+                            const chatModal = document.getElementById('chatModal');
+                            
+                            if (miniCart.classList.contains('active')) {
+                                if (chatBtn) chatBtn.classList.add('chat-hidden');
+                                if (chatModal) {
+                                    chatModal.classList.add('chat-hidden');
+                                    chatModal.classList.remove('active');
+                                }
+                            } else {
+                                if (chatBtn) chatBtn.classList.remove('chat-hidden');
+                                if (chatModal) chatModal.classList.remove('chat-hidden');
+                            }
+                        }
+                    });
+                });
+                
+                observer.observe(miniCart, { attributes: true });
+            }
+            
             // ===== INICIALIZAR CHAT =====
             createChatButton();
+            setTimeout(monitorMiniCart, 500);
             
             // ===== INICIALIZAR MINI CARRINHO =====
             console.log('🛒 Inicializando mini carrinho...');
@@ -2942,6 +2981,15 @@ $pageTitle = 'Minha Conta - D&Z';
                 document.body.style.overflow = 'hidden';
                 renderMiniCart();
                 console.log('✨ Mini cart aberto com sucesso!');
+                
+                // Esconder chat quando carrinho abre
+                const chatBtn = document.querySelector('.chat-button');
+                const chatModal = document.getElementById('chatModal');
+                if (chatBtn) chatBtn.classList.add('chat-hidden');
+                if (chatModal) {
+                    chatModal.classList.add('chat-hidden');
+                    chatModal.classList.remove('active');
+                }
             } else {
                 console.error('❌ Não foi possível abrir o mini cart - elementos não encontrados!');
             }
@@ -2954,6 +3002,12 @@ $pageTitle = 'Minha Conta - D&Z';
                 overlay.classList.remove('active');
                 drawer.classList.remove('active');
                 document.body.style.overflow = '';
+                
+                // Mostrar chat quando carrinho fecha
+                const chatBtn = document.querySelector('.chat-button');
+                const chatModal = document.getElementById('chatModal');
+                if (chatBtn) chatBtn.classList.remove('chat-hidden');
+                if (chatModal) chatModal.classList.remove('chat-hidden');
             }
         }
 

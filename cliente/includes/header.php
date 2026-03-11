@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>D&Z - Beleza Premium para Você</title>
     
-    <!-- CSS da Loja -->
-    <link rel="stylesheet" href="css/loja.css">
-    
     <!-- Material Symbols (ícones) -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     
@@ -2538,7 +2535,7 @@
             justify-content: center;
             cursor: pointer;
             z-index: 9999;
-            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
+            box-shadow: 0 8px 25px rgba(230, 0, 126, 0.4);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: none;
             color: white;

@@ -55,9 +55,6 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>D&Z - Beleza Premium para Você</title>
     
-    <!-- CSS da Loja -->
-    <link rel="stylesheet" href="css/loja.css">
-    
     <!-- Material Symbols (ícones) -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     

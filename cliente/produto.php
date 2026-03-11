@@ -2309,12 +2309,27 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
         document.getElementById('miniCartOverlay').classList.add('active');
         document.getElementById('miniCartDrawer').classList.add('active');
         document.body.style.overflow = 'hidden';
+        
+        // Esconder chat quando carrinho abre
+        const chatBtn = document.querySelector('.chat-button');
+        const chatModal = document.getElementById('chatModal');
+        if (chatBtn) chatBtn.classList.add('chat-hidden');
+        if (chatModal) {
+            chatModal.classList.add('chat-hidden');
+            chatModal.classList.remove('active');
+        }
     }
 
     function closeMiniCart() {
         document.getElementById('miniCartOverlay').classList.remove('active');
         document.getElementById('miniCartDrawer').classList.remove('active');
         document.body.style.overflow = '';
+        
+        // Mostrar chat quando carrinho fecha
+        const chatBtn = document.querySelector('.chat-button');
+        const chatModal = document.getElementById('chatModal');
+        if (chatBtn) chatBtn.classList.remove('chat-hidden');
+        if (chatModal) chatModal.classList.remove('chat-hidden');
     }
 
     // Event listeners
@@ -2442,4 +2457,5 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
     });
 </script>
 
+<?php require_once 'includes/chat.php'; ?>
 <?php require_once 'includes/footer.php'; ?>
