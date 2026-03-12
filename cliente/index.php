@@ -2618,7 +2618,7 @@ $nomeUsuario = $usuarioLogado ? htmlspecialchars($_SESSION['cliente']['nome']) :
             justify-content: center;
             cursor: pointer;
             z-index: 9999;
-            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
+            box-shadow: 0 8px 25px rgba(230, 0, 126, 0.4);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: none;
             color: white;

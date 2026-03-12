@@ -1864,6 +1864,8 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
     let precoOriginalProduto = '';
     let precoPromoOriginalProduto = '';
     let estoqueOriginalProduto = '';
+    let produtoTemPromocao = false;
+    let htmlOriginalPreco = '';
     
     document.addEventListener('DOMContentLoaded', function() {
         // Salvar imagem original
@@ -1888,6 +1890,13 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
         const stockTextElement = document.querySelector('.stock-text');
         if (stockTextElement) {
             estoqueOriginalProduto = stockTextElement.textContent;
+        }
+        
+        // Verificar se produto tem promoção e salvar HTML original completo
+        const priceSection = document.querySelector('.produto-price-section');
+        if (priceSection) {
+            htmlOriginalPreco = priceSection.innerHTML;
+            produtoTemPromocao = priceSection.querySelector('.price-badge-sale') !== null;
         }
     });
     
@@ -1921,21 +1930,13 @@ $pageTitle = htmlspecialchars($produto['nome']) . ' | D&Z Professional';
         document.getElementById('variacaoSelecionadaEstoque').value = '';
         document.getElementById('variacaoSelecionadaImagem').value = '';
         
-        // Restaurar valores originais do produto (preço e estoque)
-        if (precoOriginalProduto) {
-            const precoCurrentElement = document.querySelector('.price-current');
-            if (precoCurrentElement) {
-                precoCurrentElement.textContent = precoOriginalProduto;
-            }
+        // Restaurar HTML original completo da seção de preço
+        const priceSection = document.querySelector('.produto-price-section');
+        if (priceSection && htmlOriginalPreco) {
+            priceSection.innerHTML = htmlOriginalPreco;
         }
         
-        if (precoPromoOriginalProduto) {
-            const precoOldElement = document.querySelector('.price-old');
-            if (precoOldElement) {
-                precoOldElement.textContent = precoPromoOriginalProduto;
-            }
-        }
-        
+        // Restaurar estoque original
         if (estoqueOriginalProduto) {
             const stockTextElement = document.querySelector('.stock-text');
             const stockIconElement = document.querySelector('.stock-icon');
